@@ -48,7 +48,7 @@ export default async function(req) {
       ? `\n\nIMPORTANT: Do NOT include any of these hotels (already shown to the user):\n${exclude.map((n) => `- ${n}`).join("\n")}\nReturn DIFFERENT hotels only.`
       : "";
 
-    const hotelCount = 30;
+    const hotelCount = 20;
 
     const prompt = `Search the web for hotels in "${destination}" available for check-in ${checkIn} and check-out ${checkOut} for ${adults} adults in ${rooms} room(s).${filterText}${excludeText}
 
@@ -88,7 +88,7 @@ Respond in ${languageName}. Hotel names and descriptions must be in ${languageNa
     const result = await base44.asServiceRole.integrations.Core.InvokeLLM({
       prompt,
       add_context_from_internet: true,
-      model: "gemini_3_1_pro",
+      model: "gemini_3_flash",
       response_json_schema: {
         type: "object",
         additionalProperties: true,

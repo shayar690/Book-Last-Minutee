@@ -4,6 +4,7 @@ import { ArrowLeft, Loader2 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useI18n } from "@/lib/i18n";
 import HotelCard from "@/components/results/HotelCard";
+import SearchLoading from "@/components/results/SearchLoading";
 
 const hotelCache = new Map();
 
@@ -51,6 +52,18 @@ export default function HotelResults() {
 
   // Cache key for this search — preserves results when navigating back from hotel detail.
   const searchKey = `${destination}|${checkIn}|${checkOut}|${adults}|${rooms}|${lang}|${stars}|${meal}|${earlyIn}|${lateOut}|${freeCancel}|${citizenship}`;
+
+  const formatDateWithDay = (dateStr) => {
+    if (!dateStr) return "";
+    const date = new Date(dateStr);
+    const locale = lang === "he" ? "he-IL" : "en-US";
+    const weekday = date.toLocaleDateString(locale, { weekday: "long" });
+    const weekdayClean = lang === "he" ? weekday.replace("יום ", "") : weekday;
+    const dd = String(date.getDate()).padStart(2, "0");
+    const mm = String(date.getMonth() + 1).padStart(2, "0");
+    const yyyy = date.getFullYear();
+    return `${weekdayClean}, ${dd}-${mm}-${yyyy}`;
+  };
 
   // Batch 1 — fast initial results (with cache for back-navigation).
   useEffect(() => {
@@ -144,9 +157,9 @@ export default function HotelResults() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F9F9F9]">
+    <div className="min-h-screen bg-[#F9F9F9] pt-20">
       <div className="max-w-5xl mx-auto px-4 py-6">
-        <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-[#7D7D7D] hover:text-[#2D3035] transition-colors mb-4">
+        <Link to="/" className="inline-flex items-center gap-1.5 px-3 h-10 rounded-lg bg-white border border-[#E5E5E5] text-sm text-[#2D3035] hover:border-[#2D3035] transition-colors mb-4 shadow-sm">
           <ArrowLeft className="w-4 h-4 rtl:rotate-180" strokeWidth={1.5} />
           {t("results.backToSearch")}
         </Link>
@@ -154,7 +167,8 @@ export default function HotelResults() {
           {t("results.hotelsIn")} {destination}
         </h1>
         <p className="text-sm text-[#7D7D7D] mb-4">
-          {checkIn} → {checkOut} · {adults} {t("results.adults")} · {rooms} {t("results.rooms")}
+          <span dir="ltr">{formatDateWithDay(checkIn)} → {formatDateWithDay(checkOut)}</span>
+          {" · "}{adults} {t("results.adults")} · {rooms} {t("results.rooms")}
         </p>
         {hotels.length > 0 && (
           <div className="flex items-center gap-2 mb-4">
@@ -173,10 +187,7 @@ export default function HotelResults() {
           </div>
         )}
         {loading ? (
-          <div className="flex flex-col items-center justify-center py-20 gap-3">
-            <Loader2 className="w-8 h-8 text-[#F5D166] animate-spin" />
-            <p className="text-sm text-[#7D7D7D]">{t("results.hotelsLoading")}</p>
-          </div>
+          <SearchLoading destination={destination} checkIn={checkIn} checkOut={checkOut} />
         ) : hotels.length === 0 ? (
           <div className="text-center py-20">
             {error && <p className="text-sm text-red-500 mb-2">{error}</p>}
