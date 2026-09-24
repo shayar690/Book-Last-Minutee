@@ -128,6 +128,14 @@ export const CURATED_HOTELS: CuratedHotel[] = [
   { name: "Waldorf Astoria Jerusalem", name_he: "וולדורף אסטוריה ירושלים", city: "Jerusalem", city_he: "ירושלים", country: "Israel", country_he: "ישראל", lat: 31.7730, lon: 35.2180 },
   { name: "Isrotel Royal Rimonim Dead Sea", name_he: "רימונים רויאל ים המלח - ישרוטל", city: "Ein Bokek", city_he: "ים המלח", country: "Israel", country_he: "ישראל", lat: 31.0880, lon: 35.3860 },
   { name: "Herods Herzliya", name_he: "הרודס הרצליה", city: "Herzliya", city_he: "הרצליה", country: "Israel", country_he: "ישראל", lat: 32.1610, lon: 34.8040 },
+  { name: "Isrotel King Solomon Eilat", name_he: "המלך שלמה אילת - ישרוטל", city: "Eilat", city_he: "אילת", country: "Israel", country_he: "ישראל", lat: 29.5580, lon: 34.9480 },
+  { name: "Isrotel Royal Garden Eilat", name_he: "רויאל גארדן אילת - ישרוטל", city: "Eilat", city_he: "אילת", country: "Israel", country_he: "ישראל", lat: 29.5550, lon: 34.9500 },
+  { name: "Isrotel Lago Eilat", name_he: "לאגו אילת - ישרוטל", city: "Eilat", city_he: "אילת", country: "Israel", country_he: "ישראל", lat: 29.5570, lon: 34.9520 },
+  { name: "Isrotel Agamim Eilat", name_he: "אגמים אילת - ישרוטל", city: "Eilat", city_he: "אילת", country: "Israel", country_he: "ישראל", lat: 29.5600, lon: 34.9450 },
+  { name: "Isrotel Sport Club Eilat", name_he: "ספורט קלאב אילת - ישרוטל", city: "Eilat", city_he: "אילת", country: "Israel", country_he: "ישראל", lat: 29.5620, lon: 34.9430 },
+  { name: "Dan Eilat", name_he: "מלון דן אילת", city: "Eilat", city_he: "אילת", country: "Israel", country_he: "ישראל", lat: 29.5540, lon: 34.9470 },
+  { name: "Herods Eilat", name_he: "הרודס אילת", city: "Eilat", city_he: "אילת", country: "Israel", country_he: "ישראל", lat: 29.5560, lon: 34.9510 },
+  { name: "Hilton Eilat", name_he: "הילטון אילת", city: "Eilat", city_he: "אילת", country: "Israel", country_he: "ישראל", lat: 29.5530, lon: 34.9490 },
 
   // --- Other iconic ---
   { name: "Atlantis Paradise Island Bahamas", city: "Paradise Island", country: "Bahamas", lat: 25.0850, lon: -77.3140 },
