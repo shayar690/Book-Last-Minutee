@@ -200,7 +200,7 @@ export default function SearchWidget() {
         rooms: guestInfo.rooms,
       });
       navigate(`/hotels?${params.toString()}`);
-    } else if (active === "flights" && (flightOrigin.name || flightDest.name)) {
+    } else if (active === "flights" && flightOrigin.name && flightDest.name) {
       const params = new URLSearchParams({
         origin: flightOrigin.name || "",
         originCode: flightOrigin.code || "",

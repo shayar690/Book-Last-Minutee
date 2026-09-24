@@ -27,8 +27,9 @@ Find REAL hotels from Booking.com, Hotels.com, Expedia, and other major booking 
 - url: Direct link to the hotel on Booking.com
 - description: Short description (1-2 sentences)
 - location: Area or neighborhood within the city
+- distanceToCenter: Distance from city center in km (number, e.g. 0.5 = 500m, 2.5 = 2.5km)
 
-Return at least 12 hotels sorted by price (lowest first). If fewer exist, return as many as available.
+Return at least 20 hotels sorted by price (lowest first). If fewer exist, return as many as available.
 Respond in ${languageName}. Hotel names and descriptions must be in ${languageName}.`;
 
     const result = await base44.asServiceRole.integrations.Core.InvokeLLM({
@@ -55,7 +56,8 @@ Respond in ${languageName}. Hotel names and descriptions must be in ${languageNa
                 amenities: { type: "array", items: { type: "string" } },
                 url: { type: "string" },
                 description: { type: "string" },
-                location: { type: "string" }
+                location: { type: "string" },
+                distanceToCenter: { type: "number" }
               }
             }
           }
