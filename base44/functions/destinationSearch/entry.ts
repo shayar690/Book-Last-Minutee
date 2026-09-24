@@ -1,6 +1,11 @@
 // Destination autocomplete — Photon (hotels, partial-name matching) + OpenStreetMap Nominatim (other).
 // Hotels tab uses Photon (komoot.io) — free, ElasticSearch-backed, returns suggestions as you type
 // (partial name matching) instead of requiring the full hotel name.
+// A curated hotel database supplements Photon for iconic hotels whose OSM name is
+// stored in a local language only (e.g. Arabic in Dubai), so short English prefixes
+// like "Five Pa" can still surface "FIVE Palm Jumeirah Hotel".
+import { searchCuratedHotels } from "../../shared/curatedHotels";
+
 const HOTEL_TYPES = ["hotel", "hostel", "motel", "guest_house", "apartment", "chalet", "resort", "apartment_hotel", "apartments"];
 const AIRPORT_TYPES = ["aerodrome", "helipad", "heliport"];
 
