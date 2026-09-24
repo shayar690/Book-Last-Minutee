@@ -185,7 +185,7 @@ export default function SearchWidget() {
   return (
     <div className="w-full">
       {/* Tab bar */}
-      <div className="flex flex-wrap justify-center gap-2 px-1.5 pb-1.5 pt-4 bg-white/95 rounded-t-2xl shadow-horizon w-full max-w-full overflow-x-auto">
+      <div className="grid grid-cols-2 gap-2 px-1.5 pb-1.5 pt-4 bg-white/95 rounded-t-2xl shadow-horizon w-full max-w-full sm:flex sm:flex-wrap sm:justify-center">
         {TABS.map((tab) => {
           const Icon = tab.icon;
           const isActive = active === tab.id;
@@ -193,9 +193,9 @@ export default function SearchWidget() {
             <button
               key={tab.id}
               onClick={() => (tab.id === "marriageProposals" ? navigate("/marriage-proposals-dubai") : setActive(tab.id))}
-              className={`flex items-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-xl text-sm font-medium transition-colors whitespace-nowrap ${
-                isActive ? "bg-[#2D3035] text-white" : "bg-[#F5D166] text-[#2D3035] hover:bg-[#ECC45A]"
-              }`}
+              className={`flex items-center justify-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-xl text-sm font-medium transition-colors whitespace-nowrap w-full sm:w-auto sm:justify-start ${
+                tab.id === "vacationPackages" ? "col-span-2 sm:col-span-1" : ""
+              } ${isActive ? "bg-[#2D3035] text-white" : "bg-[#F5D166] text-[#2D3035] hover:bg-[#ECC45A]"}`}
             >
               <Icon className="w-4 h-4" strokeWidth={1.5} />
               {t(`tab.${tab.id}`)}
