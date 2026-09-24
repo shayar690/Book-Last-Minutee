@@ -280,8 +280,17 @@ const I18nContext = createContext({
   t: (key) => (translations.en[key] || key),
 });
 
+const LANG_STORAGE_KEY = "atlas_lang";
+
+function getSavedLang() {
+  if (typeof window === "undefined") return null;
+  const saved = window.localStorage.getItem(LANG_STORAGE_KEY);
+  return saved === "he" || saved === "en" ? saved : null;
+}
+
 export function I18nProvider({ children }) {
-  const [lang, setLang] = useState("en");
+  const [lang, setLang] = useState(() => getSavedLang() || "en");
+  const [hasPreference, setHasPreference] = useState(() => getSavedLang() !== null);
   const dir = lang === "he" ? "rtl" : "ltr";
 
   useEffect(() => {
@@ -289,10 +298,43 @@ export function I18nProvider({ children }) {
     document.documentElement.dir = dir;
   }, [lang, dir]);
 
+  // On first visit (no saved preference), detect language by IP geolocation:
+  // visitors from Israel get Hebrew, everyone else gets English.
+  useEffect(() => {
+    if (hasPreference) return;
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 4000);
+    (async () => {
+      try {
+        const res = await fetch("https://ipapi.co/json/", { signal: controller.signal });
+        if (!res.ok) return;
+        const data = await res.json();
+        const country = (data?.country_code || "").toUpperCase();
+        const detected = country === "IL" ? "he" : "en";
+        setLang(detected);
+        window.localStorage.setItem(LANG_STORAGE_KEY, detected);
+      } catch {
+        // keep default (en) on failure
+      } finally {
+        setHasPreference(true);
+      }
+    })();
+    return () => {
+      clearTimeout(timeout);
+      controller.abort();
+    };
+  }, [hasPreference]);
+
+  // Manual language change — persist so it overrides future auto-detection.
+  const changeLang = useCallback((newLang) => {
+    setLang(newLang);
+    if (typeof window !== "undefined") window.localStorage.setItem(LANG_STORAGE_KEY, newLang);
+  }, []);
+
   const t = useCallback((key) => translations[lang][key] || key, [lang]);
 
   return (
-    <I18nContext.Provider value={{ lang, setLang, dir, t }}>
+    <I18nContext.Provider value={{ lang, setLang: changeLang, dir, t }}>
       {children}
     </I18nContext.Provider>
   );
