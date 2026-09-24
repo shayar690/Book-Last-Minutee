@@ -38,6 +38,12 @@ function GuestsField({ t, mode = "rooms" }) {
   const [rooms, setRooms] = useState(1);
   const [children, setChildren] = useState(0);
   const [infants, setInfants] = useState(0);
+  const [groupLimit, setGroupLimit] = useState(false);
+
+  const handleAdultsChange = (newVal) => {
+    setAdults(newVal);
+    if (newVal < 9) setGroupLimit(false);
+  };
   const label = isPassengers ? t("search.passengers") : t("search.guests");
   const summary = isPassengers
     ? [`${adults} ${t("search.adults")}`, `${children} ${t("search.children")}`, infants > 0 ? `${infants} ${t("search.infants")}` : null].filter(Boolean).join(" · ")
@@ -65,7 +71,7 @@ function GuestsField({ t, mode = "rooms" }) {
             transition={{ duration: 0.18 }}
             className="absolute top-full mt-2 z-30 w-64 p-4 rounded-xl bg-white border border-[#C5C5C5] shadow-horizon"
           >
-            <Stepper label={t("search.adults")} hint={isPassengers ? t("search.adultsHint") : null} value={adults} setValue={setAdults} min={1} max={9} />
+            <Stepper label={t("search.adults")} hint={isPassengers ? t("search.adultsHint") : null} value={adults} setValue={handleAdultsChange} min={1} max={9} onMaxAttempt={() => isPassengers && setGroupLimit(true)} />
             <div className="h-px bg-[#EAEAEA] my-3" />
             {isPassengers ? (
               <>
@@ -86,7 +92,7 @@ function GuestsField({ t, mode = "rooms" }) {
                   )}
                 </AnimatePresence>
                 <AnimatePresence>
-                  {adults >= 9 && (
+                  {isPassengers && groupLimit && adults >= 9 && (
                     <motion.p
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: "auto" }}
@@ -108,7 +114,7 @@ function GuestsField({ t, mode = "rooms" }) {
   );
 }
 
-function Stepper({ label, hint, value, setValue, min, max }) {
+function Stepper({ label, hint, value, setValue, min, max, onMaxAttempt }) {
   return (
     <div className="flex items-center justify-between">
       <span className="flex flex-col">
@@ -118,7 +124,7 @@ function Stepper({ label, hint, value, setValue, min, max }) {
       <div className="flex items-center gap-3">
         <button type="button" onClick={() => setValue(Math.max(min, value - 1))} className="w-7 h-7 rounded-full border border-[#C5C5C5] text-[#2D3035] hover:border-[#2D3035]">−</button>
         <span className="w-5 text-center text-sm">{value}</span>
-        <button type="button" onClick={() => setValue(Math.min(max, value + 1))} className="w-7 h-7 rounded-full border border-[#C5C5C5] text-[#2D3035] hover:border-[#2D3035]">+</button>
+        <button type="button" onClick={() => { if (value >= max) { onMaxAttempt?.(); return; } setValue(Math.min(max, value + 1)); }} className="w-7 h-7 rounded-full border border-[#C5C5C5] text-[#2D3035] hover:border-[#2D3035]">+</button>
       </div>
     </div>
   );
