@@ -211,6 +211,131 @@ export const CURATED_HOTELS: CuratedHotel[] = [
   { name: "Raffles Singapore", city: "Singapore", country: "Singapore", lat: 1.2950, lon: 103.8540 },
 ];
 
+export interface CuratedCity {
+  name: string;
+  name_he?: string;
+  country: string;
+  country_he?: string;
+  lat: number;
+  lon: number;
+}
+
+// Curated cities with Hebrew names — enables partial Hebrew matching (e.g. "לימס" → "לימסול")
+// for destinations that Photon/Nominatim can't match from a partial Hebrew query.
+export const CURATED_CITIES: CuratedCity[] = [
+  // --- Cyprus ---
+  { name: "Limassol", name_he: "לימסול", country: "Cyprus", country_he: "קפריסין", lat: 34.6786, lon: 33.0418 },
+  { name: "Larnaca", name_he: "לרנקה", country: "Cyprus", country_he: "קפריסין", lat: 34.9229, lon: 33.6233 },
+  { name: "Paphos", name_he: "פאפוס", country: "Cyprus", country_he: "קפריסין", lat: 34.7720, lon: 32.4297 },
+  { name: "Ayia Napa", name_he: "איה נאפה", country: "Cyprus", country_he: "קפריסין", lat: 34.9833, lon: 33.9999 },
+  { name: "Nicosia", name_he: "ניקוסיה", country: "Cyprus", country_he: "קפריסין", lat: 35.1856, lon: 33.3823 },
+  // --- Greece ---
+  { name: "Athens", name_he: "אתונה", country: "Greece", country_he: "יוון", lat: 37.9838, lon: 23.7275 },
+  { name: "Santorini", name_he: "סנטוריני", country: "Greece", country_he: "יוון", lat: 36.3932, lon: 25.4615 },
+  { name: "Mykonos", name_he: "מיקונוס", country: "Greece", country_he: "יוון", lat: 37.4467, lon: 25.3289 },
+  { name: "Crete", name_he: "כרתים", country: "Greece", country_he: "יוון", lat: 35.2400, lon: 24.8093 },
+  { name: "Rhodes", name_he: "רודוס", country: "Greece", country_he: "יוון", lat: 36.4341, lon: 28.2176 },
+  { name: "Thessaloniki", name_he: "סלוניקי", country: "Greece", country_he: "יוון", lat: 40.6401, lon: 22.9444 },
+  { name: "Corfu", name_he: "קורפו", country: "Greece", country_he: "יוון", lat: 39.6243, lon: 19.9217 },
+  { name: "Kos", name_he: "קוס", country: "Greece", country_he: "יוון", lat: 36.8916, lon: 27.2887 },
+  // --- Italy ---
+  { name: "Rome", name_he: "רומא", country: "Italy", country_he: "איטליה", lat: 41.9028, lon: 12.4964 },
+  { name: "Milan", name_he: "מילאנו", country: "Italy", country_he: "איטליה", lat: 45.4642, lon: 9.1900 },
+  { name: "Venice", name_he: "ונציה", country: "Italy", country_he: "איטליה", lat: 45.4408, lon: 12.3155 },
+  { name: "Florence", name_he: "פירנצה", country: "Italy", country_he: "איטליה", lat: 43.7696, lon: 11.2558 },
+  { name: "Naples", name_he: "נאפולי", country: "Italy", country_he: "איטליה", lat: 40.8518, lon: 14.2681 },
+  { name: "Sicily", name_he: "סיציליה", country: "Italy", country_he: "איטליה", lat: 37.8333, lon: 14.0000 },
+  // --- Spain ---
+  { name: "Barcelona", name_he: "ברצלונה", country: "Spain", country_he: "ספרד", lat: 41.3851, lon: 2.1734 },
+  { name: "Madrid", name_he: "מדריד", country: "Spain", country_he: "ספרד", lat: 40.4168, lon: -3.7038 },
+  { name: "Ibiza", name_he: "איביזה", country: "Spain", country_he: "ספרד", lat: 38.9080, lon: 1.3940 },
+  { name: "Mallorca", name_he: "מיורקה", country: "Spain", country_he: "ספרד", lat: 39.6951, lon: 3.0176 },
+  { name: "Tenerife", name_he: "טנריף", country: "Spain", country_he: "ספרד", lat: 28.2916, lon: -16.6291 },
+  { name: "Valencia", name_he: "ולנסיה", country: "Spain", country_he: "ספרד", lat: 39.4699, lon: -0.3763 },
+  { name: "Seville", name_he: "סביליה", country: "Spain", country_he: "ספרד", lat: 37.3886, lon: -5.9823 },
+  // --- France ---
+  { name: "Paris", name_he: "פריז", country: "France", country_he: "צרפת", lat: 48.8566, lon: 2.3522 },
+  { name: "Nice", name_he: "ניס", country: "France", country_he: "צרפת", lat: 43.7102, lon: 7.2620 },
+  { name: "Marseille", name_he: "מרסיי", country: "France", country_he: "צרפת", lat: 43.2965, lon: 5.3698 },
+  { name: "Lyon", name_he: "ליון", country: "France", country_he: "צרפת", lat: 45.7640, lon: 4.8357 },
+  { name: "Cannes", name_he: "קאן", country: "France", country_he: "צרפת", lat: 43.5528, lon: 7.0174 },
+  // --- UK ---
+  { name: "London", name_he: "לונדון", country: "United Kingdom", country_he: "בריטניה", lat: 51.5074, lon: -0.1278 },
+  { name: "Edinburgh", name_he: "אדינבורו", country: "United Kingdom", country_he: "בריטניה", lat: 55.9533, lon: -3.1883 },
+  { name: "Manchester", name_he: "מנצ'סטר", country: "United Kingdom", country_he: "בריטניה", lat: 53.4808, lon: -2.2426 },
+  // --- Germany ---
+  { name: "Berlin", name_he: "ברלין", country: "Germany", country_he: "גרמניה", lat: 52.5200, lon: 13.4050 },
+  { name: "Munich", name_he: "מינכן", country: "Germany", country_he: "גרמניה", lat: 48.1351, lon: 11.5820 },
+  { name: "Frankfurt", name_he: "פרנקפורט", country: "Germany", country_he: "גרמניה", lat: 50.1109, lon: 8.6821 },
+  { name: "Hamburg", name_he: "המבורג", country: "Germany", country_he: "גרמניה", lat: 53.5511, lon: 9.9937 },
+  // --- Netherlands / Austria / Czech / Hungary ---
+  { name: "Amsterdam", name_he: "אמסטרדם", country: "Netherlands", country_he: "הולנד", lat: 52.3676, lon: 4.9041 },
+  { name: "Vienna", name_he: "וינה", country: "Austria", country_he: "אוסטריה", lat: 48.2082, lon: 16.3738 },
+  { name: "Salzburg", name_he: "זלצבורג", country: "Austria", country_he: "אוסטריה", lat: 47.8095, lon: 13.0550 },
+  { name: "Prague", name_he: "פראג", country: "Czech Republic", country_he: "צ'כיה", lat: 50.0755, lon: 14.4378 },
+  { name: "Budapest", name_he: "בודפשט", country: "Hungary", country_he: "הונגריה", lat: 47.4979, lon: 19.0402 },
+  // --- Turkey ---
+  { name: "Istanbul", name_he: "איסטנבול", country: "Turkey", country_he: "טורקיה", lat: 41.0082, lon: 28.9784 },
+  { name: "Antalya", name_he: "אנטליה", country: "Turkey", country_he: "טורקיה", lat: 36.8969, lon: 30.7133 },
+  { name: "Bodrum", name_he: "בודרום", country: "Turkey", country_he: "טורקיה", lat: 37.0343, lon: 27.4305 },
+  { name: "Cappadocia", name_he: "קפדוקיה", country: "Turkey", country_he: "טורקיה", lat: 38.6431, lon: 34.8289 },
+  // --- Egypt / Jordan ---
+  { name: "Cairo", name_he: "קהיר", country: "Egypt", country_he: "מצרים", lat: 30.0444, lon: 31.2357 },
+  { name: "Sharm El Sheikh", name_he: "שארם א-שייח'", country: "Egypt", country_he: "מצרים", lat: 27.9158, lon: 34.3300 },
+  { name: "Hurghada", name_he: "הורגאדה", country: "Egypt", country_he: "מצרים", lat: 27.2538, lon: 33.8382 },
+  { name: "Amman", name_he: "עמאן", country: "Jordan", country_he: "ירדן", lat: 31.9454, lon: 35.9283 },
+  { name: "Aqaba", name_he: "עקבה", country: "Jordan", country_he: "ירדן", lat: 29.5320, lon: 35.0063 },
+  { name: "Petra", name_he: "פטרה", country: "Jordan", country_he: "ירדן", lat: 30.3285, lon: 35.4444 },
+  // --- Balkans / Eastern Europe ---
+  { name: "Dubrovnik", name_he: "דוברובניק", country: "Croatia", country_he: "קרואטיה", lat: 42.6507, lon: 18.0944 },
+  { name: "Split", name_he: "ספליט", country: "Croatia", country_he: "קרואטיה", lat: 43.5081, lon: 16.4402 },
+  { name: "Zagreb", name_he: "זאגרב", country: "Croatia", country_he: "קרואטיה", lat: 45.8150, lon: 15.9819 },
+  { name: "Budva", name_he: "בודווה", country: "Montenegro", country_he: "מונטנגרו", lat: 42.2911, lon: 18.8400 },
+  { name: "Kotor", name_he: "קוטור", country: "Montenegro", country_he: "מונטנגרו", lat: 42.4247, lon: 18.7712 },
+  { name: "Ljubljana", name_he: "ליובליאנה", country: "Slovenia", country_he: "סלובניה", lat: 46.0569, lon: 14.5058 },
+  { name: "Tbilisi", name_he: "טביליסי", country: "Georgia", country_he: "גאורגיה", lat: 41.7151, lon: 44.8271 },
+  { name: "Batumi", name_he: "באטומי", country: "Georgia", country_he: "גאורגיה", lat: 41.6168, lon: 41.6367 },
+  { name: "Bucharest", name_he: "בוקרשט", country: "Romania", country_he: "רומניה", lat: 44.4268, lon: 26.1025 },
+  { name: "Warsaw", name_he: "ורשה", country: "Poland", country_he: "פולין", lat: 52.2297, lon: 21.0122 },
+  { name: "Krakow", name_he: "קרקוב", country: "Poland", country_he: "פולין", lat: 50.0647, lon: 19.9450 },
+  { name: "Sofia", name_he: "סופיה", country: "Bulgaria", country_he: "בולגריה", lat: 42.6977, lon: 23.3219 },
+  { name: "Varna", name_he: "וארנה", country: "Bulgaria", country_he: "בולגריה", lat: 43.2141, lon: 27.9147 },
+  { name: "Belgrade", name_he: "בלגרד", country: "Serbia", country_he: "סרביה", lat: 44.7866, lon: 20.4489 },
+  // --- Morocco / Malta / Portugal / Ireland ---
+  { name: "Marrakech", name_he: "מרקש", country: "Morocco", country_he: "מרוקו", lat: 31.6295, lon: -7.9811 },
+  { name: "Valletta", name_he: "ולטה", country: "Malta", country_he: "מלטה", lat: 35.8989, lon: 14.5146 },
+  { name: "Lisbon", name_he: "ליסבון", country: "Portugal", country_he: "פורטוגל", lat: 38.7223, lon: -9.1393 },
+  { name: "Dublin", name_he: "דבלין", country: "Ireland", country_he: "אירלנד", lat: 53.3498, lon: -6.2603 },
+  // --- Switzerland / Scandinavia / Iceland ---
+  { name: "Zurich", name_he: "ציריך", country: "Switzerland", country_he: "שוויץ", lat: 47.3769, lon: 8.5417 },
+  { name: "Geneva", name_he: "ז'נבה", country: "Switzerland", country_he: "שוויץ", lat: 46.2044, lon: 6.1432 },
+  { name: "Oslo", name_he: "אוסלו", country: "Norway", country_he: "נורווגיה", lat: 59.9139, lon: 10.7522 },
+  { name: "Stockholm", name_he: "סטוקהולם", country: "Sweden", country_he: "שוודיה", lat: 59.3293, lon: 18.0686 },
+  { name: "Copenhagen", name_he: "קופנהגן", country: "Denmark", country_he: "דנמרק", lat: 55.6761, lon: 12.5683 },
+  { name: "Reykjavik", name_he: "רייקיאויק", country: "Iceland", country_he: "איסלנד", lat: 64.1466, lon: -21.9426 },
+  // --- Asia ---
+  { name: "Bangkok", name_he: "בנקוק", country: "Thailand", country_he: "תאילנד", lat: 13.7563, lon: 100.5018 },
+  { name: "Phuket", name_he: "פוקט", country: "Thailand", country_he: "תאילנד", lat: 7.8804, lon: 98.3923 },
+  { name: "Bali", name_he: "באלי", country: "Indonesia", country_he: "אינדונזיה", lat: -8.3405, lon: 115.0920 },
+  { name: "Tokyo", name_he: "טוקיו", country: "Japan", country_he: "יפן", lat: 35.6762, lon: 139.6503 },
+  { name: "Seoul", name_he: "סיאול", country: "South Korea", country_he: "דרום קוריאה", lat: 37.5665, lon: 126.9780 },
+  { name: "Singapore", name_he: "סינגפור", country: "Singapore", country_he: "סינגפור", lat: 1.3521, lon: 103.8198 },
+  { name: "Hong Kong", name_he: "הונג קונג", country: "Hong Kong", country_he: "הונג קונג", lat: 22.3193, lon: 114.1694 },
+  // --- Americas / Oceania / Africa ---
+  { name: "New York", name_he: "ניו יורק", country: "United States", country_he: "ארצות הברית", lat: 40.7128, lon: -74.0060 },
+  { name: "Los Angeles", name_he: "לוס אנג'לס", country: "United States", country_he: "ארצות הברית", lat: 34.0522, lon: -118.2437 },
+  { name: "Miami", name_he: "מיאמי", country: "United States", country_he: "ארצות הברית", lat: 25.7617, lon: -80.1918 },
+  { name: "Las Vegas", name_he: "לאס וגאס", country: "United States", country_he: "ארצות הברית", lat: 36.1699, lon: -115.1398 },
+  { name: "San Francisco", name_he: "סן פרנסיסקו", country: "United States", country_he: "ארצות הברית", lat: 37.7749, lon: -122.4194 },
+  { name: "Orlando", name_he: "אורלנדו", country: "United States", country_he: "ארצות הברית", lat: 28.5383, lon: -81.3792 },
+  { name: "Toronto", name_he: "טורונטו", country: "Canada", country_he: "קנדה", lat: 43.6532, lon: -79.3832 },
+  { name: "Cancun", name_he: "קנקון", country: "Mexico", country_he: "מקסיקו", lat: 21.1619, lon: -86.8515 },
+  { name: "Sydney", name_he: "סידני", country: "Australia", country_he: "אוסטרליה", lat: -33.8688, lon: 151.2093 },
+  { name: "Cape Town", name_he: "קייפטאון", country: "South Africa", country_he: "דרום אפריקה", lat: -33.9249, lon: 18.4241 },
+  { name: "Buenos Aires", name_he: "בואנוס איירס", country: "Argentina", country_he: "ארגנטינה", lat: -34.6037, lon: -58.3816 },
+  { name: "Rio de Janeiro", name_he: "ריו דה ז'ניירו", country: "Brazil", country_he: "ברזיל", lat: -22.9068, lon: -43.1729 },
+];
+
 // Normalize: lowercase + strip Latin diacritics (é→e, ï→i, ñ→n) so "Ushuaia" matches "Ushuaïa".
 function normalize(s: string): string {
   return s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
@@ -247,6 +372,12 @@ export function searchCuratedHotels(query: string, limit = 12, lang = "en") {
     const key = h.city.toLowerCase();
     if (!cityMap.has(key)) {
       cityMap.set(key, { city: h.city, city_he: h.city_he, country: h.country, country_he: h.country_he, lat: h.lat, lon: h.lon });
+    }
+  }
+  for (const c of CURATED_CITIES) {
+    const key = c.name.toLowerCase();
+    if (!cityMap.has(key)) {
+      cityMap.set(key, { city: c.name, city_he: c.name_he, country: c.country, country_he: c.country_he, lat: c.lat, lon: c.lon });
     }
   }
   const cityMatches = Array.from(cityMap.values())

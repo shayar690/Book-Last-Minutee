@@ -28,6 +28,28 @@ function buildPhotonLabel(p) {
   return parts.join(", ");
 }
 
+// Hebrew → Latin transliteration, so a partial Hebrew query like "לימס" becomes "lims"
+// and can partial-match "Limassol" in Photon (which only indexes Latin/local OSM names).
+const HEBREW_TRANSLIT: Record<string, string> = {
+  "א": "a", "ב": "b", "ג": "g", "ד": "d", "ה": "h", "ו": "o",
+  "ז": "z", "ח": "ch", "ט": "t", "י": "i", "כ": "k", "ך": "k",
+  "ל": "l", "מ": "m", "ם": "m", "נ": "n", "ן": "n", "ס": "s",
+  "ע": "a", "פ": "p", "ף": "p", "צ": "ts", "ץ": "ts", "ק": "k",
+  "ר": "r", "ש": "sh", "ת": "t",
+};
+
+function isHebrew(s: string): boolean {
+  return /[\u0590-\u05FF]/.test(s);
+}
+
+function transliterateHebrew(s: string): string {
+  let result = "";
+  for (const ch of s) {
+    result += HEBREW_TRANSLIT[ch] || ch;
+  }
+  return result;
+}
+
 async function photonSearch(query, lang, filter) {
   // Photon supports lang: en, de, fr, it, default. Hebrew unsupported → use "default" (local names).
   const photonLang = lang === "en" ? "en" : "default";
@@ -97,16 +119,20 @@ export default async function(req) {
     // international hotels (many OSM names are local-language only).
     if (filter === "hotels") {
       const curated = searchCuratedHotels(query, 12, lang);
+      // Build search queries: original + transliterated (for Hebrew → Latin partial matching in Photon).
+      const queries = [query];
+      if (isHebrew(query)) {
+        const translit = transliterateHebrew(query);
+        if (translit && translit !== query) queries.push(translit);
+      }
       // Hotels from Photon (partial-name matching) + major cities from Nominatim (importance-ranked).
       // Results returned in the user's language (Hebrew for Israeli places via lang=default / accept-language=he).
       // Small towns/villages are excluded: Photon hotels only, Nominatim cities with importance >= 0.3.
       const [photonHotels, nominatimCities] = await Promise.all([
-        photonSearch(query, lang, filter)
-          .then((rs) => rs.filter((r) => r.result_type === "hotel"))
-          .catch(() => []),
-        nominatimSearch(query, lang, filter)
-          .then((rs) => rs.filter((r) => r.result_type === "city" && (r.importance || 0) >= 0.3))
-          .catch(() => []),
+        Promise.all(queries.map((q) => photonSearch(q, lang, filter).then((rs) => rs.filter((r) => r.result_type === "hotel")).catch(() => [])))
+          .then((arrs) => arrs.flat()),
+        Promise.all(queries.map((q) => nominatimSearch(q, lang, filter).then((rs) => rs.filter((r) => r.result_type === "city" && (r.importance || 0) >= 0.3)).catch(() => [])))
+          .then((arrs) => arrs.flat()),
       ]);
       const seen = new Set();
       const merged = [];
