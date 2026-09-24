@@ -10,6 +10,7 @@ export default function HotelCard({ hotel }) {
   const scrollRef = useRef(null);
   const [activeImg, setActiveImg] = useState(0);
   const images = hotel.images || (hotel.image ? [hotel.image] : []);
+  const sym = hotel.currency === "ILS" ? "₪" : "$";
 
   const scroll = (dir) => {
     if (!scrollRef.current) return;
@@ -94,7 +95,7 @@ export default function HotelCard({ hotel }) {
             )}
           </div>
           <div className="text-end">
-            <div className="text-2xl font-bold text-[#2D3035]">${hotel.pricePerNight}</div>
+            <div className="text-2xl font-bold text-[#2D3035]">{sym}{hotel.pricePerNight}</div>
             <div className="text-xs text-[#7D7D7D]">{t("results.perNight")}</div>
           </div>
         </div>

@@ -36,18 +36,27 @@ export default function HotelResults() {
   const checkOut = searchParams.get("checkOut") || "";
   const adults = searchParams.get("adults") || "2";
   const rooms = searchParams.get("rooms") || "1";
+  const stars = searchParams.get("stars") || "";
+  const meal = searchParams.get("meal") || "";
+  const earlyIn = searchParams.get("earlyIn") || "";
+  const lateOut = searchParams.get("lateOut") || "";
+  const freeCancel = searchParams.get("freeCancel") === "1";
+  const citizenship = searchParams.get("citizenship") || "";
 
   useEffect(() => {
     if (!destination) { setLoading(false); return; }
     setLoading(true);
-    base44.functions.invoke("hotelSearch", { destination, checkIn, checkOut, adults: Number(adults), rooms: Number(rooms), lang })
+    base44.functions.invoke("hotelSearch", {
+      destination, checkIn, checkOut, adults: Number(adults), rooms: Number(rooms), lang,
+      stars, meal, earlyIn, lateOut, freeCancel, citizenship,
+    })
       .then((res) => {
         setHotels(res.data?.hotels || []);
         setError(res.data?.error || null);
       })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
-  }, [destination, checkIn, checkOut, adults, rooms, lang]);
+  }, [destination, checkIn, checkOut, adults, rooms, lang, stars, meal, earlyIn, lateOut, freeCancel, citizenship]);
 
   return (
     <div className="min-h-screen bg-[#F9F9F9]">

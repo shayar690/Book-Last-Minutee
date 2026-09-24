@@ -1,27 +1,55 @@
 // Hotel search — uses InvokeLLM with web search to find real hotels from Booking.com
 // and other major booking sites. No API key required (uses built-in AI + web search).
 // Returns: name, stars, rating, reviews, price, photos, amenities, Booking.com URL.
+// Supports filtering by star rating, meal plan, early check-in, late check-out,
+// free cancellation, and citizenship. Currency adapts to language (ILS for Hebrew).
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.49';
+
+const MEAL_NAMES: Record<string, string> = {
+  ro: "room only (no meals)",
+  bb: "bed and breakfast",
+  hb: "half board (breakfast and dinner)",
+  fb: "full board (breakfast, lunch, and dinner)",
+  ai: "all inclusive (all meals and drinks)",
+};
 
 export default async function(req) {
   try {
     const base44 = createClientFromRequest(req);
     const body = await req.json().catch(() => ({}));
-    const { destination, checkIn, checkOut, adults = 2, rooms = 1, lang = "en" } = body;
+    const {
+      destination, checkIn, checkOut, adults = 2, rooms = 1, lang = "en",
+      stars = "", meal = "", earlyIn = "", lateOut = "", freeCancel = false, citizenship = "",
+    } = body;
 
     if (!destination) return Response.json({ error: "Destination required", hotels: [] }, { status: 400 });
     if (!checkIn || !checkOut) return Response.json({ error: "Dates required", hotels: [] }, { status: 400 });
 
     const languageName = lang === "he" ? "Hebrew" : "English";
-    const prompt = `Search the web for hotels in "${destination}" available for check-in ${checkIn} and check-out ${checkOut} for ${adults} adults in ${rooms} room(s).
+    const currency = lang === "he" ? "ILS" : "USD";
+    const currencyName = lang === "he" ? "Israeli Shekels (ILS)" : "USD";
+
+    // Build filter instructions for the LLM prompt
+    const filters: string[] = [];
+    if (stars && stars !== "none") filters.push(`Only ${stars}-star hotels`);
+    if (meal && MEAL_NAMES[meal]) filters.push(`Include ${MEAL_NAMES[meal]} meal plan in the rate`);
+    if (earlyIn) filters.push(`Early check-in requested at ${earlyIn}`);
+    if (lateOut) filters.push(`Late check-out requested at ${lateOut}`);
+    if (freeCancel) filters.push(`Only hotels with free cancellation`);
+    if (citizenship) filters.push(`Guests' citizenship: ${citizenship}`);
+    const filterText = filters.length > 0
+      ? `\n\nApply these filters:\n${filters.map((f) => `- ${f}`).join("\n")}`
+      : "";
+
+    const prompt = `Search the web for hotels in "${destination}" available for check-in ${checkIn} and check-out ${checkOut} for ${adults} adults in ${rooms} room(s).${filterText}
 
 Find REAL hotels from Booking.com, Hotels.com, Expedia, and other major booking sites. For each hotel provide:
 - name: Real hotel name
 - stars: Star rating (1-5)
 - rating: Guest rating (0-10, as on Booking.com)
 - reviews: Number of guest reviews
-- pricePerNight: Price per night in USD
-- currency: "USD"
+- pricePerNight: Price per night in ${currencyName}
+- currency: "${currency}"
 - images: Array of 5-8 real photo URLs from the hotel's listing (exterior, lobby, rooms, pool, restaurant)
 - amenities: Array of key amenities (e.g. ["Free WiFi","Pool","Spa","Parking","Gym","Restaurant","Bar"])
 - url: Direct link to the hotel on Booking.com
@@ -32,8 +60,8 @@ Find REAL hotels from Booking.com, Hotels.com, Expedia, and other major booking 
 - checkInTime: Check-in time (e.g. "14:00")
 - checkOutTime: Check-out time (e.g. "12:00")
 - policies: Hotel policies (cancellation, pets, smoking, etc.)
-- reviews: Array of 3-5 recent guest reviews, each with: author (name), country, rating (0-10), date (e.g. "2024-06-15"), text (1-3 sentences)
-- roomTypes: Array of 3-5 room types available, each with: name, description (1 sentence), pricePerNight (USD), maxGuests (number), beds (e.g. "1 King bed"), image (photo URL of the room)
+- guestReviews: Array of 3-5 recent guest reviews, each with: author (name), country, rating (0-10), date (e.g. "2024-06-15"), text (1-3 sentences)
+- roomTypes: Array of 3-5 room types available, each with: name, description (1 sentence), pricePerNight (in ${currencyName}), maxGuests (number), beds (e.g. "1 King bed"), image (photo URL of the room)
 
 Return at least 40 hotels sorted by price (lowest first). If fewer exist, return as many as available.
 Respond in ${languageName}. Hotel names and descriptions must be in ${languageName}.`;
@@ -68,7 +96,7 @@ Respond in ${languageName}. Hotel names and descriptions must be in ${languageNa
                 checkInTime: { type: "string" },
                 checkOutTime: { type: "string" },
                 policies: { type: "string" },
-                reviews: {
+                guestReviews: {
                   type: "array",
                   items: {
                     type: "object",

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ChevronDown, Clock, Check } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import CitizenshipCombobox from "@/components/search/CitizenshipCombobox";
@@ -73,7 +73,7 @@ function Dropdown({ label, placeholder, value, onChange, options, icon: Icon, no
   );
 }
 
-export default function AdditionalParams() {
+export default function AdditionalParams({ onChange }) {
   const { t } = useI18n();
   const [citizenship, setCitizenship] = useState("");
   const [stars, setStars] = useState("");
@@ -81,6 +81,10 @@ export default function AdditionalParams() {
   const [earlyIn, setEarlyIn] = useState("");
   const [lateOut, setLateOut] = useState("");
   const [freeCancel, setFreeCancel] = useState(false);
+
+  useEffect(() => {
+    if (onChange) onChange({ citizenship, stars, meal, earlyIn, lateOut, freeCancel });
+  }, [citizenship, stars, meal, earlyIn, lateOut, freeCancel, onChange]);
 
   const earlyOptions = EARLY_TIMES.map((tm) => ({ value: tm, label: tm }));
   const lateOptions = LATE_TIMES.map((tm) => ({ value: tm, label: tm }));
@@ -139,7 +143,6 @@ export default function AdditionalParams() {
           onChange={setEarlyIn}
           options={earlyOptions}
           icon={Clock}
-          note={t("search.requestOnlyNote")}
         />
         <Dropdown
           label={t("search.lateCheckout")}
@@ -148,6 +151,7 @@ export default function AdditionalParams() {
           onChange={setLateOut}
           options={lateOptions}
           icon={Clock}
+          note={t("search.requestOnlyNote")}
         />
       </div>
     </div>

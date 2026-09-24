@@ -158,14 +158,15 @@ export default function SearchWidget() {
   const [flightDest, setFlightDest] = useState({ name: "", code: "" });
   const [guestInfo, setGuestInfo] = useState({ adults: 2, rooms: 1 });
   const [paxInfo, setPaxInfo] = useState({ adults: 1, children: 0, infants: 0 });
+  const [hotelParams, setHotelParams] = useState({});
 
   // Created inside the component so each render gets fresh element references.
   // If hoisted to module scope, React bails out of re-rendering these children
   // when the language changes, leaving their text stuck in the old locale.
   const paramsByTab = {
-    hotels: <AdditionalParams />,
+    hotels: <AdditionalParams onChange={setHotelParams} />,
     flights: <FlightsAdditionalParams />,
-    vacationPackages: <AdditionalParams />,
+    vacationPackages: <AdditionalParams onChange={setHotelParams} />,
   };
 
   // Clear all search inputs when the site language changes.
@@ -198,6 +199,12 @@ export default function SearchWidget() {
         checkOut: fmtDate(checkOut),
         adults: guestInfo.adults,
         rooms: guestInfo.rooms,
+        stars: hotelParams.stars || "",
+        meal: hotelParams.meal || "",
+        earlyIn: hotelParams.earlyIn || "",
+        lateOut: hotelParams.lateOut || "",
+        freeCancel: hotelParams.freeCancel ? "1" : "",
+        citizenship: hotelParams.citizenship || "",
       });
       navigate(`/hotels?${params.toString()}`);
     } else if (active === "flights" && flightOrigin.name && flightDest.name) {

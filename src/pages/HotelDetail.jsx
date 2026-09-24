@@ -12,6 +12,7 @@ export default function HotelDetail() {
   const scrollRef = useRef(null);
   const [activeImg, setActiveImg] = useState(0);
   const images = hotel?.images || (hotel?.image ? [hotel.image] : []);
+  const sym = hotel?.currency === "ILS" ? "₪" : "$";
 
   if (!hotel) {
     return (
@@ -106,7 +107,7 @@ export default function HotelDetail() {
             )}
           </div>
           <div className="text-end">
-            <div className="text-3xl font-bold text-[#2D3035]">${hotel.pricePerNight}</div>
+            <div className="text-3xl font-bold text-[#2D3035]">{sym}{hotel.pricePerNight}</div>
             <div className="text-xs text-[#7D7D7D]">{t("results.perNight")}</div>
           </div>
         </div>
@@ -163,7 +164,7 @@ export default function HotelDetail() {
                         </span>
                       )}
                       {room.pricePerNight && (
-                        <span className="text-sm font-bold text-[#2D3035] ms-auto">${room.pricePerNight} <span className="text-xs font-normal text-[#7D7D7D]">{t("results.perNight")}</span></span>
+                        <span className="text-sm font-bold text-[#2D3035] ms-auto">{sym}{room.pricePerNight} <span className="text-xs font-normal text-[#7D7D7D]">{t("results.perNight")}</span></span>
                       )}
                     </div>
                   </div>
@@ -174,11 +175,11 @@ export default function HotelDetail() {
         )}
 
         {/* Guest Reviews */}
-        {hotel.reviews && hotel.reviews.length > 0 && (
+        {hotel.guestReviews && hotel.guestReviews.length > 0 && (
           <div className="p-4 bg-white rounded-xl border border-[#E5E5E5] mb-4">
             <h2 className="text-lg font-semibold text-[#2D3035] mb-3">{t("hotel.reviews")}</h2>
             <div className="flex flex-col gap-3">
-              {hotel.reviews.map((review, i) => (
+              {hotel.guestReviews.map((review, i) => (
                 <div key={i} className="p-3 rounded-lg bg-[#FAFAF8] border border-[#EAEAEA]">
                   <div className="flex items-center justify-between gap-2 mb-1.5">
                     <div className="flex items-center gap-2">
