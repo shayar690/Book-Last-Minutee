@@ -1,9 +1,14 @@
 import React, { useState } from "react";
-import { ChevronDown, Check, Plane } from "lucide-react";
+import { ChevronDown, Check, Plane, ArrowRight, RefreshCw, Route } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 
 const CABINS = ["economy", "business", "first"];
 const BAGGAGE = ["cabinBag", "checkedBag"];
+const TRIP_TYPES = [
+  { id: "oneWay", icon: ArrowRight },
+  { id: "roundTrip", icon: RefreshCw },
+  { id: "multiCity", icon: Route },
+];
 const GREEN = "#16a34a";
 
 function Chip({ label, active, onClick }) {
@@ -60,6 +65,7 @@ function CabinDropdown({ t, value, onChange }) {
 
 export default function FlightsAdditionalParams() {
   const { t } = useI18n();
+  const [tripType, setTripType] = useState("roundTrip");
   const [cabin, setCabin] = useState("economy");
   const [directOnly, setDirectOnly] = useState(false);
   const [baggage, setBaggage] = useState([]);
@@ -69,6 +75,26 @@ export default function FlightsAdditionalParams() {
 
   return (
     <div className="flex flex-col gap-4 pt-3">
+      {/* Trip type */}
+      <div className="flex flex-col gap-2">
+        <label className="text-[15px] font-medium text-[#5a5a5a]">{t("search.tripType")}</label>
+        <div className="flex flex-col gap-1">
+          {TRIP_TYPES.map(({ id, icon: Icon }) => (
+            <button
+              key={id}
+              type="button"
+              onClick={() => setTripType(id)}
+              className={`flex items-center gap-3 px-3 h-11 rounded-lg border transition-colors ${
+                tripType === id ? "bg-[#2D3035] text-white border-[#2D3035]" : "bg-white text-[#2D3035] border-[#C5C5C5] hover:border-[#2D3035]"
+              }`}
+            >
+              <Icon className="w-4 h-4 shrink-0" strokeWidth={2} />
+              <span className="text-base font-medium">{t(`search.${id}`)}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Direct flights only — toggle */}
       <button
         type="button"
