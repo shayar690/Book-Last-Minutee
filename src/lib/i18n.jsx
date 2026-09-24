@@ -21,7 +21,7 @@ const translations = {
     "tab.cars": "Car rental",
     "tab.transfers": "Transfers",
     "tab.trains": "Trains",
-    "tab.attractions": "Attractions",
+    "tab.attractions": "Attractions & Activities",
 
     "search.attractionDestination": "Attraction or city",
     "search.attractionPlaceholder": "Eiffel Tower, Louvre, London…",
@@ -156,7 +156,7 @@ const translations = {
     "tab.cars": "השכרת רכב",
     "tab.transfers": "הסעות",
     "tab.trains": "רכבות",
-    "tab.attractions": "כרטיסים לאטרקציות",
+    "tab.attractions": "אטרקציות ופעילויות",
 
     "search.attractionDestination": "אטרקציה או עיר",
     "search.attractionPlaceholder": "מגדל אייפל, הלובר, לונדון…",
