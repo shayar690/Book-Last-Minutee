@@ -40,10 +40,13 @@ function GuestsField({ t, mode = "rooms" }) {
   const [infants, setInfants] = useState(0);
   const [groupLimit, setGroupLimit] = useState(false);
 
-  const handleAdultsChange = (newVal) => {
-    setAdults(newVal);
-    if (newVal < 9) setGroupLimit(false);
-  };
+  const totalPax = adults + children + infants;
+  const guardIncrement = () => totalPax < 9;
+  const onLimit = () => setGroupLimit(true);
+
+  useEffect(() => {
+    if (adults + children + infants < 9) setGroupLimit(false);
+  }, [adults, children, infants]);
   const label = isPassengers ? t("search.passengers") : t("search.guests");
   const summary = isPassengers
     ? [`${adults} ${t("search.adults")}`, `${children} ${t("search.children")}`, infants > 0 ? `${infants} ${t("search.infants")}` : null].filter(Boolean).join(" · ")
@@ -71,13 +74,13 @@ function GuestsField({ t, mode = "rooms" }) {
             transition={{ duration: 0.18 }}
             className="absolute top-full mt-2 z-30 w-64 p-4 rounded-xl bg-white border border-[#C5C5C5] shadow-horizon"
           >
-            <Stepper label={t("search.adults")} hint={isPassengers ? t("search.adultsHint") : null} value={adults} setValue={handleAdultsChange} min={1} max={9} onMaxAttempt={() => isPassengers && setGroupLimit(true)} />
+            <Stepper label={t("search.adults")} hint={isPassengers ? t("search.adultsHint") : null} value={adults} setValue={setAdults} min={1} max={9} canIncrement={isPassengers ? guardIncrement : undefined} onMaxAttempt={isPassengers ? onLimit : undefined} />
             <div className="h-px bg-[#EAEAEA] my-3" />
             {isPassengers ? (
               <>
-                <Stepper label={t("search.children")} hint={t("search.childrenHint")} value={children} setValue={setChildren} min={0} max={9} />
+                <Stepper label={t("search.children")} hint={t("search.childrenHint")} value={children} setValue={setChildren} min={0} max={9} canIncrement={guardIncrement} onMaxAttempt={onLimit} />
                 <div className="h-px bg-[#EAEAEA] my-3" />
-                <Stepper label={t("search.infants")} hint={t("search.infantsHint")} value={infants} setValue={setInfants} min={0} max={9} />
+                <Stepper label={t("search.infants")} hint={t("search.infantsHint")} value={infants} setValue={setInfants} min={0} max={9} canIncrement={guardIncrement} onMaxAttempt={onLimit} />
                 <AnimatePresence>
                   {infants > 0 && (
                     <motion.div
@@ -92,15 +95,16 @@ function GuestsField({ t, mode = "rooms" }) {
                   )}
                 </AnimatePresence>
                 <AnimatePresence>
-                  {isPassengers && groupLimit && adults >= 9 && (
-                    <motion.p
+                  {isPassengers && groupLimit && (adults + children + infants) >= 9 && (
+                    <motion.div
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: "auto" }}
                       exit={{ opacity: 0, height: 0 }}
-                      className="mt-3 text-[13px] font-medium leading-snug text-red-600 text-center"
+                      className="mt-3 text-center"
                     >
-                      {t("search.groupLimitWarning")}
-                    </motion.p>
+                      <p className="text-[13px] font-medium leading-snug text-red-600">{t("search.groupLimitLine1")}</p>
+                      <p className="text-[13px] font-medium leading-snug text-red-600">{t("search.groupLimitLine2")}</p>
+                    </motion.div>
                   )}
                 </AnimatePresence>
               </>
@@ -114,7 +118,7 @@ function GuestsField({ t, mode = "rooms" }) {
   );
 }
 
-function Stepper({ label, hint, value, setValue, min, max, onMaxAttempt }) {
+function Stepper({ label, hint, value, setValue, min, max, onMaxAttempt, canIncrement }) {
   return (
     <div className="flex items-center justify-between">
       <span className="flex flex-col">
@@ -124,7 +128,7 @@ function Stepper({ label, hint, value, setValue, min, max, onMaxAttempt }) {
       <div className="flex items-center gap-3">
         <button type="button" onClick={() => setValue(Math.max(min, value - 1))} className="w-7 h-7 rounded-full border border-[#C5C5C5] text-[#2D3035] hover:border-[#2D3035]">−</button>
         <span className="w-5 text-center text-sm">{value}</span>
-        <button type="button" onClick={() => { if (value >= max) { onMaxAttempt?.(); return; } setValue(Math.min(max, value + 1)); }} className="w-7 h-7 rounded-full border border-[#C5C5C5] text-[#2D3035] hover:border-[#2D3035]">+</button>
+        <button type="button" onClick={() => { if (value >= max || (canIncrement && !canIncrement())) { onMaxAttempt?.(); return; } setValue(Math.min(max, value + 1)); }} className="w-7 h-7 rounded-full border border-[#C5C5C5] text-[#2D3035] hover:border-[#2D3035]">+</button>
       </div>
     </div>
   );
