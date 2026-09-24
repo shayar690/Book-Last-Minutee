@@ -8,6 +8,7 @@ import FlightAutocompleteField from "@/components/search/FlightAutocompleteField
 import DateField from "@/components/search/DateField";
 import DatePickerModal from "@/components/search/DatePickerModal";
 import AdditionalParams from "@/components/search/AdditionalParams";
+import FlightsAdditionalParams from "@/components/search/FlightsAdditionalParams";
 
 const TABS = [
   { id: "hotels", icon: Bed },
@@ -18,6 +19,12 @@ const TABS = [
   { id: "cars", icon: Car },
   { id: "marriageProposals", icon: Gem },
 ];
+
+const PARAMS_BY_TAB = {
+  hotels: <AdditionalParams />,
+  flights: <FlightsAdditionalParams />,
+  vacationPackages: <AdditionalParams />,
+};
 
 function Field({ icon: Icon, label, placeholder, type = "text", flex = false }) {
   return (
@@ -157,6 +164,9 @@ export default function SearchWidget() {
     setDateModal({ open: false, mode: "range", active: "in" });
   }, [lang]);
 
+  // Collapse additional params when switching tabs.
+  useEffect(() => { setShowParams(false); }, [active]);
+
   const openRange = (field) => setDateModal({ open: true, mode: "range", active: field });
   const openSingle = () => setDateModal({ open: true, mode: "single", active: "in" });
 
@@ -257,28 +267,32 @@ export default function SearchWidget() {
           </motion.div>
         </AnimatePresence>
 
-        {/* Additional parameters */}
-        <button
-          type="button"
-          onClick={() => setShowParams((v) => !v)}
-          className="flex items-center gap-1.5 mt-3 text-sm text-[#7D7D7D] hover:text-[#2D3035] transition-colors"
-        >
-          {t("search.additionalParams")}
-          <ChevronDown className={`w-4 h-4 transition-transform ${showParams ? "rotate-180" : ""}`} strokeWidth={1.5} />
-        </button>
-        <AnimatePresence>
-          {showParams && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="overflow-hidden"
+        {/* Additional parameters — tab-specific */}
+        {PARAMS_BY_TAB[active] && (
+          <>
+            <button
+              type="button"
+              onClick={() => setShowParams((v) => !v)}
+              className="flex items-center gap-1.5 mt-3 text-sm text-[#7D7D7D] hover:text-[#2D3035] transition-colors"
             >
-              <AdditionalParams />
-            </motion.div>
-          )}
-        </AnimatePresence>
+              {t("search.additionalParams")}
+              <ChevronDown className={`w-4 h-4 transition-transform ${showParams ? "rotate-180" : ""}`} strokeWidth={1.5} />
+            </button>
+            <AnimatePresence>
+              {showParams && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="overflow-hidden"
+                >
+                  {PARAMS_BY_TAB[active]}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </>
+        )}
 
         {/* Search button */}
         <div className="flex justify-end mt-4">
