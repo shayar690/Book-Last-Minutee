@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Bed, Plane, Bus, Car, Train, Search, MapPin, Calendar, Users, ChevronDown, Clock, ArrowRight } from "lucide-react";
+import { Bed, Plane, Bus, Car, Train, Search, Calendar, Users, ChevronDown, Clock, ArrowRight } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
+import AutocompleteField from "@/components/search/AutocompleteField";
 
 const TABS = [
   { id: "hotels", icon: Bed },
@@ -124,7 +125,7 @@ export default function SearchWidget() {
           >
             {active === "hotels" && (
               <>
-                <Field icon={MapPin} label={t("search.destination")} placeholder={t("search.destinationPlaceholder")} flex />
+                <AutocompleteField label={t("search.destination")} placeholder={t("search.destinationPlaceholder")} flex />
                 <Field icon={Calendar} label={t("search.checkIn")} type="date" />
                 <Field icon={Calendar} label={t("search.checkOut")} type="date" />
                 <GuestsField t={t} />
@@ -132,8 +133,8 @@ export default function SearchWidget() {
             )}
             {active === "flights" && (
               <>
-                <Field icon={MapPin} label={t("search.from")} placeholder="London (LHR)" />
-                <Field icon={MapPin} label={t("search.to")} placeholder="Santorini (JTR)" />
+                <AutocompleteField label={t("search.from")} placeholder="London (LHR)" />
+                <AutocompleteField label={t("search.to")} placeholder="Santorini (JTR)" />
                 <Field icon={Calendar} label={t("search.departure")} type="date" />
                 <Field icon={Calendar} label={t("search.return")} type="date" />
                 <GuestsField t={t} />
@@ -141,15 +142,15 @@ export default function SearchWidget() {
             )}
             {active === "transfers" && (
               <>
-                <Field icon={MapPin} label={t("search.pickup")} placeholder="Airport terminal" flex />
-                <Field icon={MapPin} label={t("search.dropoff")} placeholder="Hotel or address" flex />
+                <AutocompleteField label={t("search.pickup")} placeholder="Airport terminal" flex />
+                <AutocompleteField label={t("search.dropoff")} placeholder="Hotel or address" flex />
                 <Field icon={Calendar} label={t("search.date")} type="date" />
                 <Field icon={Clock} label={t("search.time")} type="time" />
               </>
             )}
             {active === "cars" && (
               <>
-                <Field icon={MapPin} label={t("search.pickup")} placeholder="Airport or city" flex />
+                <AutocompleteField label={t("search.pickup")} placeholder="Airport or city" flex />
                 <Field icon={Calendar} label={t("search.date")} type="date" />
                 <Field icon={Clock} label={t("search.time")} type="time" />
                 <GuestsField t={t} />
@@ -157,8 +158,8 @@ export default function SearchWidget() {
             )}
             {active === "trains" && (
               <>
-                <Field icon={MapPin} label={t("search.from")} placeholder="Paris (GDN)" flex />
-                <Field icon={MapPin} label={t("search.to")} placeholder="Amsterdam (AMS)" flex />
+                <AutocompleteField label={t("search.from")} placeholder="Paris (GDN)" flex />
+                <AutocompleteField label={t("search.to")} placeholder="Amsterdam (AMS)" flex />
                 <Field icon={Calendar} label={t("search.date")} type="date" />
                 <Field icon={Clock} label={t("search.time")} type="time" />
               </>
