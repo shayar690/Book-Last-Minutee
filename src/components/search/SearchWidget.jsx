@@ -82,7 +82,7 @@ function Stepper({ label, value, setValue, min, max }) {
 }
 
 export default function SearchWidget() {
-  const { t, dir } = useI18n();
+  const { t, dir, lang } = useI18n();
   const [active, setActive] = useState("hotels");
   const [searching, setSearching] = useState(false);
   const [showParams, setShowParams] = useState(false);
@@ -149,7 +149,7 @@ export default function SearchWidget() {
             )}
             {active === "flights" && (
               <>
-                <FlightAutocompleteField label={t("search.flightFrom")} placeholder={t("search.flightPlaceholder")} />
+                <FlightAutocompleteField label={t("search.flightFrom")} placeholder={t("search.flightPlaceholder")} defaultValue={lang === "he" ? "תל אביב (TLV)" : ""} />
                 <FlightAutocompleteField label={t("search.flightTo")} placeholder={t("search.flightPlaceholder")} />
                 <DateField label={t("search.departure")} value={checkIn} placeholder={t("search.addDate")} active={dateModal.open && dateModal.active === "in"} onClick={() => openRange("in")} />
                 <DateField label={t("search.return")} value={checkOut} placeholder={t("search.addDate")} active={dateModal.open && dateModal.active === "out"} onClick={() => openRange("out")} />

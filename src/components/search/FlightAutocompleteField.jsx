@@ -3,9 +3,10 @@ import { Plane, Loader2 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useI18n } from "@/lib/i18n";
 
-export default function FlightAutocompleteField({ label, placeholder, flex = false }) {
+export default function FlightAutocompleteField({ label, placeholder, flex = false, defaultValue = "" }) {
   const { lang } = useI18n();
-  const [value, setValue] = useState("");
+  const [value, setValue] = useState(defaultValue);
+  const [touched, setTouched] = useState(false);
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
@@ -14,6 +15,7 @@ export default function FlightAutocompleteField({ label, placeholder, flex = fal
   const timer = useRef(null);
 
   useEffect(() => {
+    if (!touched) return;
     if (timer.current) clearTimeout(timer.current);
     if (value.trim().length < 1) {
       setResults([]);
@@ -34,7 +36,7 @@ export default function FlightAutocompleteField({ label, placeholder, flex = fal
       }
     }, 300);
     return () => timer.current && clearTimeout(timer.current);
-  }, [value]);
+  }, [value, touched]);
 
   useEffect(() => {
     const onClick = (e) => {
@@ -47,6 +49,7 @@ export default function FlightAutocompleteField({ label, placeholder, flex = fal
   const disp = (r) => ({
     city: lang === "he" ? (r.heCity || r.city) : r.city,
     country: lang === "he" ? (r.heCountry || r.country) : r.country,
+    airName: lang === "he" ? (r.heName || r.name) : r.name,
   });
 
   const pick = (r) => {
@@ -71,7 +74,7 @@ export default function FlightAutocompleteField({ label, placeholder, flex = fal
         <input
           type="text"
           value={value}
-          onChange={(e) => setValue(e.target.value)}
+          onChange={(e) => { setTouched(true); setValue(e.target.value); }}
           onFocus={() => results.length && setOpen(true)}
           onKeyDown={onKey}
           placeholder={placeholder}
@@ -83,7 +86,7 @@ export default function FlightAutocompleteField({ label, placeholder, flex = fal
       {open && results.length > 0 && (
         <div className="absolute top-full mt-1.5 z-40 w-full max-w-full bg-white rounded-lg border border-[#C5C5C5] shadow-horizon overflow-hidden">
           {results.map((r, i) => {
-            const { city, country } = disp(r);
+            const { city, country, airName } = disp(r);
             return (
               <button
                 key={i}
@@ -95,7 +98,7 @@ export default function FlightAutocompleteField({ label, placeholder, flex = fal
                 <span className="shrink-0 w-10 h-7 rounded-md bg-[#2D3035] text-white text-[11px] font-bold flex items-center justify-center tracking-wide">{r.iata}</span>
                 <span className="min-w-0">
                   <span className="block text-sm text-[#2D3035] truncate">{city}, {country}</span>
-                  <span className="block text-xs text-[#7D7D7D] truncate">{lang === "he" ? `שדה התעופה ${city}` : r.name}</span>
+                  <span className="block text-xs text-[#7D7D7D] truncate">{airName}</span>
                 </span>
               </button>
             );
