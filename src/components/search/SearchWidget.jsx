@@ -85,6 +85,18 @@ function GuestsField({ t, mode = "rooms" }) {
                     </motion.div>
                   )}
                 </AnimatePresence>
+                <AnimatePresence>
+                  {adults >= 9 && (
+                    <motion.p
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="mt-3 text-[13px] font-medium leading-snug text-red-600 text-center"
+                    >
+                      {t("search.groupLimitWarning")}
+                    </motion.p>
+                  )}
+                </AnimatePresence>
               </>
             ) : (
               <Stepper label={t("search.rooms")} value={rooms} setValue={setRooms} min={1} max={6} />
