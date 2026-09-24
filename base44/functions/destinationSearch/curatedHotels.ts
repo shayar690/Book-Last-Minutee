@@ -148,20 +148,29 @@ function normalize(s: string): string {
   return s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 }
 
-function matches(name: string, q: string): boolean {
+// Score: 3 = prefix, 2 = word-boundary, 1 = substring inside a word, 0 = no match.
+// Substring matching lets "מלך" find "המלך שלמה" and "שלמה" find "המלך שלמה אילת".
+function matchScore(name: string, q: string): number {
   const n = normalize(name);
-  if (n.startsWith(q)) return true;
+  if (n.startsWith(q)) return 3;
   const idx = n.indexOf(q);
-  return idx > 0 && n[idx - 1] === " ";
+  if (idx < 0) return 0;
+  if (idx > 0 && n[idx - 1] === " ") return 2;
+  return 1;
 }
 
 export function searchCuratedHotels(query: string, limit = 8, lang = "en") {
   const q = normalize(query).trim();
   if (q.length < 2) return [];
   return CURATED_HOTELS
-    .filter((h) => matches(h.name, q) || (h.name_he ? matches(h.name_he, q) : false))
-    .sort((a, b) => a.name.length - b.name.length)
+    .map((h) => {
+      const s = Math.max(matchScore(h.name, q), h.name_he ? matchScore(h.name_he, q) : 0);
+      return { h, s };
+    })
+    .filter((x) => x.s > 0)
+    .sort((a, b) => (b.s - a.s) || (a.h.name.length - b.h.name.length))
     .slice(0, limit)
+    .map((x) => x.h)
     .map((h) => {
       const useHe = lang === "he" && h.name_he;
       return {
