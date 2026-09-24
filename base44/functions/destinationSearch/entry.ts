@@ -8,6 +8,7 @@ function classifyOsm(osmKey, osmValue) {
   const k = (osmKey || "").toLowerCase();
   const v = (osmValue || "").toLowerCase();
   if (k === "tourism" && HOTEL_TYPES.includes(v)) return "hotel";
+  if (k === "building" && v === "hotel") return "hotel";
   if (k === "aeroway" && AIRPORT_TYPES.includes(v)) return "airport";
   if (k === "place") return "city";
   return "place";
