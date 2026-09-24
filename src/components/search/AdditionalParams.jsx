@@ -6,7 +6,18 @@ import CitizenshipCombobox from "@/components/search/CitizenshipCombobox";
 const STARS = ["none", "2", "3", "4", "5"];
 const MEALS = ["ro", "bb", "hb", "fb", "ai"];
 
-const TIMES = ["06:00", "07:00", "08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00"];
+// Early check-in: 01:00 – 13:00 in 30-minute steps
+const EARLY_TIMES = [];
+for (let h = 1; h <= 13; h++) {
+  EARLY_TIMES.push(`${String(h).padStart(2, "0")}:00`);
+  if (h < 13) EARLY_TIMES.push(`${String(h).padStart(2, "0")}:30`);
+}
+// Late check-out: 12:00 – 23:30 in 30-minute steps
+const LATE_TIMES = [];
+for (let h = 12; h <= 23; h++) {
+  LATE_TIMES.push(`${String(h).padStart(2, "0")}:00`);
+  LATE_TIMES.push(`${String(h).padStart(2, "0")}:30`);
+}
 
 const GREEN = "#16a34a";
 
@@ -28,7 +39,7 @@ function Dropdown({ label, placeholder, value, onChange, options, icon: Icon, no
   const [open, setOpen] = useState(false);
   return (
     <div className="flex flex-col gap-1 min-w-0 flex-1">
-      <label className="text-[14px] font-medium text-[#5a5a5a]">{label}</label>
+      <label className="text-[15px] font-medium text-[#5a5a5a]">{label}</label>
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -40,7 +51,7 @@ function Dropdown({ label, placeholder, value, onChange, options, icon: Icon, no
         </span>
         <ChevronDown className="w-4 h-4 text-[#7D7D7D] shrink-0" strokeWidth={1.5} />
       </button>
-      {note && <p className="text-[13px] leading-snug text-[#8a8a8a] mt-0.5">{note}</p>}
+      {note && <p className="text-[14px] leading-snug text-[#8a8a8a] mt-0.5">{note}</p>}
       {open && (
         <>
           <div className="fixed inset-0 z-20" onClick={() => setOpen(false)} />
@@ -71,7 +82,8 @@ export default function AdditionalParams() {
   const [lateOut, setLateOut] = useState("");
   const [freeCancel, setFreeCancel] = useState(false);
 
-  const timeOptions = TIMES.map((tm) => ({ value: tm, label: tm }));
+  const earlyOptions = EARLY_TIMES.map((tm) => ({ value: tm, label: tm }));
+  const lateOptions = LATE_TIMES.map((tm) => ({ value: tm, label: tm }));
 
   return (
     <div className="flex flex-col gap-4 pt-3">
@@ -100,7 +112,7 @@ export default function AdditionalParams() {
 
       {/* Star rating */}
       <div className="flex flex-col gap-2">
-        <label className="text-[14px] font-medium text-[#5a5a5a]">{t("search.starRating")}</label>
+        <label className="text-[15px] font-medium text-[#5a5a5a]">{t("search.starRating")}</label>
         <div className="flex flex-wrap gap-2">
           {STARS.map((s) => (
             <Chip key={s} label={t(`search.stars.${s}`)} active={stars === s} onClick={() => setStars(stars === s ? "" : s)} />
@@ -110,7 +122,7 @@ export default function AdditionalParams() {
 
       {/* Meal plan / pension basis */}
       <div className="flex flex-col gap-2">
-        <label className="text-[14px] font-medium text-[#5a5a5a]">{t("search.mealPlan")}</label>
+        <label className="text-[15px] font-medium text-[#5a5a5a]">{t("search.mealPlan")}</label>
         <div className="flex flex-wrap gap-2">
           {MEALS.map((m) => (
             <Chip key={m} label={t(`search.meal.${m}`)} active={meal === m} onClick={() => setMeal(meal === m ? "" : m)} />
@@ -125,7 +137,7 @@ export default function AdditionalParams() {
           placeholder={t("search.selectTime")}
           value={earlyIn}
           onChange={setEarlyIn}
-          options={timeOptions}
+          options={earlyOptions}
           icon={Clock}
           note={t("search.requestOnlyNote")}
         />
@@ -134,7 +146,7 @@ export default function AdditionalParams() {
           placeholder={t("search.selectTime")}
           value={lateOut}
           onChange={setLateOut}
-          options={timeOptions}
+          options={lateOptions}
           icon={Clock}
         />
       </div>

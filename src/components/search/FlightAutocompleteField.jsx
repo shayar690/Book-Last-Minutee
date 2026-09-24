@@ -68,7 +68,7 @@ export default function FlightAutocompleteField({ label, placeholder, flex = fal
 
   return (
     <div ref={boxRef} className={`relative flex flex-col gap-1 min-w-0 ${flex ? "flex-[1.6]" : "flex-1"}`}>
-      <label className="text-[11px] font-medium text-[#7D7D7D]">{label}</label>
+      <label className="text-[14px] font-medium text-[#5a5a5a]">{label}</label>
       <div className="flex items-center gap-2 px-3 h-12 rounded-lg bg-white border border-[#C5C5C5] focus-within:border-[#2D3035] transition-colors">
         <Plane className="w-4 h-4 text-[#7D7D7D] shrink-0" strokeWidth={1.5} />
         <input
@@ -78,7 +78,7 @@ export default function FlightAutocompleteField({ label, placeholder, flex = fal
           onFocus={() => results.length && setOpen(true)}
           onKeyDown={onKey}
           placeholder={placeholder}
-          className="bg-transparent outline-none w-full text-sm text-[#2D3035] placeholder:text-[#9a9a9a]"
+          className="bg-transparent outline-none w-full text-base text-[#2D3035] placeholder:text-[#9a9a9a]"
         />
         {loading && <Loader2 className="w-4 h-4 text-[#7D7D7D] animate-spin shrink-0" />}
       </div>
@@ -97,8 +97,8 @@ export default function FlightAutocompleteField({ label, placeholder, flex = fal
               >
                 <span className="shrink-0 w-10 h-7 rounded-md bg-[#2D3035] text-white text-[11px] font-bold flex items-center justify-center tracking-wide">{r.iata}</span>
                 <span className="min-w-0">
-                  <span className="block text-sm text-[#2D3035] truncate">{city}, {country}</span>
-                  <span className="block text-xs text-[#7D7D7D] truncate">{airName}</span>
+                  <span className="block text-base text-[#2D3035] truncate">{city}, {country}</span>
+                  <span className="block text-[13px] text-[#7D7D7D] truncate">{airName}</span>
                 </span>
               </button>
             );
