@@ -31,13 +31,19 @@ function Field({ icon: Icon, label, placeholder, type = "text", flex = false }) 
   );
 }
 
-function GuestsField({ t }) {
+function GuestsField({ t, mode = "rooms" }) {
   const [open, setOpen] = useState(false);
-  const [adults, setAdults] = useState(2);
+  const isPassengers = mode === "passengers";
+  const [adults, setAdults] = useState(isPassengers ? 1 : 2);
   const [rooms, setRooms] = useState(1);
+  const [children, setChildren] = useState(0);
+  const label = isPassengers ? t("search.passengers") : t("search.guests");
+  const summary = isPassengers
+    ? `${adults} ${t("search.adults")} · ${children} ${t("search.children")}`
+    : `${rooms} ${t("search.rooms")} · ${adults} ${t("search.adults")}`;
   return (
     <div className="relative flex flex-col gap-1 min-w-0 flex-1">
-      <label className="text-[11px] font-medium text-[#7D7D7D]">{t("search.guests")}</label>
+      <label className="text-[11px] font-medium text-[#7D7D7D]">{label}</label>
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -45,7 +51,7 @@ function GuestsField({ t }) {
       >
         <span className="flex items-center gap-2">
           <Users className="w-4 h-4 text-[#7D7D7D]" strokeWidth={1.5} />
-          <span className="text-sm text-[#2D3035]">{rooms} {t("search.rooms")} · {adults} {t("search.adults")}</span>
+          <span className="text-sm text-[#2D3035]">{summary}</span>
         </span>
         <ChevronDown className="w-4 h-4 text-[#7D7D7D]" strokeWidth={1.5} />
       </button>
@@ -60,7 +66,11 @@ function GuestsField({ t }) {
           >
             <Stepper label={t("search.adults")} value={adults} setValue={setAdults} min={1} max={9} />
             <div className="h-px bg-[#EAEAEA] my-3" />
-            <Stepper label={t("search.rooms")} value={rooms} setValue={setRooms} min={1} max={6} />
+            {isPassengers ? (
+              <Stepper label={t("search.children")} value={children} setValue={setChildren} min={0} max={9} />
+            ) : (
+              <Stepper label={t("search.rooms")} value={rooms} setValue={setRooms} min={1} max={6} />
+            )}
           </motion.div>
         )}
       </AnimatePresence>
@@ -161,7 +171,7 @@ export default function SearchWidget() {
                 <FlightAutocompleteField label={t("search.flightTo")} placeholder={t("search.flightPlaceholder")} />
                 <DateField label={t("search.departure")} value={checkIn} placeholder={t("search.addDate")} active={dateModal.open && dateModal.active === "in"} onClick={() => openRange("in")} />
                 <DateField label={t("search.return")} value={checkOut} placeholder={t("search.addDate")} active={dateModal.open && dateModal.active === "out"} onClick={() => openRange("out")} />
-                <GuestsField t={t} />
+                <GuestsField t={t} mode="passengers" />
               </>
             )}
             {active === "transfers" && (
