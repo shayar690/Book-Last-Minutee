@@ -167,7 +167,7 @@ export default function SearchWidget() {
       </div>
 
       {/* Search card */}
-      <form onSubmit={handleSearch} className="bg-white rounded-2xl rounded-tl-none p-4 sm:p-5 shadow-horizon relative overflow-hidden">
+      <form onSubmit={handleSearch} className="bg-white rounded-2xl rounded-tl-none p-4 sm:p-5 shadow-horizon relative">
         <AnimatePresence mode="wait">
           <motion.div
             key={`${active}-${lang}`}
