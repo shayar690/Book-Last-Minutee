@@ -12,9 +12,9 @@ const TABS = [
   { id: "hotels", icon: Bed },
   { id: "flights", icon: Plane },
   { id: "vacationPackages", icon: Package },
+  { id: "attractions", icon: Ticket },
   { id: "transfers", icon: Bus },
   { id: "cars", icon: Car },
-  { id: "attractions", icon: Ticket },
   { id: "marriageProposals", icon: Gem },
 ];
 
