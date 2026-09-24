@@ -63,7 +63,7 @@ export default function DatePickerModal({ open, mode, checkIn, checkOut, active,
             exit={{ y: "100%" }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
             onClick={(e) => e.stopPropagation()}
-            className="bg-white w-full sm:max-w-md h-[92vh] sm:h-[85vh] flex flex-col rounded-t-2xl sm:rounded-2xl"
+            className="bg-white w-full sm:max-w-2xl h-[80vh] flex flex-col rounded-t-2xl sm:rounded-2xl"
           >
             {/* header */}
             <div className="flex items-center gap-3 p-4 border-b border-[#EAEAEA]">
@@ -84,52 +84,52 @@ export default function DatePickerModal({ open, mode, checkIn, checkOut, active,
               </div>
             </div>
 
-            {/* day labels */}
-            <div className="grid grid-cols-7 px-4 py-2 border-b border-[#EAEAEA]">
-              {DAY_LABELS[lang].map((d, i) => (
-                <div key={i} className="text-center text-[11px] font-medium text-[#9a9a9a]">{d}</div>
-              ))}
-            </div>
-
-            {/* months */}
-            <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 pb-6">
-              {months.map((m, mi) => {
-                const name = m.toLocaleDateString(lang === "he" ? "he-IL" : "en-US", { month: "long", year: "numeric" });
-                const firstDay = new Date(m.getFullYear(), m.getMonth(), 1).getDay();
-                const daysInMonth = new Date(m.getFullYear(), m.getMonth() + 1, 0).getDate();
-                const cells = [];
-                for (let i = 0; i < firstDay; i++) cells.push(null);
-                for (let d = 1; d <= daysInMonth; d++) cells.push(new Date(m.getFullYear(), m.getMonth(), d));
-                return (
-                  <div key={mi} className="pt-5">
-                    <div className="font-semibold text-[#2D3035] text-lg mb-3 capitalize">{name}</div>
-                    <div className="grid grid-cols-7 gap-y-1">
-                      {cells.map((c, ci) => {
-                        if (!c) return <div key={ci} />;
-                        const isPast = c < today;
-                        const isStart = sameDay(c, pickIn);
-                        const isEnd = sameDay(c, pickOut);
-                        const inRange = between(c, pickIn, pickOut);
-                        const selected = isStart || isEnd;
-                        return (
-                          <div key={ci} className="relative flex justify-center">
-                            {inRange && <div className="absolute inset-y-1 inset-x-0 bg-[#F5D166]/30 rounded-full" />}
-                            <button
-                              type="button"
-                              disabled={isPast}
-                              onClick={() => handleDay(c)}
-                              className={`relative w-9 h-9 rounded-full text-sm flex items-center justify-center transition-colors
-                                ${selected ? "bg-[#F5D166] text-[#2D3035] font-semibold" : isPast ? "text-[#C5C5C5] cursor-not-allowed" : "text-[#2D3035] hover:bg-[#F5F5F5]"}`}
-                            >
-                              {c.getDate()}
-                            </button>
-                          </div>
-                        );
-                      })}
+            {/* months — 2 side-by-side, vertical scroll for more */}
+            <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 pb-6 pt-4">
+              <div className="grid grid-cols-2 gap-x-4 sm:gap-x-8 gap-y-4">
+                {months.map((m, mi) => {
+                  const name = m.toLocaleDateString(lang === "he" ? "he-IL" : "en-US", { month: "long", year: "numeric" });
+                  const firstDay = new Date(m.getFullYear(), m.getMonth(), 1).getDay();
+                  const daysInMonth = new Date(m.getFullYear(), m.getMonth() + 1, 0).getDate();
+                  const cells = [];
+                  for (let i = 0; i < firstDay; i++) cells.push(null);
+                  for (let d = 1; d <= daysInMonth; d++) cells.push(new Date(m.getFullYear(), m.getMonth(), d));
+                  return (
+                    <div key={mi} className="pt-2 min-w-0">
+                      <div className="font-semibold text-[#2D3035] text-base mb-2 capitalize text-center">{name}</div>
+                      <div className="grid grid-cols-7 mb-1">
+                        {DAY_LABELS[lang].map((d, i) => (
+                          <div key={i} className="text-center text-[11px] font-medium text-[#9a9a9a]">{d}</div>
+                        ))}
+                      </div>
+                      <div className="grid grid-cols-7 gap-y-1">
+                        {cells.map((c, ci) => {
+                          if (!c) return <div key={ci} />;
+                          const isPast = c < today;
+                          const isStart = sameDay(c, pickIn);
+                          const isEnd = sameDay(c, pickOut);
+                          const inRange = between(c, pickIn, pickOut);
+                          const selected = isStart || isEnd;
+                          return (
+                            <div key={ci} className="relative flex justify-center">
+                              {inRange && <div className="absolute inset-y-1 inset-x-0 bg-[#F5D166]/30 rounded-full" />}
+                              <button
+                                type="button"
+                                disabled={isPast}
+                                onClick={() => handleDay(c)}
+                                className={`relative w-full aspect-square max-w-8 sm:max-w-9 rounded-full text-xs sm:text-sm flex items-center justify-center transition-colors
+                                  ${selected ? "bg-[#F5D166] text-[#2D3035] font-semibold" : isPast ? "text-[#C5C5C5] cursor-not-allowed" : "text-[#2D3035] hover:bg-[#F5F5F5]"}`}
+                              >
+                                {c.getDate()}
+                              </button>
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
 
             {/* footer */}

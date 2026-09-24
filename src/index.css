@@ -43,6 +43,13 @@
     @apply bg-background text-foreground font-body antialiased;
     font-size: 1.0625rem;
     line-height: 1.6;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  /* Re-enable text selection only where it's needed */
+  input, textarea, [contenteditable="true"] {
+    -webkit-user-select: text;
+    user-select: text;
   }
   h1, h2, h3, h4 {
     @apply font-heading;
