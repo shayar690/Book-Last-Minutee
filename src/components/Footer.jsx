@@ -46,7 +46,7 @@ export default function Footer() {
           <div>
             <div className="flex items-center gap-2.5">
               <Globe2 className="w-6 h-6 text-gold" strokeWidth={1.25} />
-              <span className="font-display text-2xl text-white tracking-wide">ATLAS</span>
+              <span className="font-display text-lg sm:text-2xl text-white tracking-wide">{t("brand.name")}</span>
             </div>
             <p className="mt-4 text-white/60 text-sm leading-relaxed max-w-xs">{t("footer.tagline")}</p>
             <div className="mt-6">
@@ -103,7 +103,7 @@ export default function Footer() {
         </div>
 
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-white/45 text-xs">
-          <p>© {new Date().getFullYear()} ATLAS Travel. {t("footer.rights")}</p>
+          <p>© {new Date().getFullYear()} {t("brand.name")}. {t("footer.rights")}</p>
           <p className="tracking-luxe uppercase">Powered by RateHawk live inventory</p>
         </div>
       </div>

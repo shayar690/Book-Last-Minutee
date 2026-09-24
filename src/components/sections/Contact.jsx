@@ -30,13 +30,13 @@ export default function Contact() {
                 <span className="text-ink font-medium group-hover:text-gold transition-colors">+1 800 555 0199</span>
               </span>
             </a>
-            <a href="mailto:concierge@atlas.travel" className="flex items-center gap-4 group">
+            <a href="mailto:concierge@lastminutevacations.com" className="flex items-center gap-4 group">
               <span className="w-11 h-11 rounded-xl glass flex items-center justify-center border border-mist">
                 <Mail className="w-4.5 h-4.5 text-gold" strokeWidth={1.5} />
               </span>
               <span>
                 <span className="block text-xs uppercase tracking-luxe text-muted-foreground">{t("contact.emailLabel")}</span>
-                <span className="text-ink font-medium group-hover:text-gold transition-colors">concierge@atlas.travel</span>
+                <span className="text-ink font-medium group-hover:text-gold transition-colors">concierge@lastminutevacations.com</span>
               </span>
             </a>
             <div className="flex items-center gap-4">

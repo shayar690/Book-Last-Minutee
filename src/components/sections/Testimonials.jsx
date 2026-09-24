@@ -6,12 +6,12 @@ import { useI18n } from "@/lib/i18n";
 const REVIEWS = {
   en: [
     { name: "Elena Marchetti", trip: "Santorini · honeymoon", text: "The calmest booking I've ever made. Everything synced, nothing hidden, and the suite was exactly as pictured." },
-    { name: "David Okafor", trip: "Maldives · family", text: "Flights, transfers and the overwater villa in one flow. ATLAS felt like a concierge, not a checkout." },
+    { name: "David Okafor", trip: "Maldives · family", text: "Flights, transfers and the overwater villa in one flow. Last-Minute Vacations felt like a concierge, not a checkout." },
     { name: "Yael Ben-David", trip: "Paris · weekend", text: "Hebrew support, RTL interface, and a price that held all the way to payment. This is how travel should feel." },
   ],
   he: [
     { name: "אלנה מרקטי", trip: "סנטוריני · ירח דבש", text: "ההזמנה השלווה ביותר שעשיתי. הכל מסונכרן, שום דבר נסתר, והסוויטה הייתה בדיוק כמו בתמונה." },
-    { name: "דוד אוקפור", trip: "המלדיביים · משפחה", text: "טיסות, הסעות ווילה מעל המים בתהליך אחד. ATLAS הרגיש כמו קונסיירז', לא כמו קופה." },
+    { name: "דוד אוקפור", trip: "המלדיביים · משפחה", text: "טיסות, הסעות ווילה מעל המים בתהליך אחד. חופשות ברגע האחרון הרגישו כמו קונסיירז', לא כמו קופה." },
     { name: "יעל בן-דוד", trip: "פריז · סוף שבוע", text: "תמיכה בעברית, ממשק RTL, ומחיר שהחזיק עד התשלום. כך נסיעות צריכות להרגיש." },
   ],
 };

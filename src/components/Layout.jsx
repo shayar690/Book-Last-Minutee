@@ -71,7 +71,7 @@ function Header() {
       <div className="max-w-7xl mx-auto px-6 lg:px-10 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2.5">
           <Globe2 className={`w-6 h-6 ${scrolled ? "text-gold" : "text-white"}`} strokeWidth={1.25} />
-          <span className={`font-display text-2xl tracking-wide ${scrolled ? "text-ink" : "text-white"}`}>ATLAS</span>
+          <span className={`font-display text-lg sm:text-2xl tracking-wide ${scrolled ? "text-ink" : "text-white"}`}>{t("brand.name")}</span>
         </Link>
 
         <nav className="hidden lg:flex items-center gap-8">

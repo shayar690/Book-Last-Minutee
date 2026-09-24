@@ -15,6 +15,7 @@ const translations = {
     "nav.login": "Log in",
     "nav.signup": "Sign up",
     "nav.logout": "Log out",
+    "brand.name": "Last-Minute Vacations",
 
     "tab.flights": "Flights",
     "tab.hotels": "Discounted Hotels",
@@ -119,7 +120,7 @@ const translations = {
     "deals.save": "Save",
     "deals.perPerson": "/ person",
 
-    "why.title": "Why book with ATLAS",
+    "why.title": "Why book with Last-Minute Vacations",
     "why.subtitle": "A booking experience designed to feel like the vacation itself.",
     "why.1.title": "Live, guaranteed pricing",
     "why.1.desc": "Every rate syncs in real time with RateHawk's inventory. The price you see is the price you pay.",
@@ -159,7 +160,7 @@ const translations = {
     "footer.explore": "Explore",
     "footer.company": "Company",
     "footer.support": "Support",
-    "footer.newsletter": "The Atlas Letter",
+    "footer.newsletter": "The Last-Minute Letter",
     "footer.newsletterDesc": "Quiet offers and horizon notes, a few times a year.",
     "footer.subscribe": "Subscribe",
     "footer.rights": "All rights reserved.",
@@ -183,6 +184,7 @@ const translations = {
     "nav.login": "התחברות",
     "nav.signup": "הרשמה",
     "nav.logout": "התנתקות",
+    "brand.name": "חופשות ברגע האחרון",
 
     "tab.flights": "טיסות",
     "tab.hotels": "מלונות בהנחות",
@@ -287,7 +289,7 @@ const translations = {
     "deals.save": "חיסכון",
     "deals.perPerson": "/ לאדם",
 
-    "why.title": "למה להזמין עם ATLAS",
+    "why.title": "למה להזמין עם חופשות ברגע האחרון",
     "why.subtitle": "חוויית הזמנה שמרגישה כמו החופשה עצמה.",
     "why.1.title": "מחיר חי ומובטח",
     "why.1.desc": "כל מחיר מסתנכרן בזמן אמת עם מלאי RateHawk. המחיר שרואים הוא המחיר שמשלמים.",
@@ -327,7 +329,7 @@ const translations = {
     "footer.explore": "גלו",
     "footer.company": "חברה",
     "footer.support": "תמיכה",
-    "footer.newsletter": "מכתב אטלס",
+    "footer.newsletter": "מכתב הרגע האחרון",
     "footer.newsletterDesc": "הצעות שקטות ופתקי אופק, פעמים אחדות בשנה.",
     "footer.subscribe": "הרשמה",
     "footer.rights": "כל הזכויות שמורות.",
