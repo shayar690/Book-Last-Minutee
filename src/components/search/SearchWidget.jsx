@@ -80,9 +80,8 @@ function GuestsField({ t, mode = "rooms" }) {
                       exit={{ opacity: 0, height: 0 }}
                       className="mt-3 text-center"
                     >
-                      <p className="text-[11px] leading-snug text-red-600">{t("search.infantWarningLine1")}</p>
-                      <div className="h-px w-8 mx-auto bg-red-300 my-1.5" />
-                      <p className="text-[11px] leading-snug text-red-600">{t("search.infantWarningLine2")}</p>
+                      <p className="text-[13px] font-medium leading-snug text-red-600">{t("search.infantWarningLine1")}</p>
+                      <p className="text-[13px] font-medium leading-snug text-red-600">{t("search.infantWarningLine2")}</p>
                     </motion.div>
                   )}
                 </AnimatePresence>
