@@ -12,8 +12,13 @@ export default function AutocompleteField({ label, placeholder, flex = false, fi
   const [active, setActive] = useState(-1);
   const boxRef = useRef(null);
   const timer = useRef(null);
+  const justSelected = useRef(false);
 
   useEffect(() => {
+    if (justSelected.current) {
+      justSelected.current = false;
+      return;
+    }
     if (timer.current) clearTimeout(timer.current);
     if (value.trim().length < 2) {
       setResults([]);
@@ -45,8 +50,10 @@ export default function AutocompleteField({ label, placeholder, flex = false, fi
   }, []);
 
   const pick = (r) => {
-    setValue(r.label.split(",").slice(0, 2).join(", "));
+    justSelected.current = true;
+    setValue(r.label.split(",").slice(0, 2).map((s) => s.trim()).join(", "));
     setOpen(false);
+    setResults([]);
     if (onSelect) onSelect(r);
   };
 
