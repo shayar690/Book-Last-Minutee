@@ -4,10 +4,16 @@ import { useI18n } from "@/lib/i18n";
 
 export default function DateField({ label, value, placeholder, active, onClick, flex = false }) {
   const { lang } = useI18n();
-  const fmt = (d) =>
-    d
-      ? new Date(d).toLocaleDateString(lang === "he" ? "he-IL" : "en-US", { day: "numeric", month: "short", year: "numeric" })
-      : placeholder;
+  const fmt = (d) => {
+    if (!d) return placeholder;
+    const date = new Date(d);
+    const locale = lang === "he" ? "he-IL" : "en-US";
+    const weekday = date.toLocaleDateString(locale, { weekday: "long" });
+    const rest = date.toLocaleDateString(locale, { day: "numeric", month: "short", year: "numeric" });
+    // Hebrew weekday comes as "יום שלישי" — strip the "יום " prefix.
+    const weekdayClean = lang === "he" ? weekday.replace("יום ", "") : weekday;
+    return `${weekdayClean}, ${rest}`;
+  };
   return (
     <div className={`flex flex-col gap-1 min-w-0 ${flex ? "flex-[1.6]" : "flex-1"}`}>
       <label className="text-[14px] font-medium text-[#5a5a5a]">{label}</label>
