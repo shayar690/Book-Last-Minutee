@@ -14,6 +14,7 @@ import Register from '@/pages/Register';
 import ForgotPassword from '@/pages/ForgotPassword';
 import ResetPassword from '@/pages/ResetPassword';
 import MyBookings from '@/pages/MyBookings';
+import MarriageProposalsDubai from '@/pages/MarriageProposalsDubai';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import { Navigate } from 'react-router-dom';
 // Add page imports here
@@ -50,6 +51,7 @@ const AuthenticatedApp = () => {
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route element={<Layout />}>
         <Route path="/" element={<Home />} />
+        <Route path="/marriage-proposals-dubai" element={<MarriageProposalsDubai />} />
         <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
           <Route path="/bookings" element={<MyBookings />} />
         </Route>

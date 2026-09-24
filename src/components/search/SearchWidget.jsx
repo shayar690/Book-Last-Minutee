@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Bed, Plane, Bus, Car, Train, Ticket, Search, Calendar, Users, ChevronDown, Clock, ArrowRight, Package, Gem } from "lucide-react";
+import { Bed, Plane, Bus, Car, Ticket, Search, Calendar, Users, ChevronDown, Clock, ArrowRight, Package, Gem } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import AutocompleteField from "@/components/search/AutocompleteField";
 import FlightAutocompleteField from "@/components/search/FlightAutocompleteField";
@@ -13,7 +14,6 @@ const TABS = [
   { id: "vacationPackages", icon: Package },
   { id: "transfers", icon: Bus },
   { id: "cars", icon: Car },
-  { id: "trains", icon: Train },
   { id: "attractions", icon: Ticket },
   { id: "marriageProposals", icon: Gem },
 ];
@@ -139,6 +139,7 @@ function Stepper({ label, hint, value, setValue, min, max, onMaxAttempt, canIncr
 
 export default function SearchWidget() {
   const { t, dir, lang } = useI18n();
+  const navigate = useNavigate();
   const [active, setActive] = useState("hotels");
   const [searching, setSearching] = useState(false);
   const [showParams, setShowParams] = useState(false);
@@ -180,7 +181,7 @@ export default function SearchWidget() {
           return (
             <button
               key={tab.id}
-              onClick={() => setActive(tab.id)}
+              onClick={() => (tab.id === "marriageProposals" ? navigate("/marriage-proposals-dubai") : setActive(tab.id))}
               className={`flex items-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-xl text-sm font-medium transition-colors whitespace-nowrap ${
                 isActive ? "bg-[#2D3035] text-white" : "bg-[#FFFAD9] text-[#2D3035] hover:bg-[#FFF3B0]"
               }`}
@@ -245,24 +246,9 @@ export default function SearchWidget() {
                 <GuestsField t={t} />
               </>
             )}
-            {active === "trains" && (
-              <>
-                <AutocompleteField label={t("search.from")} placeholder={t("search.trainFromPlaceholder")} flex />
-                <AutocompleteField label={t("search.to")} placeholder={t("search.trainToPlaceholder")} flex />
-                <DateField label={t("search.date")} value={checkIn} placeholder={t("search.addDate")} active={dateModal.open} onClick={openSingle} />
-                <Field icon={Clock} label={t("search.time")} type="time" />
-              </>
-            )}
             {active === "attractions" && (
               <>
                 <AutocompleteField label={t("search.attractionDestination")} placeholder={t("search.attractionPlaceholder")} flex />
-                <DateField label={t("search.date")} value={checkIn} placeholder={t("search.addDate")} active={dateModal.open} onClick={openSingle} />
-                <GuestsField t={t} />
-              </>
-            )}
-            {active === "marriageProposals" && (
-              <>
-                <AutocompleteField label={t("search.destination")} placeholder={t("search.destinationPlaceholder")} flex />
                 <DateField label={t("search.date")} value={checkIn} placeholder={t("search.addDate")} active={dateModal.open} onClick={openSingle} />
                 <GuestsField t={t} />
               </>
