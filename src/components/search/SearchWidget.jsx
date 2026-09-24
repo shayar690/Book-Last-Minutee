@@ -37,9 +37,10 @@ function GuestsField({ t, mode = "rooms" }) {
   const [adults, setAdults] = useState(isPassengers ? 1 : 2);
   const [rooms, setRooms] = useState(1);
   const [children, setChildren] = useState(0);
+  const [infants, setInfants] = useState(0);
   const label = isPassengers ? t("search.passengers") : t("search.guests");
   const summary = isPassengers
-    ? `${adults} ${t("search.adults")} · ${children} ${t("search.children")}`
+    ? [`${adults} ${t("search.adults")}`, `${children} ${t("search.children")}`, infants > 0 ? `${infants} ${t("search.infants")}` : null].filter(Boolean).join(" · ")
     : `${rooms} ${t("search.rooms")} · ${adults} ${t("search.adults")}`;
   return (
     <div className="relative flex flex-col gap-1 min-w-0 flex-1">
@@ -67,7 +68,23 @@ function GuestsField({ t, mode = "rooms" }) {
             <Stepper label={t("search.adults")} hint={isPassengers ? t("search.adultsHint") : null} value={adults} setValue={setAdults} min={1} max={9} />
             <div className="h-px bg-[#EAEAEA] my-3" />
             {isPassengers ? (
-              <Stepper label={t("search.children")} hint={t("search.childrenHint")} value={children} setValue={setChildren} min={0} max={9} />
+              <>
+                <Stepper label={t("search.children")} hint={t("search.childrenHint")} value={children} setValue={setChildren} min={0} max={9} />
+                <div className="h-px bg-[#EAEAEA] my-3" />
+                <Stepper label={t("search.infants")} hint={t("search.infantsHint")} value={infants} setValue={setInfants} min={0} max={9} />
+                <AnimatePresence>
+                  {infants > 0 && (
+                    <motion.p
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="mt-3 text-[11px] leading-snug text-red-600"
+                    >
+                      {t("search.infantWarning")}
+                    </motion.p>
+                  )}
+                </AnimatePresence>
+              </>
             ) : (
               <Stepper label={t("search.rooms")} value={rooms} setValue={setRooms} min={1} max={6} />
             )}
