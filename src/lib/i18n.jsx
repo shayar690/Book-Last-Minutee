@@ -86,7 +86,7 @@ const translations = {
     "search.lateCheckout": "Late check-out",
     "search.selectTime": "Select the time",
     "search.freeCancellation": "Free cancellation",
-    "search.requestOnlyNote": "Request only — not guaranteed.",
+    "search.requestOnlyNote": "Request only - not guaranteed.",
     "search.addDate": "Add date",
     "search.done": "Done",
 
@@ -244,7 +244,7 @@ const translations = {
     "search.lateCheckout": "צ'ק-אאוט מאוחר",
     "search.selectTime": "בחר שעה",
     "search.freeCancellation": "ביטול ללא עלות",
-    "search.requestOnlyNote": "בגדר בקשה בלבד — אינו מובטח.",
+    "search.requestOnlyNote": "בגדר בקשה בלבד - אינו מובטח.",
     "search.addDate": "הוסף תאריך",
     "search.done": "סיום",
 
