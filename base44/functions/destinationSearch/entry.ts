@@ -1,112 +1,39 @@
-// Destination autocomplete — Photon (hotels, partial-name matching) + OpenStreetMap Nominatim (other).
-// Hotels tab uses Photon (komoot.io) — free, ElasticSearch-backed, returns suggestions as you type
-// (partial name matching) instead of requiring the full hotel name.
-// A curated hotel database supplements Photon for iconic hotels whose OSM name is
-// stored in a local language only (e.g. Arabic in Dubai), so short English prefixes
-// like "Five Pa" can still surface "FIVE Palm Jumeirah Hotel".
+// Destination autocomplete — Open-Meteo (cities, multilingual, free, no API key)
+// + curated hotel database. Fast, reliable, no API key required.
 import { searchCuratedHotels } from "./curatedHotels.ts";
 
-const HOTEL_TYPES = ["hotel", "hostel", "motel", "guest_house", "apartment", "chalet", "resort", "apartment_hotel", "apartments"];
-const AIRPORT_TYPES = ["aerodrome", "helipad", "heliport"];
-
-function classifyOsm(osmKey, osmValue) {
-  const k = (osmKey || "").toLowerCase();
-  const v = (osmValue || "").toLowerCase();
-  if (k === "tourism" && HOTEL_TYPES.includes(v)) return "hotel";
-  if (k === "building" && v === "hotel") return "hotel";
-  if (k === "aeroway" && AIRPORT_TYPES.includes(v)) return "airport";
-  // Major cities are often tagged as boundary/administrative in OSM (Paris, Tokyo, London).
-  if (k === "boundary" && v === "administrative") return "city";
-  // Only major settlements qualify as "city" for hotel search; villages/hamlets are filtered out.
-  if (k === "place" && ["city", "town", "municipality"].includes(v)) return "city";
-  if (k === "place") return "village";
-  return "place";
-}
-
-function buildPhotonLabel(p) {
-  const parts = [p.name, p.city, p.state, p.country].filter((x, i, arr) => x && x !== arr[i - 1]);
-  return parts.join(", ");
-}
-
-// Hebrew → Latin transliteration, so a partial Hebrew query like "לימס" becomes "lims"
-// and can partial-match "Limassol" in Photon (which only indexes Latin/local OSM names).
-const HEBREW_TRANSLIT: Record<string, string> = {
-  "א": "a", "ב": "b", "ג": "g", "ד": "d", "ה": "h", "ו": "o",
-  "ז": "z", "ח": "ch", "ט": "t", "י": "i", "כ": "k", "ך": "k",
-  "ל": "l", "מ": "m", "ם": "m", "נ": "n", "ן": "n", "ס": "s",
-  "ע": "a", "פ": "p", "ף": "p", "צ": "ts", "ץ": "ts", "ק": "k",
-  "ר": "r", "ש": "sh", "ת": "t",
-};
-
-function isHebrew(s: string): boolean {
-  return /[\u0590-\u05FF]/.test(s);
-}
-
-function transliterateHebrew(s: string): string {
-  let result = "";
-  for (const ch of s) {
-    result += HEBREW_TRANSLIT[ch] || ch;
-  }
-  return result;
-}
-
-async function photonSearch(query, lang, filter) {
-  // Photon supports lang: en, de, fr, it, default. Hebrew unsupported → use "default" (local names).
-  const photonLang = lang === "en" ? "en" : "default";
-  const url = "https://photon.komoot.io/api/?q=" + encodeURIComponent(query) +
-    "&lang=" + photonLang + "&limit=30";
-  const res = await fetch(url, { headers: { "User-Agent": "ATLAS-Travel-Booking/1.0" } });
+// Open-Meteo Geocoding API — free, no API key, supports Hebrew and 20+ languages.
+// Returns cities, towns, and countries with localized names.
+async function openMeteoSearch(query: string, lang: string, filter: string) {
+  const langCode = lang === "he" ? "he" : "en";
+  const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=20&language=${langCode}&format=json`;
+  const res = await fetch(url);
   const data = await res.json().catch(() => ({}));
-  const seen = new Set();
-  return (data.features || [])
-    .map((f) => {
-      const p = f.properties || {};
-      const [lon, lat] = f.geometry?.coordinates || [];
+  const seen = new Set<string>();
+  return (data.results || [])
+    .filter((r: any) => {
+      // For hotel search, only return cities/towns (not countries or regions)
+      if (filter === "hotels") {
+        return ["PPL", "PPLA", "PPLA2", "PPLA3", "PPLA4", "PPLA5", "PPLC", "PPLG", "PPLF"].includes(r.feature_code);
+      }
+      return true;
+    })
+    .map((r: any) => {
+      const parts = [r.name, r.admin1, r.country].filter(Boolean);
+      const key = (r.name + r.country).toLowerCase();
+      if (seen.has(key)) return null;
+      seen.add(key);
       return {
-        label: buildPhotonLabel(p),
-        lat, lon,
-        result_type: classifyOsm(p.osm_key, p.osm_value),
+        label: parts.join(", "),
+        lat: r.latitude,
+        lon: r.longitude,
+        result_type: "city",
       };
     })
-    .filter((r) => {
-      if (filter === "hotels" && !["hotel", "city"].includes(r.result_type)) return false;
-      const key = (r.label || "").toLowerCase().split(",").slice(0, 2).join(",").trim();
-      if (seen.has(key)) return false;
-      seen.add(key);
-      return true;
-    });
+    .filter((r: any) => r !== null);
 }
 
-async function nominatimSearch(query, lang, filter) {
-  const url =
-    "https://nominatim.openstreetmap.org/search?format=jsonv2" +
-    "&q=" + encodeURIComponent(query) +
-    "&addressdetails=1&limit=10&accept-language=" + encodeURIComponent(lang);
-  const res = await fetch(url, {
-    headers: { "User-Agent": "ATLAS-Travel-Booking/1.0 (atlas.travel)" },
-  });
-  const data = await res.json().catch(() => []);
-  const seen = new Set();
-  return (Array.isArray(data) ? data : [])
-    .map((r) => ({
-      label: r.display_name,
-      lat: r.lat,
-      lon: r.lon,
-      type: r.type,
-      category: r.category,
-      importance: r.importance || 0,
-      result_type: classifyOsm(r.category, r.type),
-    }))
-    .filter((r) => {
-      if (filter === "hotels" && !["hotel", "city"].includes(r.result_type)) return false;
-      const key = (r.label || "").toLowerCase().split(",").slice(0, 2).join(",").trim();
-      if (seen.has(key)) return false;
-      seen.add(key);
-      return true;
-    });
-}
-
-export default async function(req) {
+export default async function(req: any) {
   try {
     const body = await req.json().catch(() => ({}));
     const query = (body.query || "").trim();
@@ -114,40 +41,27 @@ export default async function(req) {
     const filter = body.filter || "";
     if (query.length < 2) return Response.json({ results: [] });
 
-    // Hotels tab: curated database (prefix match) + Photon (partial-name matching).
-    // Photon always queried with lang=en for English names + better ranking of
-    // international hotels (many OSM names are local-language only).
+    // Hotels tab: curated database + Open-Meteo (cities).
     if (filter === "hotels") {
       const curated = searchCuratedHotels(query, 12, lang);
-      // Build search queries: original + transliterated (for Hebrew → Latin partial matching in Photon).
-      const queries = [query];
-      if (isHebrew(query)) {
-        const translit = transliterateHebrew(query);
-        if (translit && translit !== query) queries.push(translit);
-      }
-      // Hotels from Photon (partial-name matching) + major cities from Nominatim (importance-ranked).
-      // Results returned in the user's language (Hebrew for Israeli places via lang=default / accept-language=he).
-      // Small towns/villages are excluded: Photon hotels only, Nominatim cities with importance >= 0.3.
-      const [photonHotels, nominatimCities] = await Promise.all([
-        Promise.all(queries.map((q) => photonSearch(q, lang, filter).then((rs) => rs.filter((r) => r.result_type === "hotel")).catch(() => [])))
-          .then((arrs) => arrs.flat()),
-        Promise.all(queries.map((q) => nominatimSearch(q, lang, filter).then((rs) => rs.filter((r) => r.result_type === "city" && (r.importance || 0) >= 0.3)).catch(() => [])))
-          .then((arrs) => arrs.flat()),
-      ]);
-      const seen = new Set();
-      const merged = [];
-      for (const r of [...curated, ...photonHotels, ...nominatimCities]) {
+      const cities = await openMeteoSearch(query, lang, filter).catch(() => []);
+
+      const seen = new Set<string>();
+      const merged: any[] = [];
+      for (const r of [...curated, ...cities]) {
         const key = (r.label || "").toLowerCase().split(",").slice(0, 2).join(",").trim();
         if (seen.has(key)) continue;
         seen.add(key);
         merged.push(r);
       }
       if (merged.length) return Response.json({ results: merged });
+      return Response.json({ results: [] });
     }
 
-    const results = await nominatimSearch(query, lang, filter);
+    // General search (non-hotels): Open-Meteo only.
+    const results = await openMeteoSearch(query, lang, filter).catch(() => []);
     return Response.json({ results });
-  } catch (error) {
+  } catch (error: any) {
     return Response.json({ error: error.message }, { status: 500 });
   }
 }

@@ -2,6 +2,7 @@ import React, { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Star, MapPin, ChevronLeft, ChevronRight } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
+import ImageWithFallback from "@/components/results/ImageWithFallback";
 
 export default function HotelCard({ hotel }) {
   const { t } = useI18n();
@@ -32,7 +33,7 @@ export default function HotelCard({ hotel }) {
           <div ref={scrollRef} onScroll={onScroll} className="flex overflow-x-auto snap-x snap-mandatory h-full scrollbar-hide">
             {images.map((img, i) => (
               <div key={i} className="w-full h-full shrink-0 snap-center">
-                <img src={img} alt={`${hotel.name} ${i + 1}`} className="w-full h-full object-cover" onError={(e) => { e.target.parentElement.style.display = "none"; }} />
+                <ImageWithFallback src={img} alt={`${hotel.name} ${i + 1}`} className="w-full h-full object-cover" />
               </div>
             ))}
           </div>

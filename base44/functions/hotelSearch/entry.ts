@@ -22,7 +22,7 @@ Find REAL hotels from Booking.com, Hotels.com, Expedia, and other major booking 
 - reviews: Number of guest reviews
 - pricePerNight: Price per night in USD
 - currency: "USD"
-- images: Array of 3-5 real photo URLs from the hotel's listing
+- images: Array of 5-8 real photo URLs from the hotel's listing (exterior, lobby, rooms, pool, restaurant)
 - amenities: Array of key amenities (e.g. ["Free WiFi","Pool","Spa","Parking","Gym","Restaurant","Bar"])
 - url: Direct link to the hotel on Booking.com
 - description: Short description (1-2 sentences)
@@ -32,6 +32,8 @@ Find REAL hotels from Booking.com, Hotels.com, Expedia, and other major booking 
 - checkInTime: Check-in time (e.g. "14:00")
 - checkOutTime: Check-out time (e.g. "12:00")
 - policies: Hotel policies (cancellation, pets, smoking, etc.)
+- reviews: Array of 3-5 recent guest reviews, each with: author (name), country, rating (0-10), date (e.g. "2024-06-15"), text (1-3 sentences)
+- roomTypes: Array of 3-5 room types available, each with: name, description (1 sentence), pricePerNight (USD), maxGuests (number), beds (e.g. "1 King bed"), image (photo URL of the room)
 
 Return at least 40 hotels sorted by price (lowest first). If fewer exist, return as many as available.
 Respond in ${languageName}. Hotel names and descriptions must be in ${languageName}.`;
@@ -65,7 +67,36 @@ Respond in ${languageName}. Hotel names and descriptions must be in ${languageNa
                 distanceToCenter: { type: "number" },
                 checkInTime: { type: "string" },
                 checkOutTime: { type: "string" },
-                policies: { type: "string" }
+                policies: { type: "string" },
+                reviews: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    additionalProperties: true,
+                    properties: {
+                      author: { type: "string" },
+                      country: { type: "string" },
+                      rating: { type: "number" },
+                      date: { type: "string" },
+                      text: { type: "string" }
+                    }
+                  }
+                },
+                roomTypes: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    additionalProperties: true,
+                    properties: {
+                      name: { type: "string" },
+                      description: { type: "string" },
+                      pricePerNight: { type: "number" },
+                      maxGuests: { type: "number" },
+                      beds: { type: "string" },
+                      image: { type: "string" }
+                    }
+                  }
+                }
               }
             }
           }

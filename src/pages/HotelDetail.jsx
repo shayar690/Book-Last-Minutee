@@ -1,7 +1,8 @@
 import React, { useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Star, MapPin, ChevronLeft, ChevronRight, ExternalLink, Check, Clock } from "lucide-react";
+import { Star, MapPin, ChevronLeft, ChevronRight, ExternalLink, Check, Clock, Quote, BedDouble, Users } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
+import ImageWithFallback from "@/components/results/ImageWithFallback";
 
 export default function HotelDetail() {
   const { t } = useI18n();
@@ -51,7 +52,7 @@ export default function HotelDetail() {
             <div ref={scrollRef} onScroll={onScroll} className="flex overflow-x-auto snap-x snap-mandatory h-full scrollbar-hide">
               {images.map((img, i) => (
                 <div key={i} className="w-full h-full shrink-0 snap-center">
-                  <img src={img} alt={`${hotel.name} ${i + 1}`} className="w-full h-full object-cover" />
+                  <ImageWithFallback src={img} alt={`${hotel.name} ${i + 1}`} className="w-full h-full object-cover" />
                 </div>
               ))}
             </div>
@@ -127,6 +128,77 @@ export default function HotelDetail() {
                 <div key={i} className="flex items-center gap-2 text-sm text-[#5a5a5a]">
                   <Check className="w-4 h-4 text-[#F5D166] shrink-0" strokeWidth={2} />
                   <span>{a}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Room Types */}
+        {hotel.roomTypes && hotel.roomTypes.length > 0 && (
+          <div className="p-4 bg-white rounded-xl border border-[#E5E5E5] mb-4">
+            <h2 className="text-lg font-semibold text-[#2D3035] mb-3">{t("hotel.roomTypes")}</h2>
+            <div className="flex flex-col gap-3">
+              {hotel.roomTypes.map((room, i) => (
+                <div key={i} className="flex flex-col sm:flex-row gap-3 p-3 rounded-lg border border-[#EAEAEA]">
+                  {room.image && (
+                    <div className="w-full sm:w-32 h-28 sm:h-24 rounded-lg overflow-hidden shrink-0 bg-[#F5F5F5]">
+                      <ImageWithFallback src={room.image} alt={room.name} className="w-full h-full object-cover" />
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-sm font-semibold text-[#2D3035]">{room.name}</h3>
+                    {room.description && <p className="text-xs text-[#7D7D7D] mt-0.5 line-clamp-2">{room.description}</p>}
+                    <div className="flex flex-wrap items-center gap-3 mt-2">
+                      {room.beds && (
+                        <span className="flex items-center gap-1 text-xs text-[#5a5a5a]">
+                          <BedDouble className="w-3.5 h-3.5" strokeWidth={1.5} />
+                          {room.beds}
+                        </span>
+                      )}
+                      {room.maxGuests && (
+                        <span className="flex items-center gap-1 text-xs text-[#5a5a5a]">
+                          <Users className="w-3.5 h-3.5" strokeWidth={1.5} />
+                          {room.maxGuests} {t("hotel.maxGuests")}
+                        </span>
+                      )}
+                      {room.pricePerNight && (
+                        <span className="text-sm font-bold text-[#2D3035] ms-auto">${room.pricePerNight} <span className="text-xs font-normal text-[#7D7D7D]">{t("results.perNight")}</span></span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Guest Reviews */}
+        {hotel.reviews && hotel.reviews.length > 0 && (
+          <div className="p-4 bg-white rounded-xl border border-[#E5E5E5] mb-4">
+            <h2 className="text-lg font-semibold text-[#2D3035] mb-3">{t("hotel.reviews")}</h2>
+            <div className="flex flex-col gap-3">
+              {hotel.reviews.map((review, i) => (
+                <div key={i} className="p-3 rounded-lg bg-[#FAFAF8] border border-[#EAEAEA]">
+                  <div className="flex items-center justify-between gap-2 mb-1.5">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-full bg-[#F5D166] flex items-center justify-center text-xs font-bold text-[#2D3035]">
+                        {(review.author || "?").charAt(0).toUpperCase()}
+                      </div>
+                      <div>
+                        <div className="text-sm font-medium text-[#2D3035]">{review.author}</div>
+                        {review.country && <div className="text-xs text-[#7D7D7D]">{review.country}</div>}
+                      </div>
+                    </div>
+                    {review.rating > 0 && (
+                      <span className="px-1.5 py-0.5 rounded bg-[#2D3035] text-white text-xs font-bold">{Number(review.rating).toFixed(1)}</span>
+                    )}
+                  </div>
+                  <div className="flex items-start gap-1.5">
+                    <Quote className="w-3.5 h-3.5 text-[#C5C5C5] shrink-0 mt-0.5" strokeWidth={1.5} />
+                    <p className="text-sm text-[#5a5a5a] leading-relaxed">{review.text}</p>
+                  </div>
+                  {review.date && <div className="text-xs text-[#9a9a9a] mt-1.5">{review.date}</div>}
                 </div>
               ))}
             </div>

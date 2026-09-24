@@ -135,6 +135,10 @@ const translations = {
     "hotel.bookNow": "Book on Booking.com",
     "hotel.notFound": "Hotel not found. Please search again.",
     "hotel.searchAgain": "Search hotels",
+    "hotel.reviews": "Guest reviews",
+    "hotel.roomTypes": "Room types",
+    "hotel.maxGuests": "Guests",
+    "hotel.beds": "Beds",
 
     "hero.badge": "Powered by live RateHawk inventory",
     "hero.title": "Your journey begins in serenity",
@@ -340,6 +344,10 @@ const translations = {
     "hotel.bookNow": "הזמן ב-Booking.com",
     "hotel.notFound": "מלון לא נמצא. נא לחפש שוב.",
     "hotel.searchAgain": "חיפוש מלונות",
+    "hotel.reviews": "ביקורות אורחים",
+    "hotel.roomTypes": "סוגי חדרים",
+    "hotel.maxGuests": "אורחים",
+    "hotel.beds": "מיטות",
 
     "hero.badge": "מופעל על ידי מלאי חי של RateHawk",
     "hero.title": "המסע שלך מתחיל בשלווה",
