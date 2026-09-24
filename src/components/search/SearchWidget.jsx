@@ -74,14 +74,16 @@ function GuestsField({ t, mode = "rooms" }) {
                 <Stepper label={t("search.infants")} hint={t("search.infantsHint")} value={infants} setValue={setInfants} min={0} max={9} />
                 <AnimatePresence>
                   {infants > 0 && (
-                    <motion.p
+                    <motion.div
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: "auto" }}
                       exit={{ opacity: 0, height: 0 }}
-                      className="mt-3 text-[11px] leading-snug text-red-600"
+                      className="mt-3 text-center"
                     >
-                      {t("search.infantWarning")}
-                    </motion.p>
+                      <p className="text-[11px] leading-snug text-red-600">{t("search.infantWarningLine1")}</p>
+                      <div className="h-px w-8 mx-auto bg-red-300 my-1.5" />
+                      <p className="text-[11px] leading-snug text-red-600">{t("search.infantWarningLine2")}</p>
+                    </motion.div>
                   )}
                 </AnimatePresence>
               </>
