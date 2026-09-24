@@ -3,7 +3,7 @@ import { Plane, Loader2 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useI18n } from "@/lib/i18n";
 
-export default function FlightAutocompleteField({ label, placeholder, flex = false, defaultValue = "" }) {
+export default function FlightAutocompleteField({ label, placeholder, flex = false, defaultValue = "", onSelect }) {
   const { lang } = useI18n();
   const [value, setValue] = useState(defaultValue);
   const [touched, setTouched] = useState(false);
@@ -56,6 +56,7 @@ export default function FlightAutocompleteField({ label, placeholder, flex = fal
     const { city } = disp(r);
     setValue(`${city} (${r.iata})`);
     setOpen(false);
+    if (onSelect) onSelect(r);
   };
 
   const onKey = (e) => {

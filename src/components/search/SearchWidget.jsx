@@ -36,7 +36,7 @@ function Field({ icon: Icon, label, placeholder, type = "text", flex = false }) 
   );
 }
 
-function GuestsField({ t, mode = "rooms" }) {
+function GuestsField({ t, mode = "rooms", onChange }) {
   const [open, setOpen] = useState(false);
   const isPassengers = mode === "passengers";
   const [adults, setAdults] = useState(isPassengers ? 1 : 2);
@@ -52,6 +52,9 @@ function GuestsField({ t, mode = "rooms" }) {
   useEffect(() => {
     if (adults + children + infants < 9) setGroupLimit(false);
   }, [adults, children, infants]);
+  useEffect(() => {
+    if (onChange) onChange({ adults, rooms, children, infants });
+  }, [adults, rooms, children, infants]);
   const label = isPassengers ? t("search.passengers") : t("search.guests");
   const summary = isPassengers
     ? [`${adults} ${t("search.adults")}`, `${children} ${t("search.children")}`, infants > 0 ? `${infants} ${t("search.infants")}` : null].filter(Boolean).join(" · ")
@@ -150,6 +153,11 @@ export default function SearchWidget() {
   const [checkIn, setCheckIn] = useState(null);
   const [checkOut, setCheckOut] = useState(null);
   const [dateModal, setDateModal] = useState({ open: false, mode: "range", active: "in" });
+  const [hotelDest, setHotelDest] = useState("");
+  const [flightOrigin, setFlightOrigin] = useState({ name: "", code: "" });
+  const [flightDest, setFlightDest] = useState({ name: "", code: "" });
+  const [guestInfo, setGuestInfo] = useState({ adults: 2, rooms: 1 });
+  const [paxInfo, setPaxInfo] = useState({ adults: 1, children: 0, infants: 0 });
 
   // Created inside the component so each render gets fresh element references.
   // If hoisted to module scope, React bails out of re-rendering these children
@@ -182,8 +190,28 @@ export default function SearchWidget() {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    setSearching(true);
-    setTimeout(() => setSearching(false), 1800);
+    const fmtDate = (d) => d ? d.toISOString().split("T")[0] : "";
+    if (active === "hotels" && hotelDest) {
+      const params = new URLSearchParams({
+        destination: hotelDest,
+        checkIn: fmtDate(checkIn),
+        checkOut: fmtDate(checkOut),
+        adults: guestInfo.adults,
+        rooms: guestInfo.rooms,
+      });
+      navigate(`/hotels?${params.toString()}`);
+    } else if (active === "flights" && (flightOrigin.name || flightDest.name)) {
+      const params = new URLSearchParams({
+        origin: flightOrigin.name || "",
+        originCode: flightOrigin.code || "",
+        destination: flightDest.name || "",
+        destinationCode: flightDest.code || "",
+        departureDate: fmtDate(checkIn),
+        returnDate: fmtDate(checkOut),
+        adults: paxInfo.adults,
+      });
+      navigate(`/flights?${params.toString()}`);
+    }
   };
 
   return (
@@ -221,22 +249,22 @@ export default function SearchWidget() {
           >
             {active === "hotels" && (
               <>
-                <AutocompleteField label={t("search.destination")} placeholder={t("search.destinationPlaceholder")} flex filter="hotels" />
+                <AutocompleteField label={t("search.destination")} placeholder={t("search.destinationPlaceholder")} flex filter="hotels" onSelect={(r) => setHotelDest(r.label)} />
                 <DateField label={t("search.checkIn")} value={checkIn} placeholder={t("search.addDate")} active={dateModal.open && dateModal.active === "in"} onClick={() => openRange("in")} />
                 <DateField label={t("search.checkOut")} value={checkOut} placeholder={t("search.addDate")} active={dateModal.open && dateModal.active === "out"} onClick={() => openRange("out")} />
-                <GuestsField t={t} />
+                <GuestsField t={t} onChange={setGuestInfo} />
               </>
             )}
             {active === "flights" && (
               <div className="flex flex-col gap-3 w-full">
                 <div className="flex flex-col sm:flex-row gap-3">
-                  <FlightAutocompleteField label={t("search.flightFrom")} placeholder={t("search.flightPlaceholder")} defaultValue={lang === "he" ? "תל אביב (TLV)" : ""} />
-                  <FlightAutocompleteField label={t("search.flightTo")} placeholder={t("search.flightPlaceholder")} />
+                  <FlightAutocompleteField label={t("search.flightFrom")} placeholder={t("search.flightPlaceholder")} defaultValue={lang === "he" ? "תל אביב (TLV)" : ""} onSelect={(r) => setFlightOrigin({ name: `${r.city} (${r.iata})`, code: r.iata })} />
+                  <FlightAutocompleteField label={t("search.flightTo")} placeholder={t("search.flightPlaceholder")} onSelect={(r) => setFlightDest({ name: `${r.city} (${r.iata})`, code: r.iata })} />
                 </div>
                 <div className="flex flex-col sm:flex-row gap-3">
                   <DateField label={t("search.departure")} value={checkIn} placeholder={t("search.departureDate")} active={dateModal.open && dateModal.active === "in"} onClick={() => openRange("in")} />
                   <DateField label={t("search.return")} value={checkOut} placeholder={t("search.returnDate")} active={dateModal.open && dateModal.active === "out"} onClick={() => openRange("out")} />
-                  <GuestsField t={t} mode="passengers" />
+                  <GuestsField t={t} mode="passengers" onChange={setPaxInfo} />
                 </div>
               </div>
             )}

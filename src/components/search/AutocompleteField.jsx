@@ -3,7 +3,7 @@ import { MapPin, Loader2, Building2, Plane } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useI18n } from "@/lib/i18n";
 
-export default function AutocompleteField({ label, placeholder, flex = false, filter }) {
+export default function AutocompleteField({ label, placeholder, flex = false, filter, onSelect }) {
   const { lang } = useI18n();
   const [value, setValue] = useState("");
   const [results, setResults] = useState([]);
@@ -47,6 +47,7 @@ export default function AutocompleteField({ label, placeholder, flex = false, fi
   const pick = (r) => {
     setValue(r.label.split(",").slice(0, 2).join(", "));
     setOpen(false);
+    if (onSelect) onSelect(r);
   };
 
   const onKey = (e) => {
