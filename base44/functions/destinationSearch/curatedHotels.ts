@@ -136,6 +136,7 @@ export const CURATED_HOTELS: CuratedHotel[] = [
   { name: "Dan Eilat", name_he: "מלון דן אילת", city: "Eilat", city_he: "אילת", country: "Israel", country_he: "ישראל", lat: 29.5540, lon: 34.9470 },
   { name: "Herods Eilat", name_he: "הרודס אילת", city: "Eilat", city_he: "אילת", country: "Israel", country_he: "ישראל", lat: 29.5560, lon: 34.9510 },
   { name: "Hilton Eilat", name_he: "הילטון אילת", city: "Eilat", city_he: "אילת", country: "Israel", country_he: "ישראל", lat: 29.5530, lon: 34.9490 },
+  { name: "Caesar Premier Eilat", name_he: "קיסר אילת", city: "Eilat", city_he: "אילת", country: "Israel", country_he: "ישראל", lat: 29.5570, lon: 34.9520 },
 
   // --- Tel Aviv (comprehensive) ---
   { name: "Cinema Hotel Tel Aviv", name_he: "סינמה תל אביב - ישרוטל", city: "Tel Aviv", city_he: "תל אביב", country: "Israel", country_he: "ישראל", lat: 32.0770, lon: 34.7710 },
@@ -192,6 +193,7 @@ export const CURATED_HOTELS: CuratedHotel[] = [
   { name: "Leonardo Plaza Tiberias", name_he: "לאונרדו פלאזה טבריה", city: "Tiberias", city_he: "טבריה", country: "Israel", country_he: "ישראל", lat: 32.7960, lon: 35.5320 },
   { name: "Scots Hotel Tiberias", name_he: "סקוטס טבריה - ישרוטל אקסקלוסיב", city: "Tiberias", city_he: "טבריה", country: "Israel", country_he: "ישראל", lat: 32.7950, lon: 35.5310 },
   { name: "Galei Kinneret Hotel", name_he: "גלי כנרת טבריה", city: "Tiberias", city_he: "טבריה", country: "Israel", country_he: "ישראל", lat: 32.7940, lon: 35.5300 },
+  { name: "Caesar Premier Tiberias", name_he: "קיסר טבריה", city: "Tiberias", city_he: "טבריה", country: "Israel", country_he: "ישראל", lat: 32.7930, lon: 35.5330 },
 
   // --- Mitzpe Ramon / Negev ---
   { name: "Beresheet Mitzpe Ramon", name_he: "בראשית מצפה רמון", city: "Mitzpe Ramon", city_he: "מצפה רמון", country: "Israel", country_he: "ישראל", lat: 30.6100, lon: 34.8010 },
@@ -225,27 +227,62 @@ function matchScore(name: string, q: string): number {
   return 1;
 }
 
-export function searchCuratedHotels(query: string, limit = 8, lang = "en") {
+export function searchCuratedHotels(query: string, limit = 12, lang = "en") {
   const q = normalize(query).trim();
   if (q.length < 2) return [];
-  return CURATED_HOTELS
+
+  // --- Hotel matches (by hotel name) ---
+  const hotelMatches = CURATED_HOTELS
     .map((h) => {
       const s = Math.max(matchScore(h.name, q), h.name_he ? matchScore(h.name_he, q) : 0);
       return { h, s };
     })
     .filter((x) => x.s > 0)
     .sort((a, b) => (b.s - a.s) || (a.h.name.length - b.h.name.length))
-    .slice(0, limit)
-    .map((x) => x.h)
-    .map((h) => {
-      const useHe = lang === "he" && h.name_he;
-      return {
-        label: useHe
-          ? [h.name_he, h.city_he || h.city, h.country_he || h.country].join(", ")
-          : [h.name, h.city, h.country].join(", "),
-        lat: h.lat,
-        lon: h.lon,
-        result_type: "hotel",
-      };
-    });
+    .map((x) => x.h);
+
+  // --- City matches (by city name from curated hotels) ---
+  const cityMap = new Map<string, { city: string; city_he?: string; country: string; country_he?: string; lat: number; lon: number }>();
+  for (const h of CURATED_HOTELS) {
+    const key = h.city.toLowerCase();
+    if (!cityMap.has(key)) {
+      cityMap.set(key, { city: h.city, city_he: h.city_he, country: h.country, country_he: h.country_he, lat: h.lat, lon: h.lon });
+    }
+  }
+  const cityMatches = Array.from(cityMap.values())
+    .map((c) => {
+      const s = Math.max(matchScore(c.city, q), c.city_he ? matchScore(c.city_he, q) : 0);
+      return { c, s };
+    })
+    .filter((x) => x.s > 0)
+    .sort((a, b) => b.s - a.s)
+    .map((x) => x.c);
+
+  // --- Merge: hotels first, then cities ---
+  const results: { label: string; lat: number; lon: number; result_type: string }[] = [];
+  const seenKeys = new Set<string>();
+
+  for (const h of hotelMatches) {
+    const useHe = lang === "he" && h.name_he;
+    const label = useHe
+      ? [h.name_he, h.city_he || h.city, h.country_he || h.country].join(", ")
+      : [h.name, h.city, h.country].join(", ");
+    const key = label.toLowerCase();
+    if (seenKeys.has(key)) continue;
+    seenKeys.add(key);
+    results.push({ label, lat: h.lat, lon: h.lon, result_type: "hotel" });
+  }
+
+  for (const c of cityMatches) {
+    const useHe = lang === "he" && c.city_he;
+    const label = useHe
+      ? [c.city_he, c.country_he || c.country].join(", ")
+      : [c.city, c.country].join(", ");
+    const key = label.toLowerCase();
+    if (seenKeys.has(key)) continue;
+    seenKeys.add(key);
+    results.push({ label, lat: c.lat, lon: c.lon, result_type: "city" });
+  }
+
+  return results.slice(0, limit);
 }

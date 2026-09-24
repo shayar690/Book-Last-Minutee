@@ -32,7 +32,7 @@ async function photonSearch(query, lang, filter) {
   // Photon supports lang: en, de, fr, it, default. Hebrew unsupported → use "default" (local names).
   const photonLang = lang === "en" ? "en" : "default";
   const url = "https://photon.komoot.io/api/?q=" + encodeURIComponent(query) +
-    "&lang=" + photonLang + "&limit=15";
+    "&lang=" + photonLang + "&limit=30";
   const res = await fetch(url, { headers: { "User-Agent": "ATLAS-Travel-Booking/1.0" } });
   const data = await res.json().catch(() => ({}));
   const seen = new Set();
@@ -48,7 +48,7 @@ async function photonSearch(query, lang, filter) {
     })
     .filter((r) => {
       if (filter === "hotels" && !["hotel", "city"].includes(r.result_type)) return false;
-      const key = (r.label || "").toLowerCase().split(",")[0];
+      const key = (r.label || "").toLowerCase().split(",").slice(0, 2).join(",").trim();
       if (seen.has(key)) return false;
       seen.add(key);
       return true;
@@ -77,7 +77,7 @@ async function nominatimSearch(query, lang, filter) {
     }))
     .filter((r) => {
       if (filter === "hotels" && !["hotel", "city"].includes(r.result_type)) return false;
-      const key = (r.label || "").toLowerCase().split(",")[0];
+      const key = (r.label || "").toLowerCase().split(",").slice(0, 2).join(",").trim();
       if (seen.has(key)) return false;
       seen.add(key);
       return true;
@@ -96,22 +96,22 @@ export default async function(req) {
     // Photon always queried with lang=en for English names + better ranking of
     // international hotels (many OSM names are local-language only).
     if (filter === "hotels") {
-      const curated = searchCuratedHotels(query, 8, lang);
+      const curated = searchCuratedHotels(query, 12, lang);
       // Hotels from Photon (partial-name matching) + major cities from Nominatim (importance-ranked).
       // Results returned in the user's language (Hebrew for Israeli places via lang=default / accept-language=he).
-      // Small towns/villages are excluded: Photon hotels only, Nominatim cities with importance >= 0.35.
+      // Small towns/villages are excluded: Photon hotels only, Nominatim cities with importance >= 0.3.
       const [photonHotels, nominatimCities] = await Promise.all([
         photonSearch(query, lang, filter)
           .then((rs) => rs.filter((r) => r.result_type === "hotel"))
           .catch(() => []),
         nominatimSearch(query, lang, filter)
-          .then((rs) => rs.filter((r) => r.result_type === "city" && (r.importance || 0) >= 0.35))
+          .then((rs) => rs.filter((r) => r.result_type === "city" && (r.importance || 0) >= 0.3))
           .catch(() => []),
       ]);
       const seen = new Set();
       const merged = [];
       for (const r of [...curated, ...photonHotels, ...nominatimCities]) {
-        const key = (r.label || "").toLowerCase().split(",")[0];
+        const key = (r.label || "").toLowerCase().split(",").slice(0, 2).join(",").trim();
         if (seen.has(key)) continue;
         seen.add(key);
         merged.push(r);
