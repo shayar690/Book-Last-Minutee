@@ -93,7 +93,7 @@ export default function DatePickerModal({ open, mode, checkIn, checkOut, active,
 
             {/* months — 2 side-by-side, vertical scroll for more */}
             <div ref={scrollRef} className="overflow-y-auto px-4 pb-6 pt-4 h-[340px] sm:h-[320px]">
-              <div className="grid grid-cols-2 gap-x-4 sm:gap-x-8 gap-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 sm:gap-x-8 gap-y-4">
                 {months.map((m, mi) => {
                   const name = m.toLocaleDateString(lang === "he" ? "he-IL" : "en-US", { month: "long", year: "numeric" });
                   const firstDay = new Date(m.getFullYear(), m.getMonth(), 1).getDay();
