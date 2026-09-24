@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
@@ -10,10 +10,12 @@ export default function HotelResults() {
   const [searchParams] = useSearchParams();
   const [hotels, setHotels] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState(null);
   const [sortBy, setSortBy] = useState("popularity");
   const [page, setPage] = useState(1);
   const perPage = 20;
+  const loadedNamesRef = useRef(new Set());
 
   const sortedHotels = useMemo(() => {
     const arr = [...hotels];
@@ -43,20 +45,45 @@ export default function HotelResults() {
   const freeCancel = searchParams.get("freeCancel") === "1";
   const citizenship = searchParams.get("citizenship") || "";
 
+  // Batch 1 — fast initial results.
   useEffect(() => {
     if (!destination) { setLoading(false); return; }
     setLoading(true);
+    setHotels([]);
+    loadedNamesRef.current = new Set();
+
     base44.functions.invoke("hotelSearch", {
       destination, checkIn, checkOut, adults: Number(adults), rooms: Number(rooms), lang,
-      stars, meal, earlyIn, lateOut, freeCancel, citizenship,
+      stars, meal, earlyIn, lateOut, freeCancel, citizenship, batch: 1,
     })
       .then((res) => {
-        setHotels(res.data?.hotels || []);
+        const batchHotels = res.data?.hotels || [];
+        batchHotels.forEach((h) => loadedNamesRef.current.add(h.name));
+        setHotels(batchHotels);
         setError(res.data?.error || null);
       })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, [destination, checkIn, checkOut, adults, rooms, lang, stars, meal, earlyIn, lateOut, freeCancel, citizenship]);
+
+  // Batch 2 — more hotels loaded in the background after batch 1 is shown.
+  useEffect(() => {
+    if (loading || hotels.length === 0) return;
+    setLoadingMore(true);
+
+    base44.functions.invoke("hotelSearch", {
+      destination, checkIn, checkOut, adults: Number(adults), rooms: Number(rooms), lang,
+      stars, meal, earlyIn, lateOut, freeCancel, citizenship, batch: 2,
+      exclude: Array.from(loadedNamesRef.current),
+    })
+      .then((res) => {
+        const moreHotels = (res.data?.hotels || []).filter((h) => !loadedNamesRef.current.has(h.name));
+        moreHotels.forEach((h) => loadedNamesRef.current.add(h.name));
+        setHotels((prev) => [...prev, ...moreHotels]);
+      })
+      .catch(() => {})
+      .finally(() => setLoadingMore(false));
+  }, [loading]);
 
   return (
     <div className="min-h-screen bg-[#F9F9F9]">
@@ -98,11 +125,19 @@ export default function HotelResults() {
             <p className="text-sm text-[#7D7D7D]">{t("results.noHotels")}</p>
           </div>
         ) : (
-          <div className="flex flex-col gap-3">
-            {pagedHotels.map((hotel, i) => (
-              <HotelCard key={i} hotel={hotel} />
-            ))}
-          </div>
+          <>
+            <div className="flex flex-col gap-3">
+              {pagedHotels.map((hotel, i) => (
+                <HotelCard key={`${hotel.name}-${i}`} hotel={hotel} />
+              ))}
+            </div>
+            {loadingMore && (
+              <div className="flex items-center justify-center gap-2 py-6">
+                <Loader2 className="w-5 h-5 text-[#F5D166] animate-spin" />
+                <span className="text-sm text-[#7D7D7D]">{t("results.hotelsLoading")}</span>
+              </div>
+            )}
+          </>
         )}
         {totalPages > 1 && (
           <div className="flex items-center justify-center gap-4 mt-6">

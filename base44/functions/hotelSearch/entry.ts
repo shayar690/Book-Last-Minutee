@@ -3,6 +3,7 @@
 // Returns: name, stars, rating, reviews, price, photos, amenities, Booking.com URL.
 // Supports filtering by star rating, meal plan, early check-in, late check-out,
 // free cancellation, and citizenship. Currency adapts to language (ILS for Hebrew).
+// Progressive loading: batch 1 returns 20 hotels fast, batch 2 returns 20 more.
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.49';
 
 const MEAL_NAMES: Record<string, string> = {
@@ -20,6 +21,7 @@ export default async function(req) {
     const {
       destination, checkIn, checkOut, adults = 2, rooms = 1, lang = "en",
       stars = "", meal = "", earlyIn = "", lateOut = "", freeCancel = false, citizenship = "",
+      batch = 1, exclude = [],
     } = body;
 
     if (!destination) return Response.json({ error: "Destination required", hotels: [] }, { status: 400 });
@@ -41,16 +43,25 @@ export default async function(req) {
       ? `\n\nApply these filters:\n${filters.map((f) => `- ${f}`).join("\n")}`
       : "";
 
-    const prompt = `Search the web for hotels in "${destination}" available for check-in ${checkIn} and check-out ${checkOut} for ${adults} adults in ${rooms} room(s).${filterText}
+    // Exclusion list for batch 2 — avoid returning the same hotels twice.
+    const excludeText = exclude.length > 0
+      ? `\n\nIMPORTANT: Do NOT include any of these hotels (already shown to the user):\n${exclude.map((n) => `- ${n}`).join("\n")}\nReturn DIFFERENT hotels only.`
+      : "";
 
-Find REAL hotels from Booking.com, Hotels.com, Expedia, and other major booking sites. For each hotel provide:
+    const hotelCount = 20;
+
+    const prompt = `Search the web for hotels in "${destination}" available for check-in ${checkIn} and check-out ${checkOut} for ${adults} adults in ${rooms} room(s).${filterText}${excludeText}
+
+Find REAL hotels from Booking.com, Hotels.com, Expedia, and other major booking sites. Major cities have hundreds of hotels — find as many as you can (at least ${hotelCount}). Even with filters applied, there are still many matching hotels — do NOT return fewer than ${hotelCount} unless the city genuinely has fewer.
+
+For each hotel provide:
 - name: Real hotel name
 - stars: Star rating (1-5)
 - rating: Guest rating (0-10, as on Booking.com)
 - reviews: Number of guest reviews
 - pricePerNight: Price per night in ${currencyName}
 - currency: "${currency}"
-- images: Array of 5-8 real photo URLs from the hotel's listing (exterior, lobby, rooms, pool, restaurant)
+- images: Array of 3-5 REAL photo URLs. CRITICAL: Search the web for the hotel's Booking.com page or official hotel website and extract ACTUAL image URLs from those pages. Valid image URL patterns include cf.bstatic.com, q-xx.bstatic.com, images.trvl-media.com, or the hotel's own domain. Do NOT construct, guess, or fabricate image URLs — only return URLs you actually found through web search. If you cannot find real images for a hotel, return an empty array [].
 - amenities: Array of key amenities (e.g. ["Free WiFi","Pool","Spa","Parking","Gym","Restaurant","Bar"])
 - url: Direct link to the hotel on Booking.com
 - description: Short description (1-2 sentences)
@@ -61,15 +72,15 @@ Find REAL hotels from Booking.com, Hotels.com, Expedia, and other major booking 
 - checkOutTime: Check-out time (e.g. "12:00")
 - policies: Hotel policies (cancellation, pets, smoking, etc.)
 - guestReviews: Array of 3-5 recent guest reviews, each with: author (name), country, rating (0-10), date (e.g. "2024-06-15"), text (1-3 sentences)
-- roomTypes: Array of 3-5 room types available, each with: name, description (1 sentence), pricePerNight (in ${currencyName}), maxGuests (number), beds (e.g. "1 King bed"), image (photo URL of the room)
+- roomTypes: Array of 3-5 room types available, each with: name, description (1 sentence), pricePerNight (in ${currencyName}), maxGuests (number), beds (e.g. "1 King bed"), image (photo URL of the room — same rule as images: real URL only, empty string if none found)
 
-Return at least 40 hotels sorted by price (lowest first). If fewer exist, return as many as available.
+Return exactly ${hotelCount} hotels sorted by price (lowest first).
 Respond in ${languageName}. Hotel names and descriptions must be in ${languageName}.`;
 
     const result = await base44.asServiceRole.integrations.Core.InvokeLLM({
       prompt,
       add_context_from_internet: true,
-      model: "gemini_3_8_flash",
+      model: "gemini_3_flash",
       response_json_schema: {
         type: "object",
         additionalProperties: true,
@@ -133,8 +144,8 @@ Respond in ${languageName}. Hotel names and descriptions must be in ${languageNa
     });
 
     const hotels = Array.isArray(result) ? result : (result.hotels || []);
-    return Response.json({ hotels });
+    return Response.json({ hotels, batch });
   } catch (error) {
-    return Response.json({ error: error.message, hotels: [] }, { status: 500 });
+    return Response.json({ error: error.message, hotels: [], batch }, { status: 500 });
   }
 }
