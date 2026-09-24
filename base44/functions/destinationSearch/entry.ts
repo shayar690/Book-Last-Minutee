@@ -96,14 +96,15 @@ export default async function(req) {
     // Photon always queried with lang=en for English names + better ranking of
     // international hotels (many OSM names are local-language only).
     if (filter === "hotels") {
-      const curated = searchCuratedHotels(query, 8);
+      const curated = searchCuratedHotels(query, 8, lang);
       // Hotels from Photon (partial-name matching) + major cities from Nominatim (importance-ranked).
+      // Results returned in the user's language (Hebrew for Israeli places via lang=default / accept-language=he).
       // Small towns/villages are excluded: Photon hotels only, Nominatim cities with importance >= 0.35.
       const [photonHotels, nominatimCities] = await Promise.all([
-        photonSearch(query, "en", filter)
+        photonSearch(query, lang, filter)
           .then((rs) => rs.filter((r) => r.result_type === "hotel"))
           .catch(() => []),
-        nominatimSearch(query, "en", filter)
+        nominatimSearch(query, lang, filter)
           .then((rs) => rs.filter((r) => r.result_type === "city" && (r.importance || 0) >= 0.35))
           .catch(() => []),
       ]);
