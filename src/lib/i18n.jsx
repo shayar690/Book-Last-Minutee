@@ -42,6 +42,8 @@ const translations = {
     "search.oneWay": "One way",
     "search.roundTrip": "Round trip",
     "search.additionalParams": "Additional parameters",
+    "search.addDate": "Add date",
+    "search.done": "Done",
 
     "hero.badge": "Powered by live RateHawk inventory",
     "hero.title": "Your journey begins in serenity",
@@ -153,6 +155,8 @@ const translations = {
     "search.oneWay": "כיוון אחד",
     "search.roundTrip": "הלוך ושוב",
     "search.additionalParams": "פרמטרים נוספים",
+    "search.addDate": "הוסף תאריך",
+    "search.done": "סיום",
 
     "hero.badge": "מופעל על ידי מלאי חי של RateHawk",
     "hero.title": "המסע שלך מתחיל בשלווה",

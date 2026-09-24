@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Bed, Plane, Bus, Car, Train, Search, Calendar, Users, ChevronDown, Clock, ArrowRight } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import AutocompleteField from "@/components/search/AutocompleteField";
+import DateField from "@/components/search/DateField";
+import DatePickerModal from "@/components/search/DatePickerModal";
 
 const TABS = [
   { id: "hotels", icon: Bed },
@@ -84,6 +86,19 @@ export default function SearchWidget() {
   const [searching, setSearching] = useState(false);
   const [showParams, setShowParams] = useState(false);
 
+  const [checkIn, setCheckIn] = useState(null);
+  const [checkOut, setCheckOut] = useState(null);
+  const [dateModal, setDateModal] = useState({ open: false, mode: "range", active: "in" });
+
+  const openRange = (field) => setDateModal({ open: true, mode: "range", active: field });
+  const openSingle = () => setDateModal({ open: true, mode: "single", active: "in" });
+
+  const handleDateSelect = (inDate, outDate) => {
+    setCheckIn(inDate);
+    if (dateModal.mode === "range") setCheckOut(outDate);
+    setDateModal((m) => ({ ...m, open: false }));
+  };
+
   const handleSearch = (e) => {
     e.preventDefault();
     setSearching(true);
@@ -126,8 +141,8 @@ export default function SearchWidget() {
             {active === "hotels" && (
               <>
                 <AutocompleteField label={t("search.destination")} placeholder={t("search.destinationPlaceholder")} flex />
-                <Field icon={Calendar} label={t("search.checkIn")} type="date" />
-                <Field icon={Calendar} label={t("search.checkOut")} type="date" />
+                <DateField label={t("search.checkIn")} value={checkIn} placeholder={t("search.addDate")} active={dateModal.open && dateModal.active === "in"} onClick={() => openRange("in")} />
+                <DateField label={t("search.checkOut")} value={checkOut} placeholder={t("search.addDate")} active={dateModal.open && dateModal.active === "out"} onClick={() => openRange("out")} />
                 <GuestsField t={t} />
               </>
             )}
@@ -135,8 +150,8 @@ export default function SearchWidget() {
               <>
                 <AutocompleteField label={t("search.from")} placeholder="London (LHR)" />
                 <AutocompleteField label={t("search.to")} placeholder="Santorini (JTR)" />
-                <Field icon={Calendar} label={t("search.departure")} type="date" />
-                <Field icon={Calendar} label={t("search.return")} type="date" />
+                <DateField label={t("search.departure")} value={checkIn} placeholder={t("search.addDate")} active={dateModal.open && dateModal.active === "in"} onClick={() => openRange("in")} />
+                <DateField label={t("search.return")} value={checkOut} placeholder={t("search.addDate")} active={dateModal.open && dateModal.active === "out"} onClick={() => openRange("out")} />
                 <GuestsField t={t} />
               </>
             )}
@@ -144,14 +159,14 @@ export default function SearchWidget() {
               <>
                 <AutocompleteField label={t("search.pickup")} placeholder="Airport terminal" flex />
                 <AutocompleteField label={t("search.dropoff")} placeholder="Hotel or address" flex />
-                <Field icon={Calendar} label={t("search.date")} type="date" />
+                <DateField label={t("search.date")} value={checkIn} placeholder={t("search.addDate")} active={dateModal.open} onClick={openSingle} />
                 <Field icon={Clock} label={t("search.time")} type="time" />
               </>
             )}
             {active === "cars" && (
               <>
                 <AutocompleteField label={t("search.pickup")} placeholder="Airport or city" flex />
-                <Field icon={Calendar} label={t("search.date")} type="date" />
+                <DateField label={t("search.date")} value={checkIn} placeholder={t("search.addDate")} active={dateModal.open} onClick={openSingle} />
                 <Field icon={Clock} label={t("search.time")} type="time" />
                 <GuestsField t={t} />
               </>
@@ -160,7 +175,7 @@ export default function SearchWidget() {
               <>
                 <AutocompleteField label={t("search.from")} placeholder="Paris (GDN)" flex />
                 <AutocompleteField label={t("search.to")} placeholder="Amsterdam (AMS)" flex />
-                <Field icon={Calendar} label={t("search.date")} type="date" />
+                <DateField label={t("search.date")} value={checkIn} placeholder={t("search.addDate")} active={dateModal.open} onClick={openSingle} />
                 <Field icon={Clock} label={t("search.time")} type="time" />
               </>
             )}
@@ -229,6 +244,16 @@ export default function SearchWidget() {
           )}
         </AnimatePresence>
       </form>
+
+      <DatePickerModal
+        open={dateModal.open}
+        mode={dateModal.mode}
+        active={dateModal.active}
+        checkIn={checkIn}
+        checkOut={checkOut}
+        onSelect={handleDateSelect}
+        onClose={() => setDateModal((m) => ({ ...m, open: false }))}
+      />
     </div>
   );
 }
