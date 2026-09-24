@@ -42,13 +42,17 @@ export default async function(req: any) {
     if (query.length < 2) return Response.json({ results: [] });
 
     // Hotels tab: curated database + Open-Meteo (cities).
+    // Cities appear first, then hotels — so searching "פרא" shows Prague
+    // before Paramount hotels in Dubai.
     if (filter === "hotels") {
       const curated = searchCuratedHotels(query, 12, lang);
+      const curatedCities = curated.filter((r: any) => r.result_type === "city");
+      const curatedHotels = curated.filter((r: any) => r.result_type === "hotel");
       const cities = await openMeteoSearch(query, lang, filter).catch(() => []);
 
       const seen = new Set<string>();
       const merged: any[] = [];
-      for (const r of [...curated, ...cities]) {
+      for (const r of [...curatedCities, ...cities, ...curatedHotels]) {
         const key = (r.label || "").toLowerCase().split(",").slice(0, 2).join(",").trim();
         if (seen.has(key)) continue;
         seen.add(key);
