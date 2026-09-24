@@ -110,6 +110,21 @@ export const CURATED_HOTELS: CuratedHotel[] = [
   { name: "Amanbagh Agra", city: "Agra", country: "India", lat: 27.1600, lon: 77.9800 },
   { name: "The Taj Mahal Palace Mumbai", city: "Mumbai", country: "India", lat: 18.9220, lon: 72.8340 },
 
+  // --- Israel ---
+  { name: "THE YACHT - By Fattal Limited Edition", city: "Herzliya", country: "Israel", lat: 32.1620, lon: 34.8030 },
+  { name: "The David Kempinski Tel Aviv", city: "Tel Aviv", country: "Israel", lat: 32.0780, lon: 34.7710 },
+  { name: "The Ritz-Carlton Herzliya", city: "Herzliya", country: "Israel", lat: 32.1590, lon: 34.8050 },
+  { name: "Carlton Tel Aviv Hotel", city: "Tel Aviv", country: "Israel", lat: 32.0840, lon: 34.7690 },
+  { name: "Dan Tel Aviv", city: "Tel Aviv", country: "Israel", lat: 32.0810, lon: 34.7680 },
+  { name: "Royal Beach Tel Aviv by Isrotel Exclusive", city: "Tel Aviv", country: "Israel", lat: 32.0790, lon: 34.7700 },
+  { name: "The Setai Tel Aviv", city: "Tel Aviv", country: "Israel", lat: 32.0820, lon: 34.7670 },
+  { name: "W Tel Aviv - Jaffa", city: "Tel Aviv", country: "Israel", lat: 32.0800, lon: 34.7640 },
+  { name: "Isrotel King David Jerusalem", city: "Jerusalem", country: "Israel", lat: 31.7720, lon: 35.2210 },
+  { name: "Mamilla Hotel Jerusalem", city: "Jerusalem", country: "Israel", lat: 31.7720, lon: 35.2230 },
+  { name: "Waldorf Astoria Jerusalem", city: "Jerusalem", country: "Israel", lat: 31.7730, lon: 35.2180 },
+  { name: "Isrotel Royal Rimonim Dead Sea", city: "Ein Bokek", country: "Israel", lat: 31.0880, lon: 35.3860 },
+  { name: "Herods Herzliya", city: "Herzliya", country: "Israel", lat: 32.1610, lon: 34.8040 },
+
   // --- Other iconic ---
   { name: "Atlantis Paradise Island Bahamas", city: "Paradise Island", country: "Bahamas", lat: 25.0850, lon: -77.3140 },
   { name: "Marina Bay Sands Singapore", city: "Singapore", country: "Singapore", lat: 1.2830, lon: 103.8610 },
