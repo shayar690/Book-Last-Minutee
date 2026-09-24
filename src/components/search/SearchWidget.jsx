@@ -149,8 +149,8 @@ export default function SearchWidget() {
             )}
             {active === "flights" && (
               <>
-                <FlightAutocompleteField label={t("search.flightFrom")} placeholder="City or airport (e.g. ATH)" />
-                <FlightAutocompleteField label={t("search.flightTo")} placeholder="City or airport (e.g. JTR)" />
+                <FlightAutocompleteField label={t("search.flightFrom")} placeholder={t("search.flightPlaceholder")} />
+                <FlightAutocompleteField label={t("search.flightTo")} placeholder={t("search.flightPlaceholder")} />
                 <DateField label={t("search.departure")} value={checkIn} placeholder={t("search.addDate")} active={dateModal.open && dateModal.active === "in"} onClick={() => openRange("in")} />
                 <DateField label={t("search.return")} value={checkOut} placeholder={t("search.addDate")} active={dateModal.open && dateModal.active === "out"} onClick={() => openRange("out")} />
                 <GuestsField t={t} />
@@ -158,15 +158,15 @@ export default function SearchWidget() {
             )}
             {active === "transfers" && (
               <>
-                <AutocompleteField label={t("search.pickup")} placeholder="Airport terminal" flex />
-                <AutocompleteField label={t("search.dropoff")} placeholder="Hotel or address" flex />
+                <AutocompleteField label={t("search.pickup")} placeholder={t("search.transferPickupPlaceholder")} flex />
+                <AutocompleteField label={t("search.dropoff")} placeholder={t("search.transferDropoffPlaceholder")} flex />
                 <DateField label={t("search.date")} value={checkIn} placeholder={t("search.addDate")} active={dateModal.open} onClick={openSingle} />
                 <Field icon={Clock} label={t("search.time")} type="time" />
               </>
             )}
             {active === "cars" && (
               <>
-                <AutocompleteField label={t("search.pickup")} placeholder="Airport or city" flex />
+                <AutocompleteField label={t("search.pickup")} placeholder={t("search.carPickupPlaceholder")} flex />
                 <DateField label={t("search.date")} value={checkIn} placeholder={t("search.addDate")} active={dateModal.open} onClick={openSingle} />
                 <Field icon={Clock} label={t("search.time")} type="time" />
                 <GuestsField t={t} />
@@ -174,8 +174,8 @@ export default function SearchWidget() {
             )}
             {active === "trains" && (
               <>
-                <AutocompleteField label={t("search.from")} placeholder="Paris (GDN)" flex />
-                <AutocompleteField label={t("search.to")} placeholder="Amsterdam (AMS)" flex />
+                <AutocompleteField label={t("search.from")} placeholder={t("search.trainFromPlaceholder")} flex />
+                <AutocompleteField label={t("search.to")} placeholder={t("search.trainToPlaceholder")} flex />
                 <DateField label={t("search.date")} value={checkIn} placeholder={t("search.addDate")} active={dateModal.open} onClick={openSingle} />
                 <Field icon={Clock} label={t("search.time")} type="time" />
               </>

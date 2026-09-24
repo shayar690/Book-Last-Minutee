@@ -95,7 +95,7 @@ export default function FlightAutocompleteField({ label, placeholder, flex = fal
                 <span className="shrink-0 w-10 h-7 rounded-md bg-[#2D3035] text-white text-[11px] font-bold flex items-center justify-center tracking-wide">{r.iata}</span>
                 <span className="min-w-0">
                   <span className="block text-sm text-[#2D3035] truncate">{city}, {country}</span>
-                  <span className="block text-xs text-[#7D7D7D] truncate">{r.name}</span>
+                  <span className="block text-xs text-[#7D7D7D] truncate">{lang === "he" ? `שדה התעופה ${city}` : r.name}</span>
                 </span>
               </button>
             );
