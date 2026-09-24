@@ -1,32 +1,10 @@
 import React, { useState } from "react";
 import { ChevronDown, Clock, Check } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
+import CitizenshipCombobox from "@/components/search/CitizenshipCombobox";
 
 const STARS = ["none", "2", "3", "4", "5"];
 const MEALS = ["ro", "bb", "hb", "fb", "ai"];
-
-const CITIZENSHIPS = [
-  { value: "IL", en: "Israel", he: "ישראל" },
-  { value: "US", en: "United States", he: "ארצות הברית" },
-  { value: "GB", en: "United Kingdom", he: "הממלכה המאוחדת" },
-  { value: "FR", en: "France", he: "צרפת" },
-  { value: "DE", en: "Germany", he: "גרמניה" },
-  { value: "IT", en: "Italy", he: "איטליה" },
-  { value: "ES", en: "Spain", he: "ספרד" },
-  { value: "RU", en: "Russia", he: "רוסיה" },
-  { value: "UA", en: "Ukraine", he: "אוקראינה" },
-  { value: "AE", en: "United Arab Emirates", he: "איחוד האמירויות" },
-  { value: "CA", en: "Canada", he: "קנדה" },
-  { value: "AU", en: "Australia", he: "אוסטרליה" },
-  { value: "NL", en: "Netherlands", he: "הולנד" },
-  { value: "PL", en: "Poland", he: "פולין" },
-  { value: "TR", en: "Turkey", he: "טורקיה" },
-  { value: "GR", en: "Greece", he: "יוון" },
-  { value: "PT", en: "Portugal", he: "פורטוגל" },
-  { value: "CH", en: "Switzerland", he: "שוויץ" },
-  { value: "AT", en: "Austria", he: "אוסטריה" },
-  { value: "BE", en: "Belgium", he: "בלגיה" },
-];
 
 const TIMES = ["06:00", "07:00", "08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00"];
 
@@ -37,7 +15,7 @@ function Chip({ label, active, onClick }) {
     <button
       type="button"
       onClick={onClick}
-      className={`px-3.5 h-10 rounded-lg text-[15px] font-medium border transition-colors whitespace-nowrap ${
+      className={`px-3.5 h-10 rounded-lg text-base font-medium border transition-colors whitespace-nowrap ${
         active ? "bg-[#2D3035] text-white border-[#2D3035]" : "bg-white text-[#2D3035] border-[#C5C5C5] hover:border-[#2D3035]"
       }`}
     >
@@ -50,7 +28,7 @@ function Dropdown({ label, placeholder, value, onChange, options, icon: Icon, no
   const [open, setOpen] = useState(false);
   return (
     <div className="flex flex-col gap-1 min-w-0 flex-1">
-      <label className="text-[13px] font-medium text-[#5a5a5a]">{label}</label>
+      <label className="text-[14px] font-medium text-[#5a5a5a]">{label}</label>
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -58,7 +36,7 @@ function Dropdown({ label, placeholder, value, onChange, options, icon: Icon, no
       >
         <span className="flex items-center gap-2 min-w-0">
           {Icon && <Icon className="w-4 h-4 text-[#7D7D7D] shrink-0" strokeWidth={1.5} />}
-          <span className={`text-[15px] truncate ${value ? "text-[#2D3035]" : "text-[#9a9a9a]"}`}>{value || placeholder}</span>
+          <span className={`text-base truncate ${value ? "text-[#2D3035]" : "text-[#9a9a9a]"}`}>{value || placeholder}</span>
         </span>
         <ChevronDown className="w-4 h-4 text-[#7D7D7D] shrink-0" strokeWidth={1.5} />
       </button>
@@ -72,7 +50,7 @@ function Dropdown({ label, placeholder, value, onChange, options, icon: Icon, no
                 key={opt.value}
                 type="button"
                 onClick={() => { onChange(opt.value); setOpen(false); }}
-                className={`w-full text-start px-3 py-2.5 text-[15px] hover:bg-[#FFFAD9] ${value === opt.value ? "bg-[#FFFAD9] font-medium" : ""}`}
+                className={`w-full text-start px-3 py-2.5 text-base hover:bg-[#FFFAD9] ${value === opt.value ? "bg-[#FFFAD9] font-medium" : ""}`}
               >
                 {opt.label}
               </button>
@@ -85,7 +63,7 @@ function Dropdown({ label, placeholder, value, onChange, options, icon: Icon, no
 }
 
 export default function AdditionalParams() {
-  const { t, lang } = useI18n();
+  const { t } = useI18n();
   const [citizenship, setCitizenship] = useState("");
   const [stars, setStars] = useState("");
   const [meal, setMeal] = useState("");
@@ -93,40 +71,36 @@ export default function AdditionalParams() {
   const [lateOut, setLateOut] = useState("");
   const [freeCancel, setFreeCancel] = useState(false);
 
-  const citizenshipOptions = CITIZENSHIPS.map((c) => ({ value: c.value, label: lang === "he" ? c.he : c.en }));
   const timeOptions = TIMES.map((tm) => ({ value: tm, label: tm }));
-
-  const citizenshipLabel = citizenship ? (CITIZENSHIPS.find((c) => c.value === citizenship) || {})[lang === "he" ? "he" : "en"] : "";
 
   return (
     <div className="flex flex-col gap-4 pt-3">
-      {/* Free cancellation — top, full width, green check on the right */}
+      {/* Free cancellation — top, full width, green check aligned with text */}
       <button
         type="button"
         onClick={() => setFreeCancel((v) => !v)}
         className="flex items-center gap-3 h-12 px-4 rounded-lg bg-white border border-[#C5C5C5] hover:border-[#2D3035] transition-colors w-full sm:w-fit"
       >
         <span
-          className="w-5 h-5 rounded-md border-2 flex items-center justify-center transition-colors shrink-0"
+          className="w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-colors"
           style={{ backgroundColor: freeCancel ? GREEN : "transparent", borderColor: freeCancel ? GREEN : "#C5C5C5" }}
         >
           {freeCancel && <Check className="w-3.5 h-3.5 text-white" strokeWidth={3.5} />}
         </span>
-        <span className="text-[15px] font-medium text-[#2D3035]">{t("search.freeCancellation")}</span>
+        <span className="text-base font-medium text-[#2D3035] leading-5 translate-y-[1px]">{t("search.freeCancellation")}</span>
       </button>
 
-      {/* Citizenship */}
-      <Dropdown
+      {/* Citizenship — searchable combobox */}
+      <CitizenshipCombobox
         label={t("search.citizenship")}
         placeholder={t("search.citizenshipPlaceholder")}
-        value={citizenshipLabel}
+        value={citizenship}
         onChange={setCitizenship}
-        options={citizenshipOptions}
       />
 
       {/* Star rating */}
       <div className="flex flex-col gap-2">
-        <label className="text-[13px] font-medium text-[#5a5a5a]">{t("search.starRating")}</label>
+        <label className="text-[14px] font-medium text-[#5a5a5a]">{t("search.starRating")}</label>
         <div className="flex flex-wrap gap-2">
           {STARS.map((s) => (
             <Chip key={s} label={t(`search.stars.${s}`)} active={stars === s} onClick={() => setStars(stars === s ? "" : s)} />
@@ -136,7 +110,7 @@ export default function AdditionalParams() {
 
       {/* Meal plan / pension basis */}
       <div className="flex flex-col gap-2">
-        <label className="text-[13px] font-medium text-[#5a5a5a]">{t("search.mealPlan")}</label>
+        <label className="text-[14px] font-medium text-[#5a5a5a]">{t("search.mealPlan")}</label>
         <div className="flex flex-wrap gap-2">
           {MEALS.map((m) => (
             <Chip key={m} label={t(`search.meal.${m}`)} active={meal === m} onClick={() => setMeal(meal === m ? "" : m)} />
