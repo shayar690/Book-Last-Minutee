@@ -223,7 +223,7 @@ const translations = {
     "search.childrenHint": "2-11",
     "search.infants": "תינוקות",
     "search.infantsHint": "עד שנתיים",
-    "search.infantWarningLine1": "תינוקות עד גיל שנתיים ישבו",
+    "search.infantWarningLine1": "שימו לב: תינוקות עד גיל שנתיים ישבו",
     "search.infantWarningLine2": "על ברכי ההורים - ללא מושב נפרד",
     "search.groupLimitLine1": "להזמנת כרטיסי טיסה",
     "search.groupLimitLine2": "להרכב גדול מ-9 נוסעים,",
