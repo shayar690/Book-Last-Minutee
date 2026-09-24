@@ -213,7 +213,7 @@ export default function SearchWidget() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: dir === "rtl" ? 20 : -20 }}
             transition={{ type: "spring", stiffness: 320, damping: 32 }}
-            className="flex flex-col lg:flex-row gap-3 lg:gap-2"
+            className={`flex flex-col gap-3 ${active === "flights" ? "" : "lg:flex-row lg:gap-2"}`}
           >
             {active === "hotels" && (
               <>
@@ -224,13 +224,17 @@ export default function SearchWidget() {
               </>
             )}
             {active === "flights" && (
-              <>
-                <FlightAutocompleteField label={t("search.flightFrom")} placeholder={t("search.flightPlaceholder")} defaultValue={lang === "he" ? "תל אביב (TLV)" : ""} />
-                <FlightAutocompleteField label={t("search.flightTo")} placeholder={t("search.flightPlaceholder")} />
-                <DateField label={t("search.departure")} value={checkIn} placeholder={t("search.addDate")} active={dateModal.open && dateModal.active === "in"} onClick={() => openRange("in")} />
-                <DateField label={t("search.return")} value={checkOut} placeholder={t("search.addDate")} active={dateModal.open && dateModal.active === "out"} onClick={() => openRange("out")} />
-                <GuestsField t={t} mode="passengers" />
-              </>
+              <div className="flex flex-col gap-3 w-full">
+                <div className="flex flex-row gap-3">
+                  <FlightAutocompleteField label={t("search.flightFrom")} placeholder={t("search.flightPlaceholder")} defaultValue={lang === "he" ? "תל אביב (TLV)" : ""} />
+                  <FlightAutocompleteField label={t("search.flightTo")} placeholder={t("search.flightPlaceholder")} />
+                </div>
+                <div className="flex flex-row gap-3">
+                  <DateField label={t("search.departure")} value={checkIn} placeholder={t("search.addDate")} active={dateModal.open && dateModal.active === "in"} onClick={() => openRange("in")} />
+                  <DateField label={t("search.return")} value={checkOut} placeholder={t("search.addDate")} active={dateModal.open && dateModal.active === "out"} onClick={() => openRange("out")} />
+                  <GuestsField t={t} mode="passengers" />
+                </div>
+              </div>
             )}
             {active === "vacationPackages" && (
               <>
