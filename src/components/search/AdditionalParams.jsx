@@ -51,7 +51,7 @@ function Dropdown({ label, placeholder, value, onChange, options, icon: Icon, no
         </span>
         <ChevronDown className="w-4 h-4 text-[#7D7D7D] shrink-0" strokeWidth={1.5} />
       </button>
-      {note && <p className="text-[14px] leading-snug text-[#8a8a8a] mt-0.5">{note}</p>}
+      {note && <p className="text-[16px] leading-relaxed text-[#5a5a5a] mt-1 font-medium">{note}</p>}
       {open && (
         <>
           <div className="fixed inset-0 z-20" onClick={() => setOpen(false)} />

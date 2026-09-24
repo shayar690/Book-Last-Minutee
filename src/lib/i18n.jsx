@@ -86,7 +86,7 @@ const translations = {
     "search.lateCheckout": "Late check-out",
     "search.selectTime": "Select the time",
     "search.freeCancellation": "Free cancellation",
-    "search.requestOnlyNote": "Request only - not guaranteed.",
+    "search.requestOnlyNote": "Special requests are subject to the hotel's discretion and availability. If you wish to add a guaranteed service for an additional fee, please contact our customer service.",
     "search.addDate": "Add date",
     "search.done": "Done",
 
@@ -244,7 +244,7 @@ const translations = {
     "search.lateCheckout": "צ'ק-אאוט מאוחר",
     "search.selectTime": "בחר שעה",
     "search.freeCancellation": "ביטול ללא עלות",
-    "search.requestOnlyNote": "בגדר בקשה בלבד - אינו מובטח.",
+    "search.requestOnlyNote": "בקשות מיוחדות נתונות לשיקול דעתו של המלון וכפופות לזמינות. אם ברצונכם להוסיף שירות מובטח בתשלום נוסף, אנא צרו קשר עם שירות הלקוחות שלנו.",
     "search.addDate": "הוסף תאריך",
     "search.done": "סיום",
 
