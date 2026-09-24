@@ -25,6 +25,13 @@ export default function DatePickerModal({ open, mode, checkIn, checkOut, active,
     return Array.from({ length: 12 }, (_, i) => new Date(base.getFullYear(), base.getMonth() + i, 1));
   }, []);
 
+  const maxDate = useMemo(() => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    d.setFullYear(d.getFullYear() + 1);
+    return d;
+  }, []);
+
   const fmt = (d) =>
     d
       ? new Date(d).toLocaleDateString(lang === "he" ? "he-IL" : "en-US", { day: "numeric", month: "short", year: "numeric" })
@@ -106,6 +113,8 @@ export default function DatePickerModal({ open, mode, checkIn, checkOut, active,
                         {cells.map((c, ci) => {
                           if (!c) return <div key={ci} />;
                           const isPast = c < today;
+                          const isFuture = c > maxDate;
+                          const disabled = isPast || isFuture;
                           const isStart = sameDay(c, pickIn);
                           const isEnd = sameDay(c, pickOut);
                           const inRange = between(c, pickIn, pickOut);
@@ -115,10 +124,10 @@ export default function DatePickerModal({ open, mode, checkIn, checkOut, active,
                               {inRange && <div className="absolute inset-y-1 inset-x-0 bg-[#F5D166]/30 rounded-full" />}
                               <button
                                 type="button"
-                                disabled={isPast}
+                                disabled={disabled}
                                 onClick={() => handleDay(c)}
                                 className={`relative w-full aspect-square rounded-full text-xs sm:text-sm flex items-center justify-center transition-colors
-                                  ${selected ? "bg-[#F5D166] text-[#2D3035] font-semibold" : isPast ? "text-[#C5C5C5] cursor-not-allowed" : "text-[#2D3035] hover:bg-[#F5F5F5]"}`}
+                                    ${selected ? "bg-[#F5D166] text-[#2D3035] font-semibold" : disabled ? "text-[#C5C5C5] cursor-not-allowed" : "text-[#2D3035] hover:bg-[#F5F5F5]"}`}
                               >
                                 {c.getDate()}
                               </button>
