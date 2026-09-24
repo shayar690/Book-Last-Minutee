@@ -16,11 +16,16 @@ const translations = {
     "nav.signup": "Sign up",
     "nav.logout": "Log out",
 
-    "tab.flights": "Air tickets",
+    "tab.flights": "Flights",
     "tab.hotels": "Hotels",
     "tab.cars": "Car rental",
     "tab.transfers": "Transfers",
     "tab.trains": "Trains",
+    "tab.attractions": "Attractions",
+
+    "search.attractionDestination": "Attraction or city",
+    "search.attractionPlaceholder": "Eiffel Tower, Louvre, London…",
+    "search.tickets": "Tickets",
 
     "search.destination": "Destination",
     "search.destinationPlaceholder": "City, hotel or airport",
@@ -151,6 +156,11 @@ const translations = {
     "tab.cars": "השכרת רכב",
     "tab.transfers": "הסעות",
     "tab.trains": "רכבות",
+    "tab.attractions": "כרטיסים לאטרקציות",
+
+    "search.attractionDestination": "אטרקציה או עיר",
+    "search.attractionPlaceholder": "מגדל אייפל, הלובר, לונדון…",
+    "search.tickets": "כרטיסים",
 
     "search.destination": "יעד",
     "search.destinationPlaceholder": "עיר, מלון או שדה תעופה",

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Bed, Plane, Bus, Car, Train, Search, Calendar, Users, ChevronDown, Clock, ArrowRight } from "lucide-react";
+import { Bed, Plane, Bus, Car, Train, Ticket, Search, Calendar, Users, ChevronDown, Clock, ArrowRight } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import AutocompleteField from "@/components/search/AutocompleteField";
 import FlightAutocompleteField from "@/components/search/FlightAutocompleteField";
@@ -13,6 +13,7 @@ const TABS = [
   { id: "transfers", icon: Bus },
   { id: "cars", icon: Car },
   { id: "trains", icon: Train },
+  { id: "attractions", icon: Ticket },
 ];
 
 function Field({ icon: Icon, label, placeholder, type = "text", flex = false }) {
@@ -239,6 +240,13 @@ export default function SearchWidget() {
                 <AutocompleteField label={t("search.to")} placeholder={t("search.trainToPlaceholder")} flex />
                 <DateField label={t("search.date")} value={checkIn} placeholder={t("search.addDate")} active={dateModal.open} onClick={openSingle} />
                 <Field icon={Clock} label={t("search.time")} type="time" />
+              </>
+            )}
+            {active === "attractions" && (
+              <>
+                <AutocompleteField label={t("search.attractionDestination")} placeholder={t("search.attractionPlaceholder")} flex />
+                <DateField label={t("search.date")} value={checkIn} placeholder={t("search.addDate")} active={dateModal.open} onClick={openSingle} />
+                <GuestsField t={t} />
               </>
             )}
           </motion.div>
