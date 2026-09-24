@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Outlet, Link } from "react-router-dom";
 import { Globe2, Menu, X } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
+import { useAuth } from "@/lib/AuthContext";
 import Footer from "@/components/Footer";
 
 function LanguageSwitcher() {
@@ -24,8 +25,29 @@ function LanguageSwitcher() {
   );
 }
 
+function AuthLinks({ scrolled }) {
+  const { t } = useI18n();
+  const { isAuthenticated, logout } = useAuth();
+  const linkClass = `text-sm font-medium transition-colors ${scrolled ? "text-ink/75 hover:text-gold" : "text-white/85 hover:text-white"}`;
+  if (isAuthenticated) {
+    return (
+      <div className="hidden sm:flex items-center gap-4">
+        <Link to="/bookings" className={linkClass}>{t("nav.myBookings")}</Link>
+        <button onClick={() => logout()} className={linkClass}>{t("nav.logout")}</button>
+      </div>
+    );
+  }
+  return (
+    <div className="hidden sm:flex items-center gap-4">
+      <Link to="/login" className={linkClass}>{t("nav.login")}</Link>
+      <Link to="/register" className="hidden md:inline-flex items-center h-9 px-4 rounded-full border border-white/30 text-white text-sm font-medium hover:bg-white/10 transition">{t("nav.signup")}</Link>
+    </div>
+  );
+}
+
 function Header() {
   const { t } = useI18n();
+  const { isAuthenticated, logout } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -64,6 +86,7 @@ function Header() {
           <div className={scrolled ? "" : ""}>
             <LanguageSwitcher />
           </div>
+          <AuthLinks scrolled={scrolled} />
           <a href="#search" className="hidden sm:inline-flex items-center h-10 px-5 rounded-full gold-foil text-ink text-sm font-semibold hover:brightness-105 transition">
             {t("nav.book")}
           </a>
@@ -79,6 +102,18 @@ function Header() {
             {links.map((l) => (
               <a key={l.label} href={l.href} onClick={() => setOpen(false)} className="text-ink/80 font-medium">{l.label}</a>
             ))}
+            <div className="h-px bg-mist my-1" />
+            {isAuthenticated ? (
+              <>
+                <Link to="/bookings" onClick={() => setOpen(false)} className="text-ink/80 font-medium">{t("nav.myBookings")}</Link>
+                <button onClick={() => { logout(); setOpen(false); }} className="text-start text-ink/80 font-medium">{t("nav.logout")}</button>
+              </>
+            ) : (
+              <>
+                <Link to="/login" onClick={() => setOpen(false)} className="text-ink/80 font-medium">{t("nav.login")}</Link>
+                <Link to="/register" onClick={() => setOpen(false)} className="text-ink/80 font-medium">{t("nav.signup")}</Link>
+              </>
+            )}
           </nav>
         </div>
       )}
