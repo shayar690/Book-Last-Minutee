@@ -17,13 +17,21 @@ export default async function(req) {
     });
 
     const data = await res.json().catch(() => []);
-    const results = (Array.isArray(data) ? data : []).map((r) => ({
-      label: r.display_name,
-      lat: r.lat,
-      lon: r.lon,
-      type: r.type,
-      category: r.category,
-    }));
+    const seen = new Set();
+    const results = (Array.isArray(data) ? data : [])
+      .map((r) => ({
+        label: r.display_name,
+        lat: r.lat,
+        lon: r.lon,
+        type: r.type,
+        category: r.category,
+      }))
+      .filter((r) => {
+        const key = (r.label || "").toLowerCase().split(",")[0];
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
     return Response.json({ results });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
