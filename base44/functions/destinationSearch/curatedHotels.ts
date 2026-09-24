@@ -76,21 +76,60 @@ export const CURATED_HOTELS: CuratedHotel[] = [
   { name: "Four Seasons Hotel New York", city: "New York", country: "United States", lat: 40.7600, lon: -73.9730 },
   { name: "The Ritz-Carlton New York Central Park", city: "New York", country: "United States", lat: 40.7690, lon: -73.9800 },
 
+  // --- Ibiza / Spain ---
+  { name: "Ushuaïa Ibiza Beach Hotel", city: "Ibiza", country: "Spain", lat: 38.9080, lon: 1.3940 },
+  { name: "Hard Rock Hotel Ibiza", city: "Ibiza", country: "Spain", lat: 38.9090, lon: 1.3960 },
+  { name: "Pacha Ibiza Hotel", city: "Ibiza", country: "Spain", lat: 38.9190, lon: 1.4340 },
+  { name: "ME Ibiza", city: "Ibiza", country: "Spain", lat: 38.9160, lon: 1.4210 },
+  { name: "Six Senses Ibiza", city: "Ibiza", country: "Spain", lat: 38.9160, lon: 1.4210 },
+  { name: "W Barcelona", city: "Barcelona", country: "Spain", lat: 41.3660, lon: 2.1930 },
+  { name: "Hotel Arts Barcelona", city: "Barcelona", country: "Spain", lat: 41.3850, lon: 2.1980 },
+  { name: "Mandarin Oriental Ritz Madrid", city: "Madrid", country: "Spain", lat: 40.4170, lon: -3.6900 },
+  { name: "Hôtel du Cap-Eden-Roc", city: "Antibes", country: "France", lat: 43.6910, lon: 7.1240 },
+
+  // --- Las Vegas ---
+  { name: "Bellagio Las Vegas", city: "Las Vegas", country: "United States", lat: 36.1130, lon: -115.1760 },
+  { name: "Caesars Palace Las Vegas", city: "Las Vegas", country: "United States", lat: 36.1160, lon: -115.1740 },
+  { name: "The Venetian Las Vegas", city: "Las Vegas", country: "United States", lat: 36.1210, lon: -115.1700 },
+  { name: "Wynn Las Vegas", city: "Las Vegas", country: "United States", lat: 36.1270, lon: -115.1660 },
+  { name: "ARIA Resort & Casino Las Vegas", city: "Las Vegas", country: "United States", lat: 36.1080, lon: -115.1720 },
+
+  // --- Miami ---
+  { name: "Eden Roc Miami Beach", city: "Miami Beach", country: "United States", lat: 25.8470, lon: -80.1240 },
+  { name: "Fontainebleau Miami Beach", city: "Miami Beach", country: "United States", lat: 25.8290, lon: -80.1210 },
+  { name: "The Setai Miami Beach", city: "Miami Beach", country: "United States", lat: 25.8400, lon: -80.1200 },
+
+  // --- Asia icons ---
+  { name: "Aman Tokyo", city: "Tokyo", country: "Japan", lat: 35.6720, lon: 139.7630 },
+  { name: "Mandarin Oriental Tokyo", city: "Tokyo", country: "Japan", lat: 35.6720, lon: 139.7630 },
+  { name: "Park Hyatt Tokyo", city: "Tokyo", country: "Japan", lat: 35.6850, lon: 139.6900 },
+  { name: "The Peninsula Hong Kong", city: "Hong Kong", country: "Hong Kong", lat: 22.2930, lon: 114.1820 },
+  { name: "The Ritz-Carlton Hong Kong", city: "Hong Kong", country: "Hong Kong", lat: 22.3040, lon: 114.1610 },
+  { name: "Mandarin Oriental Bangkok", city: "Bangkok", country: "Thailand", lat: 13.7270, lon: 100.5130 },
+  { name: "The Siam Bangkok", city: "Bangkok", country: "Thailand", lat: 13.7900, lon: 100.5400 },
+  { name: "Amanbagh Agra", city: "Agra", country: "India", lat: 27.1600, lon: 77.9800 },
+  { name: "The Taj Mahal Palace Mumbai", city: "Mumbai", country: "India", lat: 18.9220, lon: 72.8340 },
+
   // --- Other iconic ---
   { name: "Atlantis Paradise Island Bahamas", city: "Paradise Island", country: "Bahamas", lat: 25.0850, lon: -77.3140 },
   { name: "Marina Bay Sands Singapore", city: "Singapore", country: "Singapore", lat: 1.2830, lon: 103.8610 },
   { name: "Raffles Singapore", city: "Singapore", country: "Singapore", lat: 1.2950, lon: 103.8540 },
 ];
 
+// Normalize: lowercase + strip Latin diacritics (é→e, ï→i, ñ→n) so "Ushuaia" matches "Ushuaïa".
+function normalize(s: string): string {
+  return s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+}
+
 function matches(name: string, q: string): boolean {
-  const n = name.toLowerCase();
+  const n = normalize(name);
   if (n.startsWith(q)) return true;
   const idx = n.indexOf(q);
   return idx > 0 && n[idx - 1] === " ";
 }
 
 export function searchCuratedHotels(query: string, limit = 8) {
-  const q = query.toLowerCase().trim();
+  const q = normalize(query).trim();
   if (q.length < 2) return [];
   return CURATED_HOTELS
     .filter((h) => matches(h.name, q))

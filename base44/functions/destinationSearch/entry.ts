@@ -15,7 +15,11 @@ function classifyOsm(osmKey, osmValue) {
   if (k === "tourism" && HOTEL_TYPES.includes(v)) return "hotel";
   if (k === "building" && v === "hotel") return "hotel";
   if (k === "aeroway" && AIRPORT_TYPES.includes(v)) return "airport";
-  if (k === "place") return "city";
+  // Major cities are often tagged as boundary/administrative in OSM (Paris, Tokyo, London).
+  if (k === "boundary" && v === "administrative") return "city";
+  // Only major settlements qualify as "city" for hotel search; villages/hamlets are filtered out.
+  if (k === "place" && ["city", "town", "municipality"].includes(v)) return "city";
+  if (k === "place") return "village";
   return "place";
 }
 
@@ -68,6 +72,7 @@ async function nominatimSearch(query, lang, filter) {
       lon: r.lon,
       type: r.type,
       category: r.category,
+      importance: r.importance || 0,
       result_type: classifyOsm(r.category, r.type),
     }))
     .filter((r) => {
@@ -92,13 +97,19 @@ export default async function(req) {
     // international hotels (many OSM names are local-language only).
     if (filter === "hotels") {
       const curated = searchCuratedHotels(query, 8);
-      let photon = [];
-      try {
-        photon = await photonSearch(query, "en", filter);
-      } catch {}
+      // Hotels from Photon (partial-name matching) + major cities from Nominatim (importance-ranked).
+      // Small towns/villages are excluded: Photon hotels only, Nominatim cities with importance >= 0.35.
+      const [photonHotels, nominatimCities] = await Promise.all([
+        photonSearch(query, "en", filter)
+          .then((rs) => rs.filter((r) => r.result_type === "hotel"))
+          .catch(() => []),
+        nominatimSearch(query, "en", filter)
+          .then((rs) => rs.filter((r) => r.result_type === "city" && (r.importance || 0) >= 0.35))
+          .catch(() => []),
+      ]);
       const seen = new Set();
       const merged = [];
-      for (const r of [...curated, ...photon]) {
+      for (const r of [...curated, ...photonHotels, ...nominatimCities]) {
         const key = (r.label || "").toLowerCase().split(",")[0];
         if (seen.has(key)) continue;
         seen.add(key);
