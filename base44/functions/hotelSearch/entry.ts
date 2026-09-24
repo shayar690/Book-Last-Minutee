@@ -48,11 +48,19 @@ export default async function(req) {
       ? `\n\nIMPORTANT: Do NOT include any of these hotels (already shown to the user):\n${exclude.map((n) => `- ${n}`).join("\n")}\nReturn DIFFERENT hotels only.`
       : "";
 
-    const hotelCount = 20;
+    const hotelCount = 30;
 
     const prompt = `Search the web for hotels in "${destination}" available for check-in ${checkIn} and check-out ${checkOut} for ${adults} adults in ${rooms} room(s).${filterText}${excludeText}
 
-Find REAL hotels from Booking.com, Hotels.com, Expedia, and other major booking sites. Major cities have hundreds of hotels — find as many as you can (at least ${hotelCount}). Even with filters applied, there are still many matching hotels — do NOT return fewer than ${hotelCount} unless the city genuinely has fewer.
+CRITICAL INSTRUCTIONS:
+1. Find REAL hotels from Booking.com, Hotels.com, Expedia, and other major booking sites. Major cities (Rome, Milan, Paris, London) have HUNDREDS of hotels — you MUST find at least ${hotelCount} real hotels. Even with filters applied, there are still many matching hotels. Do NOT return fewer than ${hotelCount} unless the city genuinely has fewer.
+2. For each hotel, search the web to find REAL, WORKING image URLs. Visit the hotel's Booking.com page or search Google Images for the hotel. Valid image URL sources:
+   - cf.bstatic.com, q-xx.bstatic.com (Booking.com CDN)
+   - images.trvl-media.com (Expedia)
+   - Hotel's official website
+   - Google Images results
+   Do NOT fabricate or guess image URLs. Only return URLs you actually found. If you cannot find real images, return an empty array [].
+3. For each hotel, provide 5-8 DIFFERENT room types. Each room type must have its own real image, detailed description (2-3 sentences), and list of room-specific amenities.
 
 For each hotel provide:
 - name: Real hotel name
@@ -61,7 +69,7 @@ For each hotel provide:
 - reviews: Number of guest reviews
 - pricePerNight: Price per night in ${currencyName}
 - currency: "${currency}"
-- images: Array of 3-5 REAL photo URLs. CRITICAL: Search the web for the hotel's Booking.com page or official hotel website and extract ACTUAL image URLs from those pages. Valid image URL patterns include cf.bstatic.com, q-xx.bstatic.com, images.trvl-media.com, or the hotel's own domain. Do NOT construct, guess, or fabricate image URLs — only return URLs you actually found through web search. If you cannot find real images for a hotel, return an empty array [].
+- images: Array of 3-5 REAL photo URLs (search the web for each hotel)
 - amenities: Array of key amenities (e.g. ["Free WiFi","Pool","Spa","Parking","Gym","Restaurant","Bar"])
 - url: Direct link to the hotel on Booking.com
 - description: Short description (1-2 sentences)
@@ -72,7 +80,7 @@ For each hotel provide:
 - checkOutTime: Check-out time (e.g. "12:00")
 - policies: Hotel policies (cancellation, pets, smoking, etc.)
 - guestReviews: Array of 3-5 recent guest reviews, each with: author (name), country, rating (0-10), date (e.g. "2024-06-15"), text (1-3 sentences)
-- roomTypes: Array of 3-5 room types available, each with: name, description (1 sentence), pricePerNight (in ${currencyName}), maxGuests (number), beds (e.g. "1 King bed"), image (photo URL of the room — same rule as images: real URL only, empty string if none found)
+- roomTypes: Array of 5-8 room types, each with: name, description (2-3 sentences), pricePerNight (in ${currencyName}), maxGuests (number), beds (e.g. "1 King bed"), image (REAL photo URL of the room — same rule as hotel images), amenities (array of room-specific amenities like ["Free WiFi","Air conditioning","Flat-screen TV","Minibar","Safe","Private bathroom","City view"])
 
 Return exactly ${hotelCount} hotels sorted by price (lowest first).
 Respond in ${languageName}. Hotel names and descriptions must be in ${languageName}.`;
@@ -80,7 +88,7 @@ Respond in ${languageName}. Hotel names and descriptions must be in ${languageNa
     const result = await base44.asServiceRole.integrations.Core.InvokeLLM({
       prompt,
       add_context_from_internet: true,
-      model: "gemini_3_flash",
+      model: "gemini_3_1_pro",
       response_json_schema: {
         type: "object",
         additionalProperties: true,
@@ -132,7 +140,8 @@ Respond in ${languageName}. Hotel names and descriptions must be in ${languageNa
                       pricePerNight: { type: "number" },
                       maxGuests: { type: "number" },
                       beds: { type: "string" },
-                      image: { type: "string" }
+                      image: { type: "string" },
+                      amenities: { type: "array", items: { type: "string" } }
                     }
                   }
                 }

@@ -42,7 +42,7 @@ export default function HotelDetail() {
   return (
     <div className="min-h-screen bg-[#F9F9F9]">
       <div className="max-w-5xl mx-auto px-4 py-6">
-        <button onClick={() => navigate(-1)} className="inline-flex items-center gap-1.5 text-sm text-[#7D7D7D] hover:text-[#2D3035] transition-colors mb-4">
+        <button onClick={() => navigate(-1)} className="inline-flex items-center gap-1.5 px-3 h-10 rounded-lg bg-white border border-[#E5E5E5] text-sm text-[#2D3035] hover:border-[#2D3035] transition-colors mb-4 shadow-sm">
           <ChevronLeft className="w-4 h-4 rtl:rotate-180" strokeWidth={1.5} />
           {t("hotel.backToResults")}
         </button>
@@ -150,6 +150,13 @@ export default function HotelDetail() {
                   <div className="flex-1 min-w-0">
                     <h3 className="text-sm font-semibold text-[#2D3035]">{room.name}</h3>
                     {room.description && <p className="text-xs text-[#7D7D7D] mt-0.5 line-clamp-2">{room.description}</p>}
+                    {room.amenities && room.amenities.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 mt-2">
+                        {room.amenities.map((a, i) => (
+                          <span key={i} className="px-2 py-0.5 text-xs rounded-full bg-[#F5F5F0] text-[#5a5a5a]">{a}</span>
+                        ))}
+                      </div>
+                    )}
                     <div className="flex flex-wrap items-center gap-3 mt-2">
                       {room.beds && (
                         <span className="flex items-center gap-1 text-xs text-[#5a5a5a]">

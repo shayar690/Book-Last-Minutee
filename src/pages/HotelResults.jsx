@@ -5,6 +5,8 @@ import { base44 } from "@/api/base44Client";
 import { useI18n } from "@/lib/i18n";
 import HotelCard from "@/components/results/HotelCard";
 
+const hotelCache = new Map();
+
 export default function HotelResults() {
   const { t, lang } = useI18n();
   const [searchParams] = useSearchParams();
@@ -16,6 +18,8 @@ export default function HotelResults() {
   const [page, setPage] = useState(1);
   const perPage = 20;
   const loadedNamesRef = useRef(new Set());
+  const [hasMore, setHasMore] = useState(true);
+  const [batchNum, setBatchNum] = useState(1);
 
   const sortedHotels = useMemo(() => {
     const arr = [...hotels];
@@ -45,11 +49,26 @@ export default function HotelResults() {
   const freeCancel = searchParams.get("freeCancel") === "1";
   const citizenship = searchParams.get("citizenship") || "";
 
-  // Batch 1 — fast initial results.
+  // Cache key for this search — preserves results when navigating back from hotel detail.
+  const searchKey = `${destination}|${checkIn}|${checkOut}|${adults}|${rooms}|${lang}|${stars}|${meal}|${earlyIn}|${lateOut}|${freeCancel}|${citizenship}`;
+
+  // Batch 1 — fast initial results (with cache for back-navigation).
   useEffect(() => {
     if (!destination) { setLoading(false); return; }
+    const cached = hotelCache.get(searchKey);
+    if (cached) {
+      setHotels(cached.hotels);
+      setError(cached.error || null);
+      loadedNamesRef.current = new Set(cached.hotels.map((h) => h.name));
+      setBatchNum(cached.batchNum || 1);
+      setHasMore(cached.hasMore !== false);
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     setHotels([]);
+    setHasMore(true);
+    setBatchNum(1);
     loadedNamesRef.current = new Set();
 
     base44.functions.invoke("hotelSearch", {
@@ -61,14 +80,17 @@ export default function HotelResults() {
         batchHotels.forEach((h) => loadedNamesRef.current.add(h.name));
         setHotels(batchHotels);
         setError(res.data?.error || null);
+        hotelCache.set(searchKey, { hotels: batchHotels, error: res.data?.error, batchNum: 1, hasMore: true });
       })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
-  }, [destination, checkIn, checkOut, adults, rooms, lang, stars, meal, earlyIn, lateOut, freeCancel, citizenship]);
+  }, [searchKey]);
 
   // Batch 2 — more hotels loaded in the background after batch 1 is shown.
   useEffect(() => {
     if (loading || hotels.length === 0) return;
+    const cached = hotelCache.get(searchKey);
+    if (cached && cached.batchNum >= 2) return;
     setLoadingMore(true);
 
     base44.functions.invoke("hotelSearch", {
@@ -79,11 +101,47 @@ export default function HotelResults() {
       .then((res) => {
         const moreHotels = (res.data?.hotels || []).filter((h) => !loadedNamesRef.current.has(h.name));
         moreHotels.forEach((h) => loadedNamesRef.current.add(h.name));
-        setHotels((prev) => [...prev, ...moreHotels]);
+        setHotels((prev) => {
+          const updated = [...prev, ...moreHotels];
+          hotelCache.set(searchKey, { hotels: updated, error: cached?.error || null, batchNum: 2, hasMore: moreHotels.length > 0 });
+          return updated;
+        });
       })
       .catch(() => {})
       .finally(() => setLoadingMore(false));
   }, [loading]);
+
+  // Load more — user-triggered batch 3+.
+  const loadMore = () => {
+    if (loadingMore) return;
+    const nextBatch = batchNum + 1;
+    setBatchNum(nextBatch);
+    setLoadingMore(true);
+
+    base44.functions.invoke("hotelSearch", {
+      destination, checkIn, checkOut, adults: Number(adults), rooms: Number(rooms), lang,
+      stars, meal, earlyIn, lateOut, freeCancel, citizenship, batch: nextBatch,
+      exclude: Array.from(loadedNamesRef.current),
+    })
+      .then((res) => {
+        const moreHotels = (res.data?.hotels || []).filter((h) => !loadedNamesRef.current.has(h.name));
+        if (moreHotels.length === 0) {
+          setHasMore(false);
+          const cached = hotelCache.get(searchKey);
+          hotelCache.set(searchKey, { ...cached, hasMore: false });
+        } else {
+          moreHotels.forEach((h) => loadedNamesRef.current.add(h.name));
+          setHotels((prev) => {
+            const updated = [...prev, ...moreHotels];
+            const cached = hotelCache.get(searchKey);
+            hotelCache.set(searchKey, { hotels: updated, error: cached?.error || null, batchNum: nextBatch, hasMore: true });
+            return updated;
+          });
+        }
+      })
+      .catch(() => {})
+      .finally(() => setLoadingMore(false));
+  };
 
   return (
     <div className="min-h-screen bg-[#F9F9F9]">
@@ -155,6 +213,17 @@ export default function HotelResults() {
               className="px-4 h-10 rounded-lg bg-white border border-[#C5C5C5] text-sm text-[#2D3035] disabled:opacity-40 hover:border-[#2D3035] transition"
             >
               {t("results.next")}
+            </button>
+          </div>
+        )}
+        {hasMore && !loading && hotels.length > 0 && (
+          <div className="flex justify-center mt-6">
+            <button
+              onClick={loadMore}
+              disabled={loadingMore}
+              className="px-6 h-11 rounded-lg bg-[#2D3035] text-white text-sm font-medium hover:bg-[#1a1d20] transition disabled:opacity-50"
+            >
+              {loadingMore ? t("results.hotelsLoading") : t("results.loadMore")}
             </button>
           </div>
         )}
