@@ -7,6 +7,7 @@ import AutocompleteField from "@/components/search/AutocompleteField";
 import FlightAutocompleteField from "@/components/search/FlightAutocompleteField";
 import DateField from "@/components/search/DateField";
 import DatePickerModal from "@/components/search/DatePickerModal";
+import AdditionalParams from "@/components/search/AdditionalParams";
 
 const TABS = [
   { id: "hotels", icon: Bed },
@@ -274,15 +275,7 @@ export default function SearchWidget() {
               transition={{ duration: 0.2 }}
               className="overflow-hidden"
             >
-              <div className="flex flex-col sm:flex-row gap-3 pt-3">
-                <Field icon={Users} label={t("search.children")} placeholder="0" type="number" />
-                <div className="flex flex-col gap-1 flex-1">
-                  <label className="text-[11px] font-medium text-[#7D7D7D]">{t("search.rooms")}</label>
-                  <select className="h-12 px-3 rounded-lg bg-white border border-[#C5C5C5] text-sm text-[#2D3035] outline-none focus:border-[#2D3035]">
-                    <option>1</option><option>2</option><option>3</option><option>4</option>
-                  </select>
-                </div>
-              </div>
+              <AdditionalParams />
             </motion.div>
           )}
         </AnimatePresence>
