@@ -224,7 +224,7 @@ const translations = {
     "search.infants": "תינוקות",
     "search.infantsHint": "עד שנתיים",
     "search.infantWarningLine1": "שימו לב: תינוקות עד גיל שנתיים ישבו",
-    "search.infantWarningLine2": "על ברכי ההורים - ללא מושב נפרד",
+    "search.infantWarningLine2": "על ברכי המבוגר - ללא מושב נפרד",
     "search.groupLimitLine1": "מקסימום 9 נוסעים בהזמנה.",
     "search.groupLimitLine2": "להזמנת כרטיסי טיסה לקבוצות גדולות,",
     "search.groupLimitLine3": "יש לפנות לשירות הלקוחות שלנו.",
