@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Bed, Plane, Bus, Car, Train, Search, Calendar, Users, ChevronDown, Clock, ArrowRight } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
@@ -91,6 +91,14 @@ export default function SearchWidget() {
   const [checkOut, setCheckOut] = useState(null);
   const [dateModal, setDateModal] = useState({ open: false, mode: "range", active: "in" });
 
+  // Clear all search inputs when the site language changes.
+  useEffect(() => {
+    setCheckIn(null);
+    setCheckOut(null);
+    setShowParams(false);
+    setDateModal({ open: false, mode: "range", active: "in" });
+  }, [lang]);
+
   const openRange = (field) => setDateModal({ open: true, mode: "range", active: field });
   const openSingle = () => setDateModal({ open: true, mode: "single", active: "in" });
 
@@ -132,7 +140,7 @@ export default function SearchWidget() {
       <form onSubmit={handleSearch} className="bg-white rounded-2xl rounded-tl-none p-4 sm:p-5 shadow-horizon relative overflow-hidden">
         <AnimatePresence mode="wait">
           <motion.div
-            key={active}
+            key={`${active}-${lang}`}
             initial={{ opacity: 0, x: dir === "rtl" ? -20 : 20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: dir === "rtl" ? 20 : -20 }}
