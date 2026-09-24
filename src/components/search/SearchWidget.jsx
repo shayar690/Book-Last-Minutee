@@ -115,6 +115,7 @@ function GuestsField({ t, mode = "rooms" }) {
                     >
                       <p className="text-[13px] font-medium leading-snug text-red-600">{t("search.groupLimitLine1")}</p>
                       <p className="text-[13px] font-medium leading-snug text-red-600">{t("search.groupLimitLine2")}</p>
+                      <p className="text-[13px] font-medium leading-snug text-red-600">{t("search.groupLimitLine3")}</p>
                     </motion.div>
                   )}
                 </AnimatePresence>
