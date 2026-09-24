@@ -78,10 +78,16 @@
 
 html { scroll-behavior: smooth; }
 
-/* Remove focus outline and text selection from non-interactive labels */
-label:focus, label:focus-visible,
-label::selection, label *::selection {
+/* Remove focus outline on mouse click; keep for keyboard navigation */
+:focus:not(:focus-visible) {
   outline: none;
+}
+
+/* Prevent text selection artifacts on search widget labels and text */
+label,
+label *,
+button > span,
+p {
   -webkit-user-select: none;
   user-select: none;
 }
