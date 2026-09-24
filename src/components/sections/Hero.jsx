@@ -9,13 +9,13 @@ const HERO_IMG = "https://media.base44.com/images/public/6ab46eccdb257d593195428
 export default function Hero() {
   const { t } = useI18n();
   return (
-    <section className="relative min-h-[92vh] flex flex-col justify-end overflow-hidden">
+    <section className="relative min-h-[92vh] flex flex-col justify-end">
       {/* background */}
       <motion.div
         initial={{ scale: 1.08 }}
         animate={{ scale: 1 }}
         transition={{ duration: 1.8, ease: [0.16, 1, 0.3, 1] }}
-        className="absolute inset-0"
+        className="absolute inset-0 overflow-hidden"
       >
         <img src={HERO_IMG} alt="" className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-b from-ink/30 via-ink/10 to-ink/55" />
