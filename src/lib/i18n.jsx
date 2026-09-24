@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import { base44 } from "@/api/base44Client";
 
 const translations = {
   en: {
@@ -280,7 +281,7 @@ const I18nContext = createContext({
   t: (key) => (translations.en[key] || key),
 });
 
-const LANG_STORAGE_KEY = "atlas_lang";
+const LANG_STORAGE_KEY = "atlas_lang_v2";
 
 function getSavedLang() {
   if (typeof window === "undefined") return null;
@@ -300,29 +301,26 @@ export function I18nProvider({ children }) {
 
   // On first visit (no saved preference), detect language by IP geolocation:
   // visitors from Israel get Hebrew, everyone else gets English.
+  // Detection runs server-side (CDN geo headers + IP fallback) for reliability.
   useEffect(() => {
     if (hasPreference) return;
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 4000);
+    let cancelled = false;
     (async () => {
       try {
-        const res = await fetch("https://ipapi.co/json/", { signal: controller.signal });
-        if (!res.ok) return;
-        const data = await res.json();
-        const country = (data?.country_code || "").toUpperCase();
+        const res = await base44.functions.invoke("detectLocale", {});
+        const country = (res?.data?.country || "").toUpperCase();
+        if (cancelled) return;
+        if (!country) return; // unknown — keep default, retry next visit
         const detected = country === "IL" ? "he" : "en";
         setLang(detected);
         window.localStorage.setItem(LANG_STORAGE_KEY, detected);
       } catch {
-        // keep default (en) on failure
+        // keep default (en); nothing persisted so detection retries next visit
       } finally {
-        setHasPreference(true);
+        if (!cancelled) setHasPreference(true);
       }
     })();
-    return () => {
-      clearTimeout(timeout);
-      controller.abort();
-    };
+    return () => { cancelled = true; };
   }, [hasPreference]);
 
   // Manual language change — persist so it overrides future auto-detection.
