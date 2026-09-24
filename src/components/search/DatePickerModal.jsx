@@ -63,7 +63,7 @@ export default function DatePickerModal({ open, mode, checkIn, checkOut, active,
             exit={{ y: "100%" }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
             onClick={(e) => e.stopPropagation()}
-            className="bg-white w-full sm:max-w-2xl h-[80vh] flex flex-col rounded-t-2xl sm:rounded-2xl"
+            className="bg-white w-full sm:max-w-2xl max-h-[85vh] flex flex-col rounded-t-2xl sm:rounded-2xl"
           >
             {/* header */}
             <div className="flex items-center gap-3 p-4 border-b border-[#EAEAEA]">
@@ -85,7 +85,7 @@ export default function DatePickerModal({ open, mode, checkIn, checkOut, active,
             </div>
 
             {/* months — 2 side-by-side, vertical scroll for more */}
-            <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 pb-6 pt-4">
+            <div ref={scrollRef} className="overflow-y-auto px-4 pb-6 pt-4 h-[340px] sm:h-[320px]">
               <div className="grid grid-cols-2 gap-x-4 sm:gap-x-8 gap-y-4">
                 {months.map((m, mi) => {
                   const name = m.toLocaleDateString(lang === "he" ? "he-IL" : "en-US", { month: "long", year: "numeric" });
@@ -117,7 +117,7 @@ export default function DatePickerModal({ open, mode, checkIn, checkOut, active,
                                 type="button"
                                 disabled={isPast}
                                 onClick={() => handleDay(c)}
-                                className={`relative w-full aspect-square max-w-8 sm:max-w-9 rounded-full text-xs sm:text-sm flex items-center justify-center transition-colors
+                                className={`relative w-full aspect-square rounded-full text-xs sm:text-sm flex items-center justify-center transition-colors
                                   ${selected ? "bg-[#F5D166] text-[#2D3035] font-semibold" : isPast ? "text-[#C5C5C5] cursor-not-allowed" : "text-[#2D3035] hover:bg-[#F5F5F5]"}`}
                               >
                                 {c.getDate()}
