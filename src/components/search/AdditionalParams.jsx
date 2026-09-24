@@ -30,12 +30,14 @@ const CITIZENSHIPS = [
 
 const TIMES = ["06:00", "07:00", "08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00"];
 
+const GREEN = "#16a34a";
+
 function Chip({ label, active, onClick }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`px-3 h-9 rounded-lg text-sm font-medium border transition-colors whitespace-nowrap ${
+      className={`px-3.5 h-10 rounded-lg text-[15px] font-medium border transition-colors whitespace-nowrap ${
         active ? "bg-[#2D3035] text-white border-[#2D3035]" : "bg-white text-[#2D3035] border-[#C5C5C5] hover:border-[#2D3035]"
       }`}
     >
@@ -44,11 +46,11 @@ function Chip({ label, active, onClick }) {
   );
 }
 
-function Dropdown({ label, placeholder, value, onChange, options, icon: Icon }) {
+function Dropdown({ label, placeholder, value, onChange, options, icon: Icon, note }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="relative flex flex-col gap-1 min-w-0 flex-1">
-      <label className="text-[11px] font-medium text-[#7D7D7D]">{label}</label>
+    <div className="flex flex-col gap-1 min-w-0 flex-1">
+      <label className="text-[13px] font-medium text-[#5a5a5a]">{label}</label>
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -56,10 +58,11 @@ function Dropdown({ label, placeholder, value, onChange, options, icon: Icon }) 
       >
         <span className="flex items-center gap-2 min-w-0">
           {Icon && <Icon className="w-4 h-4 text-[#7D7D7D] shrink-0" strokeWidth={1.5} />}
-          <span className={`text-sm truncate ${value ? "text-[#2D3035]" : "text-[#9a9a9a]"}`}>{value || placeholder}</span>
+          <span className={`text-[15px] truncate ${value ? "text-[#2D3035]" : "text-[#9a9a9a]"}`}>{value || placeholder}</span>
         </span>
         <ChevronDown className="w-4 h-4 text-[#7D7D7D] shrink-0" strokeWidth={1.5} />
       </button>
+      {note && <p className="text-[13px] leading-snug text-[#8a8a8a] mt-0.5">{note}</p>}
       {open && (
         <>
           <div className="fixed inset-0 z-20" onClick={() => setOpen(false)} />
@@ -69,7 +72,7 @@ function Dropdown({ label, placeholder, value, onChange, options, icon: Icon }) 
                 key={opt.value}
                 type="button"
                 onClick={() => { onChange(opt.value); setOpen(false); }}
-                className={`w-full text-start px-3 py-2.5 text-sm hover:bg-[#FFFAD9] ${value === opt.value ? "bg-[#FFFAD9] font-medium" : ""}`}
+                className={`w-full text-start px-3 py-2.5 text-[15px] hover:bg-[#FFFAD9] ${value === opt.value ? "bg-[#FFFAD9] font-medium" : ""}`}
               >
                 {opt.label}
               </button>
@@ -97,34 +100,51 @@ export default function AdditionalParams() {
 
   return (
     <div className="flex flex-col gap-4 pt-3">
-      {/* Row 1: citizenship + stars + meals */}
-      <div className="flex flex-col gap-3">
-        <Dropdown
-          label={t("search.citizenship")}
-          placeholder={t("search.citizenshipPlaceholder")}
-          value={citizenshipLabel}
-          onChange={setCitizenship}
-          options={citizenshipOptions}
-        />
-        <div className="flex flex-col gap-1.5">
-          <label className="text-[11px] font-medium text-[#7D7D7D]">{t("search.starRating")}</label>
-          <div className="flex flex-wrap gap-2">
-            {STARS.map((s) => (
-              <Chip key={s} label={t(`search.stars.${s}`)} active={stars === s} onClick={() => setStars(stars === s ? "" : s)} />
-            ))}
-          </div>
-        </div>
-        <div className="flex flex-col gap-1.5">
-          <label className="text-[11px] font-medium text-[#7D7D7D]">{t("search.mealPlan")}</label>
-          <div className="flex flex-wrap gap-2">
-            {MEALS.map((m) => (
-              <Chip key={m} label={t(`search.meal.${m}`)} active={meal === m} onClick={() => setMeal(meal === m ? "" : m)} />
-            ))}
-          </div>
+      {/* Free cancellation — top, full width, green check on the right */}
+      <button
+        type="button"
+        onClick={() => setFreeCancel((v) => !v)}
+        className="flex items-center gap-3 h-12 px-4 rounded-lg bg-white border border-[#C5C5C5] hover:border-[#2D3035] transition-colors w-full sm:w-fit"
+      >
+        <span
+          className="w-5 h-5 rounded-md border-2 flex items-center justify-center transition-colors shrink-0"
+          style={{ backgroundColor: freeCancel ? GREEN : "transparent", borderColor: freeCancel ? GREEN : "#C5C5C5" }}
+        >
+          {freeCancel && <Check className="w-3.5 h-3.5 text-white" strokeWidth={3.5} />}
+        </span>
+        <span className="text-[15px] font-medium text-[#2D3035]">{t("search.freeCancellation")}</span>
+      </button>
+
+      {/* Citizenship */}
+      <Dropdown
+        label={t("search.citizenship")}
+        placeholder={t("search.citizenshipPlaceholder")}
+        value={citizenshipLabel}
+        onChange={setCitizenship}
+        options={citizenshipOptions}
+      />
+
+      {/* Star rating */}
+      <div className="flex flex-col gap-2">
+        <label className="text-[13px] font-medium text-[#5a5a5a]">{t("search.starRating")}</label>
+        <div className="flex flex-wrap gap-2">
+          {STARS.map((s) => (
+            <Chip key={s} label={t(`search.stars.${s}`)} active={stars === s} onClick={() => setStars(stars === s ? "" : s)} />
+          ))}
         </div>
       </div>
 
-      {/* Row 2: early check-in + late check-out + free cancellation */}
+      {/* Meal plan / pension basis */}
+      <div className="flex flex-col gap-2">
+        <label className="text-[13px] font-medium text-[#5a5a5a]">{t("search.mealPlan")}</label>
+        <div className="flex flex-wrap gap-2">
+          {MEALS.map((m) => (
+            <Chip key={m} label={t(`search.meal.${m}`)} active={meal === m} onClick={() => setMeal(meal === m ? "" : m)} />
+          ))}
+        </div>
+      </div>
+
+      {/* Early check-in + Late check-out */}
       <div className="flex flex-col sm:flex-row gap-3">
         <Dropdown
           label={t("search.earlyCheckin")}
@@ -133,6 +153,7 @@ export default function AdditionalParams() {
           onChange={setEarlyIn}
           options={timeOptions}
           icon={Clock}
+          note={t("search.requestOnlyNote")}
         />
         <Dropdown
           label={t("search.lateCheckout")}
@@ -142,19 +163,6 @@ export default function AdditionalParams() {
           options={timeOptions}
           icon={Clock}
         />
-        <div className="flex flex-col gap-1 sm:self-end">
-          <label className="text-[11px] font-medium text-[#7D7D7D] sm:sr-only">{t("search.freeCancellation")}</label>
-          <button
-            type="button"
-            onClick={() => setFreeCancel((v) => !v)}
-            className="flex items-center gap-2.5 h-12 px-3 rounded-lg bg-white border border-[#C5C5C5] hover:border-[#2D3035] transition-colors"
-          >
-            <span className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors ${freeCancel ? "bg-[#2D3035] border-[#2D3035]" : "border-[#C5C5C5]"}`}>
-              {freeCancel && <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />}
-            </span>
-            <span className="text-sm text-[#2D3035]">{t("search.freeCancellation")}</span>
-          </button>
-        </div>
       </div>
     </div>
   );
