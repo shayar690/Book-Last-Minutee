@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { ChevronDown, Clock, Check } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
-import CitizenshipCombobox from "@/components/search/CitizenshipCombobox";
 
 const STARS = ["none", "2", "3", "4", "5"];
 const MEALS = ["ro", "bb", "hb", "fb", "ai"];
@@ -75,7 +74,6 @@ function Dropdown({ label, placeholder, value, onChange, options, icon: Icon, no
 
 export default function AdditionalParams({ onChange }) {
   const { t } = useI18n();
-  const [citizenship, setCitizenship] = useState("");
   const [stars, setStars] = useState("");
   const [meal, setMeal] = useState("");
   const [earlyIn, setEarlyIn] = useState("");
@@ -83,8 +81,8 @@ export default function AdditionalParams({ onChange }) {
   const [freeCancel, setFreeCancel] = useState(false);
 
   useEffect(() => {
-    if (onChange) onChange({ citizenship, stars, meal, earlyIn, lateOut, freeCancel });
-  }, [citizenship, stars, meal, earlyIn, lateOut, freeCancel, onChange]);
+    if (onChange) onChange({ stars, meal, earlyIn, lateOut, freeCancel });
+  }, [stars, meal, earlyIn, lateOut, freeCancel, onChange]);
 
   const earlyOptions = EARLY_TIMES.map((tm) => ({ value: tm, label: tm }));
   const lateOptions = LATE_TIMES.map((tm) => ({ value: tm, label: tm }));
@@ -105,14 +103,6 @@ export default function AdditionalParams({ onChange }) {
         </span>
         <span className="text-base font-medium text-[#2D3035] leading-5 translate-y-[1px]">{t("search.freeCancellation")}</span>
       </button>
-
-      {/* Citizenship — searchable combobox */}
-      <CitizenshipCombobox
-        label={t("search.citizenship")}
-        placeholder={t("search.citizenshipPlaceholder")}
-        value={citizenship}
-        onChange={setCitizenship}
-      />
 
       {/* Star rating */}
       <div className="flex flex-col gap-2">

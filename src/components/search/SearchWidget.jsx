@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Bed, Plane, Bus, Car, Ticket, Search, Calendar, Users, ChevronDown, Clock, ArrowRight, Package, Gem } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 import { useI18n } from "@/lib/i18n";
 import AutocompleteField from "@/components/search/AutocompleteField";
 import FlightAutocompleteField from "@/components/search/FlightAutocompleteField";
@@ -146,6 +147,7 @@ function Stepper({ label, hint, value, setValue, min, max, onMaxAttempt, canIncr
 export default function SearchWidget() {
   const { t, dir, lang } = useI18n();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [active, setActive] = useState("hotels");
   const [searching, setSearching] = useState(false);
   const [showParams, setShowParams] = useState(false);
@@ -181,8 +183,7 @@ export default function SearchWidget() {
   useEffect(() => { setShowParams(false); }, [active]);
 
   // Required-field validation for the hotels tab.
-  const hotelsMissing = active === "hotels" && (!hotelDest || !checkIn || !checkOut || !hotelParams.citizenship);
-  const canSearch = !(hotelsMissing);
+  const hotelsMissing = active === "hotels" && (!hotelDest || !checkIn || !checkOut);
 
   const openRange = (field) => setDateModal({ open: true, mode: "range", active: field });
   const openSingle = () => setDateModal({ open: true, mode: "single", active: "in" });
@@ -196,6 +197,10 @@ export default function SearchWidget() {
   const handleSearch = (e) => {
     e.preventDefault();
     const fmtDate = (d) => d ? d.toISOString().split("T")[0] : "";
+    if (active === "hotels" && hotelsMissing) {
+      toast({ title: t("search.requiredFields"), variant: "destructive" });
+      return;
+    }
     if (active === "hotels" && hotelDest) {
       const params = new URLSearchParams({
         destination: hotelDest,
@@ -208,7 +213,6 @@ export default function SearchWidget() {
         earlyIn: hotelParams.earlyIn || "",
         lateOut: hotelParams.lateOut || "",
         freeCancel: hotelParams.freeCancel ? "1" : "",
-        citizenship: hotelParams.citizenship || "",
       });
       navigate(`/hotels?${params.toString()}`);
     } else if (active === "flights" && flightOrigin.name && flightDest.name) {
@@ -320,12 +324,9 @@ export default function SearchWidget() {
             <button
               type="button"
               onClick={() => setShowParams((v) => !v)}
-              className={`flex items-center gap-1.5 mt-3 text-sm transition-colors ${active === "hotels" && !hotelParams.citizenship ? "text-red-500 hover:text-red-600" : "text-[#7D7D7D] hover:text-[#2D3035]"}`}
+              className="flex items-center gap-1.5 mt-3 text-sm text-[#7D7D7D] hover:text-[#2D3035] transition-colors"
             >
               {t("search.additionalParams")}
-              {active === "hotels" && !hotelParams.citizenship && (
-                <span className="text-red-500 font-bold">*</span>
-              )}
               <ChevronDown className={`w-4 h-4 transition-transform ${showParams ? "rotate-180" : ""}`} strokeWidth={1.5} />
             </button>
             <AnimatePresence>
@@ -345,11 +346,11 @@ export default function SearchWidget() {
         )}
 
         {/* Search button */}
-        <div className="flex flex-col items-end gap-1.5 mt-4">
+        <div className="flex justify-end mt-4">
           <button
             type="submit"
-            disabled={searching || !canSearch}
-            className="group inline-flex items-center justify-center gap-2 px-8 h-12 rounded-lg bg-[#F5D166] text-[#2D3035] font-bold text-sm hover:brightness-105 transition disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto"
+            disabled={searching}
+            className="group inline-flex items-center justify-center gap-2 px-8 h-12 rounded-lg bg-[#F5D166] text-[#2D3035] font-bold text-sm hover:brightness-105 transition disabled:opacity-80 w-full sm:w-auto"
           >
             {searching ? (
               <span className="w-4 h-4 border-2 border-[#2D3035]/30 border-t-[#2D3035] rounded-full animate-spin" />
@@ -361,9 +362,6 @@ export default function SearchWidget() {
               </>
             )}
           </button>
-          {!canSearch && (
-            <span className="text-xs text-red-500">{t("search.requiredFields")}</span>
-          )}
         </div>
 
         <AnimatePresence>
