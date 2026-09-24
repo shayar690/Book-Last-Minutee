@@ -12,6 +12,8 @@ export default function HotelResults() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [sortBy, setSortBy] = useState("popularity");
+  const [page, setPage] = useState(1);
+  const perPage = 20;
 
   const sortedHotels = useMemo(() => {
     const arr = [...hotels];
@@ -23,6 +25,11 @@ export default function HotelResults() {
       default: return arr;
     }
   }, [hotels, sortBy]);
+
+  useEffect(() => { setPage(1); }, [hotels]);
+
+  const totalPages = Math.ceil(sortedHotels.length / perPage);
+  const pagedHotels = sortedHotels.slice((page - 1) * perPage, page * perPage);
 
   const destination = searchParams.get("destination") || "";
   const checkIn = searchParams.get("checkIn") || "";
@@ -83,9 +90,28 @@ export default function HotelResults() {
           </div>
         ) : (
           <div className="flex flex-col gap-3">
-            {sortedHotels.map((hotel, i) => (
+            {pagedHotels.map((hotel, i) => (
               <HotelCard key={i} hotel={hotel} />
             ))}
+          </div>
+        )}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-center gap-4 mt-6">
+            <button
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}
+              className="px-4 h-10 rounded-lg bg-white border border-[#C5C5C5] text-sm text-[#2D3035] disabled:opacity-40 hover:border-[#2D3035] transition"
+            >
+              {t("results.previous")}
+            </button>
+            <span className="text-sm text-[#7D7D7D]">{page} / {totalPages}</span>
+            <button
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+              className="px-4 h-10 rounded-lg bg-white border border-[#C5C5C5] text-sm text-[#2D3035] disabled:opacity-40 hover:border-[#2D3035] transition"
+            >
+              {t("results.next")}
+            </button>
           </div>
         )}
       </div>

@@ -22,14 +22,18 @@ Find REAL hotels from Booking.com, Hotels.com, Expedia, and other major booking 
 - reviews: Number of guest reviews
 - pricePerNight: Price per night in USD
 - currency: "USD"
-- image: Real photo URL from the hotel's listing
+- images: Array of 3-5 real photo URLs from the hotel's listing
 - amenities: Array of key amenities (e.g. ["Free WiFi","Pool","Spa","Parking","Gym","Restaurant","Bar"])
 - url: Direct link to the hotel on Booking.com
 - description: Short description (1-2 sentences)
+- fullDescription: Longer description (3-5 sentences) with more details about the hotel
 - location: Area or neighborhood within the city
 - distanceToCenter: Distance from city center in km (number, e.g. 0.5 = 500m, 2.5 = 2.5km)
+- checkInTime: Check-in time (e.g. "14:00")
+- checkOutTime: Check-out time (e.g. "12:00")
+- policies: Hotel policies (cancellation, pets, smoking, etc.)
 
-Return at least 20 hotels sorted by price (lowest first). If fewer exist, return as many as available.
+Return at least 40 hotels sorted by price (lowest first). If fewer exist, return as many as available.
 Respond in ${languageName}. Hotel names and descriptions must be in ${languageName}.`;
 
     const result = await base44.asServiceRole.integrations.Core.InvokeLLM({
@@ -52,12 +56,16 @@ Respond in ${languageName}. Hotel names and descriptions must be in ${languageNa
                 reviews: { type: "number" },
                 pricePerNight: { type: "number" },
                 currency: { type: "string" },
-                image: { type: "string" },
+                images: { type: "array", items: { type: "string" } },
                 amenities: { type: "array", items: { type: "string" } },
                 url: { type: "string" },
                 description: { type: "string" },
+                fullDescription: { type: "string" },
                 location: { type: "string" },
-                distanceToCenter: { type: "number" }
+                distanceToCenter: { type: "number" },
+                checkInTime: { type: "string" },
+                checkOutTime: { type: "string" },
+                policies: { type: "string" }
               }
             }
           }

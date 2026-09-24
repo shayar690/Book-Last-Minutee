@@ -16,6 +16,7 @@ import ResetPassword from '@/pages/ResetPassword';
 import MyBookings from '@/pages/MyBookings';
 import MarriageProposalsDubai from '@/pages/MarriageProposalsDubai';
 import HotelResults from '@/pages/HotelResults';
+import HotelDetail from '@/pages/HotelDetail';
 import FlightResults from '@/pages/FlightResults';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import { Navigate } from 'react-router-dom';
@@ -55,6 +56,7 @@ const AuthenticatedApp = () => {
         <Route path="/" element={<Home />} />
         <Route path="/marriage-proposals-dubai" element={<MarriageProposalsDubai />} />
         <Route path="/hotels" element={<HotelResults />} />
+        <Route path="/hotel" element={<HotelDetail />} />
         <Route path="/flights" element={<FlightResults />} />
         <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
           <Route path="/bookings" element={<MyBookings />} />

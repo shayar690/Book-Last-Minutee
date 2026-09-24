@@ -81,6 +81,8 @@
     box-shadow: 0 24px 60px -20px rgba(15, 23, 42, 0.28), 0 8px 24px -12px rgba(15, 23, 42, 0.18);
   }
   .tracking-luxe { letter-spacing: 0.18em; }
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 }
 
 html { scroll-behavior: smooth; }
