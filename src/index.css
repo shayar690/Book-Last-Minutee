@@ -77,3 +77,11 @@
 }
 
 html { scroll-behavior: smooth; }
+
+/* Remove focus outline and text selection from non-interactive labels */
+label:focus, label:focus-visible,
+label::selection, label *::selection {
+  outline: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
