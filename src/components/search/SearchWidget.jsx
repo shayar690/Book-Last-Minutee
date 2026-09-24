@@ -174,7 +174,7 @@ export default function SearchWidget() {
   return (
     <div className="w-full">
       {/* Tab bar */}
-      <div className="flex flex-wrap gap-1.5 p-1.5 bg-white/95 rounded-t-2xl shadow-horizon w-full max-w-full overflow-x-auto">
+      <div className="flex flex-wrap justify-center gap-1.5 p-1.5 bg-white/95 rounded-t-2xl shadow-horizon w-full max-w-full overflow-x-auto">
         {TABS.map((tab) => {
           const Icon = tab.icon;
           const isActive = active === tab.id;
@@ -183,7 +183,7 @@ export default function SearchWidget() {
               key={tab.id}
               onClick={() => (tab.id === "marriageProposals" ? navigate("/marriage-proposals-dubai") : setActive(tab.id))}
               className={`flex items-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-xl text-sm font-medium transition-colors whitespace-nowrap ${
-                isActive ? "bg-[#2D3035] text-white" : "bg-[#FFFAD9] text-[#2D3035] hover:bg-[#FFF3B0]"
+                isActive ? "bg-[#2D3035] text-white" : "bg-[#F5D166] text-[#2D3035] hover:bg-[#ECC45A]"
               }`}
             >
               <Icon className="w-4 h-4" strokeWidth={1.5} />
@@ -194,7 +194,7 @@ export default function SearchWidget() {
       </div>
 
       {/* Search card */}
-      <form onSubmit={handleSearch} className="bg-white rounded-2xl rounded-tl-none p-4 sm:p-5 shadow-horizon relative">
+      <form onSubmit={handleSearch} className="bg-white rounded-b-2xl p-4 sm:p-5 shadow-horizon relative">
         <AnimatePresence mode="wait">
           <motion.div
             key={`${active}-${lang}`}
