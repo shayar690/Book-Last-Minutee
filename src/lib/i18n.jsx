@@ -247,7 +247,12 @@ const translations = {
   },
 };
 
-const I18nContext = createContext(null);
+const I18nContext = createContext({
+  lang: "en",
+  setLang: () => {},
+  dir: "ltr",
+  t: (key) => (translations.en[key] || key),
+});
 
 export function I18nProvider({ children }) {
   const [lang, setLang] = useState("en");
