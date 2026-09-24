@@ -20,12 +20,6 @@ const TABS = [
   { id: "marriageProposals", icon: Gem },
 ];
 
-const PARAMS_BY_TAB = {
-  hotels: <AdditionalParams />,
-  flights: <FlightsAdditionalParams />,
-  vacationPackages: <AdditionalParams />,
-};
-
 function Field({ icon: Icon, label, placeholder, type = "text", flex = false }) {
   return (
     <div className={`flex flex-col gap-1 min-w-0 ${flex ? "flex-[1.6]" : "flex-1"}`}>
@@ -157,6 +151,15 @@ export default function SearchWidget() {
   const [checkOut, setCheckOut] = useState(null);
   const [dateModal, setDateModal] = useState({ open: false, mode: "range", active: "in" });
 
+  // Created inside the component so each render gets fresh element references.
+  // If hoisted to module scope, React bails out of re-rendering these children
+  // when the language changes, leaving their text stuck in the old locale.
+  const paramsByTab = {
+    hotels: <AdditionalParams />,
+    flights: <FlightsAdditionalParams />,
+    vacationPackages: <AdditionalParams />,
+  };
+
   // Clear all search inputs when the site language changes.
   useEffect(() => {
     setCheckIn(null);
@@ -273,7 +276,7 @@ export default function SearchWidget() {
         </AnimatePresence>
 
         {/* Additional parameters — tab-specific */}
-        {PARAMS_BY_TAB[active] && (
+        {paramsByTab[active] && (
           <>
             <button
               type="button"
@@ -292,7 +295,7 @@ export default function SearchWidget() {
                   transition={{ duration: 0.2 }}
                   className="overflow-hidden"
                 >
-                  {PARAMS_BY_TAB[active]}
+                  {paramsByTab[active]}
                 </motion.div>
               )}
             </AnimatePresence>
