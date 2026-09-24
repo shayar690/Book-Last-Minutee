@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
-import { MapPin, Loader2 } from "lucide-react";
+import { MapPin, Loader2, Building2, Plane } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useI18n } from "@/lib/i18n";
 
-export default function AutocompleteField({ label, placeholder, flex = false }) {
+export default function AutocompleteField({ label, placeholder, flex = false, filter }) {
   const { lang } = useI18n();
   const [value, setValue] = useState("");
   const [results, setResults] = useState([]);
@@ -23,7 +23,7 @@ export default function AutocompleteField({ label, placeholder, flex = false }) 
     setLoading(true);
     timer.current = setTimeout(async () => {
       try {
-        const res = await base44.functions.invoke("destinationSearch", { query: value, lang });
+        const res = await base44.functions.invoke("destinationSearch", { query: value, lang, filter });
         setResults(res.data?.results || []);
         setOpen(true);
         setActive(-1);
@@ -80,6 +80,7 @@ export default function AutocompleteField({ label, placeholder, flex = false }) 
             const parts = r.label.split(",");
             const primary = parts[0];
             const secondary = parts.slice(1).join(",").trim();
+            const Icon = r.result_type === "hotel" ? Building2 : r.result_type === "airport" ? Plane : MapPin;
             return (
               <button
                 key={i}
@@ -88,7 +89,7 @@ export default function AutocompleteField({ label, placeholder, flex = false }) 
                 onClick={() => pick(r)}
                 className={`w-full text-start px-3 py-2.5 flex items-start gap-2 transition-colors ${active === i ? "bg-[#FFFAD9]" : "hover:bg-[#FFFAD9]"}`}
               >
-                <MapPin className="w-4 h-4 text-[#7D7D7D] shrink-0 mt-0.5" strokeWidth={1.5} />
+                <Icon className="w-4 h-4 text-[#7D7D7D] shrink-0 mt-0.5" strokeWidth={1.5} />
                 <span className="min-w-0">
                   <span className="block text-base text-[#2D3035] truncate">{primary}</span>
                   {secondary && <span className="block text-[13px] text-[#7D7D7D] truncate">{secondary}</span>}

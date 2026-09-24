@@ -217,7 +217,7 @@ export default function SearchWidget() {
           >
             {active === "hotels" && (
               <>
-                <AutocompleteField label={t("search.destination")} placeholder={t("search.destinationPlaceholder")} flex />
+                <AutocompleteField label={t("search.destination")} placeholder={t("search.destinationPlaceholder")} flex filter="hotels" />
                 <DateField label={t("search.checkIn")} value={checkIn} placeholder={t("search.addDate")} active={dateModal.open && dateModal.active === "in"} onClick={() => openRange("in")} />
                 <DateField label={t("search.checkOut")} value={checkOut} placeholder={t("search.addDate")} active={dateModal.open && dateModal.active === "out"} onClick={() => openRange("out")} />
                 <GuestsField t={t} />
