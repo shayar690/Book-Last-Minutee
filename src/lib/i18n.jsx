@@ -17,11 +17,13 @@ const translations = {
     "nav.logout": "Log out",
 
     "tab.flights": "Flights",
-    "tab.hotels": "Hotels",
+    "tab.hotels": "Discounted Hotels",
+    "tab.vacationPackages": "Vacation packages (Flight + Hotel)",
     "tab.cars": "Car rental",
-    "tab.transfers": "Transfers",
+    "tab.transfers": "Transfers & Rides",
     "tab.trains": "Trains",
     "tab.attractions": "Attractions & Activities",
+    "tab.marriageProposals": "Marriage proposals in Dubai",
 
     "search.attractionDestination": "Attraction or city",
     "search.attractionPlaceholder": "Eiffel Tower, Louvre, London…",
@@ -152,11 +154,13 @@ const translations = {
     "nav.logout": "התנתקות",
 
     "tab.flights": "טיסות",
-    "tab.hotels": "מלונות",
+    "tab.hotels": "מלונות בהנחות",
+    "tab.vacationPackages": "חבילות נופש (טיסה + מלון)",
     "tab.cars": "השכרת רכב",
-    "tab.transfers": "הסעות",
+    "tab.transfers": "העברות והסעות",
     "tab.trains": "רכבות",
     "tab.attractions": "אטרקציות ופעילויות",
+    "tab.marriageProposals": "הצעות נישואין בדובאי",
 
     "search.attractionDestination": "אטרקציה או עיר",
     "search.attractionPlaceholder": "מגדל אייפל, הלובר, לונדון…",
