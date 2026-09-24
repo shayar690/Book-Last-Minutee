@@ -225,11 +225,11 @@ export default function SearchWidget() {
             )}
             {active === "flights" && (
               <div className="flex flex-col gap-3 w-full">
-                <div className="flex flex-row gap-3">
+                <div className="flex flex-col sm:flex-row gap-3">
                   <FlightAutocompleteField label={t("search.flightFrom")} placeholder={t("search.flightPlaceholder")} defaultValue={lang === "he" ? "תל אביב (TLV)" : ""} />
                   <FlightAutocompleteField label={t("search.flightTo")} placeholder={t("search.flightPlaceholder")} />
                 </div>
-                <div className="flex flex-row gap-3">
+                <div className="flex flex-col sm:flex-row gap-3">
                   <DateField label={t("search.departure")} value={checkIn} placeholder={t("search.departureDate")} active={dateModal.open && dateModal.active === "in"} onClick={() => openRange("in")} />
                   <DateField label={t("search.return")} value={checkOut} placeholder={t("search.returnDate")} active={dateModal.open && dateModal.active === "out"} onClick={() => openRange("out")} />
                   <GuestsField t={t} mode="passengers" />
