@@ -137,6 +137,72 @@ export const CURATED_HOTELS: CuratedHotel[] = [
   { name: "Herods Eilat", name_he: "הרודס אילת", city: "Eilat", city_he: "אילת", country: "Israel", country_he: "ישראל", lat: 29.5560, lon: 34.9510 },
   { name: "Hilton Eilat", name_he: "הילטון אילת", city: "Eilat", city_he: "אילת", country: "Israel", country_he: "ישראל", lat: 29.5530, lon: 34.9490 },
 
+  // --- Tel Aviv (comprehensive) ---
+  { name: "Cinema Hotel Tel Aviv", name_he: "סינמה תל אביב - ישרוטל", city: "Tel Aviv", city_he: "תל אביב", country: "Israel", country_he: "ישראל", lat: 32.0770, lon: 34.7710 },
+  { name: "Isrotel Motif Tel Aviv", name_he: "מוטיף תל אביב - ישרוטל", city: "Tel Aviv", city_he: "תל אביב", country: "Israel", country_he: "ישראל", lat: 32.0630, lon: 34.7740 },
+  { name: "Isrotel Savoy Tel Aviv", name_he: "סבוי תל אביב - ישרוטל", city: "Tel Aviv", city_he: "תל אביב", country: "Israel", country_he: "ישראל", lat: 32.0790, lon: 34.7670 },
+  { name: "Isrotel Varsano Suites Tel Aviv", name_he: "ורסנו סוויטות תל אביב - ישרוטל", city: "Tel Aviv", city_he: "תל אביב", country: "Israel", country_he: "ישראל", lat: 32.0770, lon: 34.7730 },
+  { name: "Dan Panorama Tel Aviv", name_he: "דן פנורמה תל אביב", city: "Tel Aviv", city_he: "תל אביב", country: "Israel", country_he: "ישראל", lat: 32.0790, lon: 34.7700 },
+  { name: "Hilton Tel Aviv", name_he: "הילטון תל אביב", city: "Tel Aviv", city_he: "תל אביב", country: "Israel", country_he: "ישראל", lat: 32.0840, lon: 34.7660 },
+  { name: "Crowne Plaza Tel Aviv", name_he: "קראון פלאזה תל אביב", city: "Tel Aviv", city_he: "תל אביב", country: "Israel", country_he: "ישראל", lat: 32.0810, lon: 34.7700 },
+  { name: "Sheraton Tel Aviv", name_he: "שרתון תל אביב", city: "Tel Aviv", city_he: "תל אביב", country: "Israel", country_he: "ישראל", lat: 32.0820, lon: 34.7670 },
+  { name: "Marriott Tel Aviv", name_he: "מריוט תל אביב", city: "Tel Aviv", city_he: "תל אביב", country: "Israel", country_he: "ישראל", lat: 32.0760, lon: 34.7740 },
+  { name: "Brown TLV Hotel", name_he: "בראון תל אביב", city: "Tel Aviv", city_he: "תל אביב", country: "Israel", country_he: "ישראל", lat: 32.0660, lon: 34.7710 },
+  { name: "Brown Beach House Tel Aviv", name_he: "בראון ביץ' תל אביב", city: "Tel Aviv", city_he: "תל אביב", country: "Israel", country_he: "ישראל", lat: 32.0730, lon: 34.7710 },
+  { name: "Poli House Tel Aviv", name_he: "פולי האוס תל אביב", city: "Tel Aviv", city_he: "תל אביב", country: "Israel", country_he: "ישראל", lat: 32.0660, lon: 34.7700 },
+  { name: "NYX Tel Aviv", name_he: "NYX תל אביב", city: "Tel Aviv", city_he: "תל אביב", country: "Israel", country_he: "ישראל", lat: 32.0640, lon: 34.7730 },
+  { name: "U Tel Aviv", name_he: "U תל אביב", city: "Tel Aviv", city_he: "תל אביב", country: "Israel", country_he: "ישראל", lat: 32.0620, lon: 34.7730 },
+  { name: "Leonardo Boutique Tel Aviv", name_he: "לאונרדו בוטיק תל אביב", city: "Tel Aviv", city_he: "תל אביב", country: "Israel", country_he: "ישראל", lat: 32.0720, lon: 34.7700 },
+  { name: "Herods Tel Aviv", name_he: "הרודס תל אביב", city: "Tel Aviv", city_he: "תל אביב", country: "Israel", country_he: "ישראל", lat: 32.0780, lon: 34.7710 },
+  { name: "Prima Music Tel Aviv", name_he: "פרימה מיוזיק תל אביב", city: "Tel Aviv", city_he: "תל אביב", country: "Israel", country_he: "ישראל", lat: 32.0760, lon: 34.7700 },
+
+  // --- Jerusalem (comprehensive) ---
+  { name: "Dan Jerusalem", name_he: "דן ירושלים", city: "Jerusalem", city_he: "ירושלים", country: "Israel", country_he: "ישראל", lat: 31.7820, lon: 35.2270 },
+  { name: "Dan Panorama Jerusalem", name_he: "דן פנורמה ירושלים", city: "Jerusalem", city_he: "ירושלים", country: "Israel", country_he: "ישראל", lat: 31.7720, lon: 35.2210 },
+  { name: "Hilton Jerusalem", name_he: "הילטון ירושלים", city: "Jerusalem", city_he: "ירושלים", country: "Israel", country_he: "ישראל", lat: 31.7830, lon: 35.2230 },
+  { name: "Crowne Plaza Jerusalem", name_he: "קראון פלאזה ירושלים", city: "Jerusalem", city_he: "ירושלים", country: "Israel", country_he: "ישראל", lat: 31.7820, lon: 35.1840 },
+  { name: "Sheraton Jerusalem", name_he: "שרתון ירושלים", city: "Jerusalem", city_he: "ירושלים", country: "Israel", country_he: "ישראל", lat: 31.7750, lon: 35.2240 },
+  { name: "Jerusalem Marriott", name_he: "מריוט ירושלים", city: "Jerusalem", city_he: "ירושלים", country: "Israel", country_he: "ישראל", lat: 31.7760, lon: 35.2150 },
+  { name: "Leonardo Plaza Jerusalem", name_he: "לאונרדו פלאזה ירושלים", city: "Jerusalem", city_he: "ירושלים", country: "Israel", country_he: "ישראל", lat: 31.7740, lon: 35.2190 },
+  { name: "Isrotel Promenade Jerusalem", name_he: "טיילת ירושלים - ישרוטל", city: "Jerusalem", city_he: "ירושלים", country: "Israel", country_he: "ישראל", lat: 31.7690, lon: 35.2310 },
+  { name: "Orient Jerusalem Isrotel Exclusive", name_he: "אוריינט ירושלים - ישרוטל אקסקלוסיב", city: "Jerusalem", city_he: "ירושלים", country: "Israel", country_he: "ישראל", lat: 31.7710, lon: 35.2290 },
+  { name: "Inbal Jerusalem", name_he: "אינבל ירושלים", city: "Jerusalem", city_he: "ירושלים", country: "Israel", country_he: "ישראל", lat: 31.7710, lon: 35.2260 },
+  { name: "Prima Palace Jerusalem", name_he: "פרימה פלאס ירושלים", city: "Jerusalem", city_he: "ירושלים", country: "Israel", country_he: "ישראל", lat: 31.7810, lon: 35.2120 },
+  { name: "Prima Royale Jerusalem", name_he: "פרימה רויאל ירושלים", city: "Jerusalem", city_he: "ירושלים", country: "Israel", country_he: "ישראל", lat: 31.7720, lon: 35.2250 },
+
+  // --- Dead Sea ---
+  { name: "Isrotel Dead Sea Resort & Spa", name_he: "ים המלח - ישרוטל", city: "Ein Bokek", city_he: "ים המלח", country: "Israel", country_he: "ישראל", lat: 31.0900, lon: 35.3880 },
+  { name: "Daniel Dead Sea", name_he: "דניאל ים המלח", city: "Ein Bokek", city_he: "ים המלח", country: "Israel", country_he: "ישראל", lat: 31.0920, lon: 35.3870 },
+  { name: "Herods Dead Sea", name_he: "הרודס ים המלח", city: "Ein Bokek", city_he: "ים המלח", country: "Israel", country_he: "ישראל", lat: 31.0910, lon: 35.3860 },
+  { name: "Leonardo Plaza Dead Sea", name_he: "לאונרדו פלאזה ים המלח", city: "Ein Bokek", city_he: "ים המלח", country: "Israel", country_he: "ישראל", lat: 31.0890, lon: 35.3850 },
+
+  // --- Haifa ---
+  { name: "Dan Panorama Haifa", name_he: "דן פנורמה חיפה", city: "Haifa", city_he: "חיפה", country: "Israel", country_he: "ישראל", lat: 32.8170, lon: 34.9890 },
+  { name: "Dan Carmel Haifa", name_he: "דן כרמל חיפה", city: "Haifa", city_he: "חיפה", country: "Israel", country_he: "ישראל", lat: 32.8170, lon: 34.9860 },
+  { name: "Leonardo Haifa", name_he: "לאונרדו חיפה", city: "Haifa", city_he: "חיפה", country: "Israel", country_he: "ישראל", lat: 32.8190, lon: 34.9900 },
+  { name: "Crowne Plaza Haifa", name_he: "קראון פלאזה חיפה", city: "Haifa", city_he: "חיפה", country: "Israel", country_he: "ישראל", lat: 32.8170, lon: 34.9870 },
+
+  // --- Netanya ---
+  { name: "Isrotel Park Netanya", name_he: "פארק נתניה - ישרוטל", city: "Netanya", city_he: "נתניה", country: "Israel", country_he: "ישראל", lat: 32.3210, lon: 34.8560 },
+  { name: "Isrotel Plaza Beach Netanya", name_he: "פלאזה ביץ' נתניה - ישרוטל", city: "Netanya", city_he: "נתניה", country: "Israel", country_he: "ישראל", lat: 32.3230, lon: 34.8530 },
+  { name: "Seasons Netanya", name_he: "סיזונס נתניה", city: "Netanya", city_he: "נתניה", country: "Israel", country_he: "ישראל", lat: 32.3220, lon: 34.8540 },
+  { name: "Island Netanya", name_he: "איילנד נתניה", city: "Netanya", city_he: "נתניה", country: "Israel", country_he: "ישראל", lat: 32.3240, lon: 34.8520 },
+
+  // --- Tiberias & Galilee ---
+  { name: "Leonardo Plaza Tiberias", name_he: "לאונרדו פלאזה טבריה", city: "Tiberias", city_he: "טבריה", country: "Israel", country_he: "ישראל", lat: 32.7960, lon: 35.5320 },
+  { name: "Scots Hotel Tiberias", name_he: "סקוטס טבריה - ישרוטל אקסקלוסיב", city: "Tiberias", city_he: "טבריה", country: "Israel", country_he: "ישראל", lat: 32.7950, lon: 35.5310 },
+  { name: "Galei Kinneret Hotel", name_he: "גלי כנרת טבריה", city: "Tiberias", city_he: "טבריה", country: "Israel", country_he: "ישראל", lat: 32.7940, lon: 35.5300 },
+
+  // --- Mitzpe Ramon / Negev ---
+  { name: "Beresheet Mitzpe Ramon", name_he: "בראשית מצפה רמון", city: "Mitzpe Ramon", city_he: "מצפה רמון", country: "Israel", country_he: "ישראל", lat: 30.6100, lon: 34.8010 },
+
+  // --- Herzliya / Caesarea / Nazareth / Akko ---
+  { name: "Dan Accadia Herzliya", name_he: "דן אכדיה הרצליה", city: "Herzliya", city_he: "הרצליה", country: "Israel", country_he: "ישראל", lat: 32.1600, lon: 34.8060 },
+  { name: "Alexander Hotel Herzliya", name_he: "אלכסנדר הרצליה", city: "Herzliya", city_he: "הרצליה", country: "Israel", country_he: "ישראל", lat: 32.1620, lon: 34.8050 },
+  { name: "Dan Caesarea", name_he: "דן קיסריה", city: "Caesarea", city_he: "קיסריה", country: "Israel", country_he: "ישראל", lat: 32.5100, lon: 34.9100 },
+  { name: "Isrotel Garden Hotel Nazareth", name_he: "גארדן נצרת - ישרוטל", city: "Nazareth", city_he: "נצרת", country: "Israel", country_he: "ישראל", lat: 32.7020, lon: 35.2980 },
+  { name: "Isrotel Hamam Hotel Akko", name_he: "חמאם עכו - ישרוטל", city: "Acre", city_he: "עכו", country: "Israel", country_he: "ישראל", lat: 32.8710, lon: 35.0720 },
+
   // --- Other iconic ---
   { name: "Atlantis Paradise Island Bahamas", city: "Paradise Island", country: "Bahamas", lat: 25.0850, lon: -77.3140 },
   { name: "Marina Bay Sands Singapore", city: "Singapore", country: "Singapore", lat: 1.2830, lon: 103.8610 },
