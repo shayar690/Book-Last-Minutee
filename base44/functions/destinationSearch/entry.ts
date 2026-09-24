@@ -4,7 +4,7 @@
 // A curated hotel database supplements Photon for iconic hotels whose OSM name is
 // stored in a local language only (e.g. Arabic in Dubai), so short English prefixes
 // like "Five Pa" can still surface "FIVE Palm Jumeirah Hotel".
-import { searchCuratedHotels } from "../../shared/curatedHotels";
+import { searchCuratedHotels } from "./curatedHotels.ts";
 
 const HOTEL_TYPES = ["hotel", "hostel", "motel", "guest_house", "apartment", "chalet", "resort", "apartment_hotel", "apartments"];
 const AIRPORT_TYPES = ["aerodrome", "helipad", "heliport"];
@@ -87,12 +87,24 @@ export default async function(req) {
     const filter = body.filter || "";
     if (query.length < 2) return Response.json({ results: [] });
 
-    // Hotels tab: prefer Photon for partial-name matching (suggestions while typing).
+    // Hotels tab: curated database (prefix match) + Photon (partial-name matching).
+    // Photon always queried with lang=en for English names + better ranking of
+    // international hotels (many OSM names are local-language only).
     if (filter === "hotels") {
+      const curated = searchCuratedHotels(query, 8);
+      let photon = [];
       try {
-        const results = await photonSearch(query, lang, filter);
-        if (results.length) return Response.json({ results });
+        photon = await photonSearch(query, "en", filter);
       } catch {}
+      const seen = new Set();
+      const merged = [];
+      for (const r of [...curated, ...photon]) {
+        const key = (r.label || "").toLowerCase().split(",")[0];
+        if (seen.has(key)) continue;
+        seen.add(key);
+        merged.push(r);
+      }
+      if (merged.length) return Response.json({ results: merged });
     }
 
     const results = await nominatimSearch(query, lang, filter);
