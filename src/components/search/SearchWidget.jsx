@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Bed, Plane, Bus, Car, Train, Search, Calendar, Users, ChevronDown, Clock, ArrowRight } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import AutocompleteField from "@/components/search/AutocompleteField";
+import FlightAutocompleteField from "@/components/search/FlightAutocompleteField";
 import DateField from "@/components/search/DateField";
 import DatePickerModal from "@/components/search/DatePickerModal";
 
@@ -148,8 +149,8 @@ export default function SearchWidget() {
             )}
             {active === "flights" && (
               <>
-                <AutocompleteField label={t("search.from")} placeholder="London (LHR)" />
-                <AutocompleteField label={t("search.to")} placeholder="Santorini (JTR)" />
+                <FlightAutocompleteField label={t("search.from")} placeholder="City or airport (e.g. ATH)" />
+                <FlightAutocompleteField label={t("search.to")} placeholder="City or airport (e.g. JTR)" />
                 <DateField label={t("search.departure")} value={checkIn} placeholder={t("search.addDate")} active={dateModal.open && dateModal.active === "in"} onClick={() => openRange("in")} />
                 <DateField label={t("search.return")} value={checkOut} placeholder={t("search.addDate")} active={dateModal.open && dateModal.active === "out"} onClick={() => openRange("out")} />
                 <GuestsField t={t} />
