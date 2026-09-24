@@ -140,7 +140,6 @@ export const COUNTRIES = [
   { value: "OM", en: "Oman", he: "עומאן" },
   { value: "PK", en: "Pakistan", he: "פקיסטן" },
   { value: "PW", en: "Palau", he: "פלאו" },
-  { value: "PS", en: "Palestine", he: "פלסטין" },
   { value: "PA", en: "Panama", he: "פנמה" },
   { value: "PG", en: "Papua New Guinea", he: "פפואה גינאה החדשה" },
   { value: "PY", en: "Paraguay", he: "פרגוואי" },
