@@ -64,10 +64,10 @@ function GuestsField({ t, mode = "rooms" }) {
             transition={{ duration: 0.18 }}
             className="absolute top-full mt-2 z-30 w-64 p-4 rounded-xl bg-white border border-[#C5C5C5] shadow-horizon"
           >
-            <Stepper label={t("search.adults")} value={adults} setValue={setAdults} min={1} max={9} />
+            <Stepper label={t("search.adults")} hint={isPassengers ? t("search.adultsHint") : null} value={adults} setValue={setAdults} min={1} max={9} />
             <div className="h-px bg-[#EAEAEA] my-3" />
             {isPassengers ? (
-              <Stepper label={t("search.children")} value={children} setValue={setChildren} min={0} max={9} />
+              <Stepper label={t("search.children")} hint={t("search.childrenHint")} value={children} setValue={setChildren} min={0} max={9} />
             ) : (
               <Stepper label={t("search.rooms")} value={rooms} setValue={setRooms} min={1} max={6} />
             )}
@@ -78,10 +78,13 @@ function GuestsField({ t, mode = "rooms" }) {
   );
 }
 
-function Stepper({ label, value, setValue, min, max }) {
+function Stepper({ label, hint, value, setValue, min, max }) {
   return (
     <div className="flex items-center justify-between">
-      <span className="text-sm text-[#2D3035]">{label}</span>
+      <span className="flex flex-col">
+        <span className="text-sm text-[#2D3035]">{label}</span>
+        {hint && <span className="text-[11px] text-[#9a9a9a]">{hint}</span>}
+      </span>
       <div className="flex items-center gap-3">
         <button type="button" onClick={() => setValue(Math.max(min, value - 1))} className="w-7 h-7 rounded-full border border-[#C5C5C5] text-[#2D3035] hover:border-[#2D3035]">−</button>
         <span className="w-5 text-center text-sm">{value}</span>
