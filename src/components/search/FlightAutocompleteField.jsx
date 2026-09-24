@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Plane, Loader2 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
+import { useI18n } from "@/lib/i18n";
 
 export default function FlightAutocompleteField({ label, placeholder, flex = false }) {
+  const { lang } = useI18n();
   const [value, setValue] = useState("");
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -42,8 +44,14 @@ export default function FlightAutocompleteField({ label, placeholder, flex = fal
     return () => document.removeEventListener("mousedown", onClick);
   }, []);
 
+  const disp = (r) => ({
+    city: lang === "he" ? (r.heCity || r.city) : r.city,
+    country: lang === "he" ? (r.heCountry || r.country) : r.country,
+  });
+
   const pick = (r) => {
-    setValue(r.short);
+    const { city } = disp(r);
+    setValue(`${city} (${r.iata})`);
     setOpen(false);
   };
 
@@ -74,21 +82,24 @@ export default function FlightAutocompleteField({ label, placeholder, flex = fal
 
       {open && results.length > 0 && (
         <div className="absolute top-full mt-1.5 z-40 w-full max-w-full bg-white rounded-lg border border-[#C5C5C5] shadow-horizon overflow-hidden">
-          {results.map((r, i) => (
-            <button
-              key={i}
-              type="button"
-              onMouseEnter={() => setActive(i)}
-              onClick={() => pick(r)}
-              className={`w-full text-start px-3 py-2.5 flex items-center gap-2.5 transition-colors ${active === i ? "bg-[#FFFAD9]" : "hover:bg-[#FFFAD9]"}`}
-            >
-              <span className="shrink-0 w-10 h-7 rounded-md bg-[#2D3035] text-white text-[11px] font-bold flex items-center justify-center tracking-wide">{r.iata}</span>
-              <span className="min-w-0">
-                <span className="block text-sm text-[#2D3035] truncate">{r.city}, {r.country}</span>
-                <span className="block text-xs text-[#7D7D7D] truncate">{r.name}</span>
-              </span>
-            </button>
-          ))}
+          {results.map((r, i) => {
+            const { city, country } = disp(r);
+            return (
+              <button
+                key={i}
+                type="button"
+                onMouseEnter={() => setActive(i)}
+                onClick={() => pick(r)}
+                className={`w-full text-start px-3 py-2.5 flex items-center gap-2.5 transition-colors ${active === i ? "bg-[#FFFAD9]" : "hover:bg-[#FFFAD9]"}`}
+              >
+                <span className="shrink-0 w-10 h-7 rounded-md bg-[#2D3035] text-white text-[11px] font-bold flex items-center justify-center tracking-wide">{r.iata}</span>
+                <span className="min-w-0">
+                  <span className="block text-sm text-[#2D3035] truncate">{city}, {country}</span>
+                  <span className="block text-xs text-[#7D7D7D] truncate">{r.name}</span>
+                </span>
+              </button>
+            );
+          })}
         </div>
       )}
     </div>

@@ -149,8 +149,8 @@ export default function SearchWidget() {
             )}
             {active === "flights" && (
               <>
-                <FlightAutocompleteField label={t("search.from")} placeholder="City or airport (e.g. ATH)" />
-                <FlightAutocompleteField label={t("search.to")} placeholder="City or airport (e.g. JTR)" />
+                <FlightAutocompleteField label={t("search.flightFrom")} placeholder="City or airport (e.g. ATH)" />
+                <FlightAutocompleteField label={t("search.flightTo")} placeholder="City or airport (e.g. JTR)" />
                 <DateField label={t("search.departure")} value={checkIn} placeholder={t("search.addDate")} active={dateModal.open && dateModal.active === "in"} onClick={() => openRange("in")} />
                 <DateField label={t("search.return")} value={checkOut} placeholder={t("search.addDate")} active={dateModal.open && dateModal.active === "out"} onClick={() => openRange("out")} />
                 <GuestsField t={t} />
