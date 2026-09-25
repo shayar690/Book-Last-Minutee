@@ -62,12 +62,12 @@ async function openMeteoSearch(query: string, lang: string, filter: string) {
   const seen = new Set<string>();
   return (data.results || [])
     .filter((r: any) => {
-      // For hotel search, return cities/towns. Also include PCLI (independent
-      // political entity) so micro-state cities like Monaco, San Marino, and
-      // Singapore — which Open-Meteo classifies as countries rather than
-      // cities — appear in hotel search results.
+      // For hotel search, only return cities/towns (not countries or regions).
+      // Exception: Monaco is a city-state classified as PCLI by Open-Meteo,
+      // so we allow it explicitly.
       if (filter === "hotels") {
-        return ["PPL", "PPLA", "PPLA2", "PPLA3", "PPLA4", "PPLA5", "PPLC", "PPLG", "PPLF", "PCLI"].includes(r.feature_code);
+        const allowed = ["PPL", "PPLA", "PPLA2", "PPLA3", "PPLA4", "PPLA5", "PPLC", "PPLG", "PPLF"];
+        return allowed.includes(r.feature_code) || (r.feature_code === "PCLI" && r.country_code === "MC");
       }
       return true;
     })
