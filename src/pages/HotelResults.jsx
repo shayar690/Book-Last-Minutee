@@ -136,7 +136,7 @@ export default function HotelResults() {
         )}
         {!loading && (
           <h1 className="text-2xl font-body font-semibold text-[#2D3035] mb-1">
-            {`${t("results.hotelsIn")}${destination}`}
+            {`${t("results.showing")} ${hotels.length} ${t("results.hotelsIn")}${destination}`}
           </h1>
         )}
         {!loading && (
