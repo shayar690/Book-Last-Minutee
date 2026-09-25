@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plane, IdCard as Passport, Sun, Waves, Briefcase, Palmtree, Cloud } from "lucide-react";
+import { Plane, BookOpen as Passport, Sun, Waves, Briefcase, Palmtree, Cloud } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 
 // Each scene has its own icon, colour, and motion style — cycling creates a
@@ -34,7 +34,7 @@ export default function SearchLoading({ destination, checkIn, checkOut }) {
     const dd = String(date.getDate()).padStart(2, "0");
     const mm = String(date.getMonth() + 1).padStart(2, "0");
     const yyyy = date.getFullYear();
-    return `${weekdayClean} • ${dd}-${mm}-${yyyy}`;
+    return `${dd}.${mm}.${yyyy} \u200E(${weekdayClean})\u200E`;
   };
 
   const calcNightsAndDays = () => {
@@ -92,12 +92,12 @@ export default function SearchLoading({ destination, checkIn, checkOut }) {
         </AnimatePresence>
       </div>
 
-      {/* Text — David Libre for elegant Hebrew typography, larger sizes */}
-      <div className="text-center" style={{ fontFamily: '"David Libre", "Cormorant Garamond", ui-serif, Georgia, serif' }}>
+      {/* Text — Inter (font-body) to match the homepage search widget */}
+      <div className="text-center font-body">
         <p className="text-xl font-medium text-[#2D3035]">{t("results.searchingIn")}{destination}</p>
         <div className="text-base text-[#7D7D7D] mt-3 leading-relaxed">
-          <div>{t("results.checkInLabel")} <span dir="ltr">{formatDateWithDay(checkIn)}</span></div>
-          <div>{t("results.checkOutLabel")} <span dir="ltr">{formatDateWithDay(checkOut)}</span></div>
+          <div>{t("results.checkInLabel")} <span dir="ltr" style={{ unicodeBidi: "isolate" }}>{formatDateWithDay(checkIn)}</span></div>
+          <div>{t("results.checkOutLabel")} <span dir="ltr" style={{ unicodeBidi: "isolate" }}>{formatDateWithDay(checkOut)}</span></div>
           {nd && (
             <div className="mt-2.5 font-medium text-[#2D3035] text-lg">
               {nd.nights} {t("results.nights")}, {nd.days} {t("results.days")}
