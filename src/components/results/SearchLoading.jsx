@@ -1,18 +1,27 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plane, Bed, Sun, Camera, Compass, Globe, Umbrella } from "lucide-react";
+import { Plane, Bed, Sun, Camera, Compass, Umbrella, Cloud } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 
-const CYCLE_ICONS = [Plane, Bed, Sun, Camera, Compass, Globe, Umbrella];
+// Each scene has its own icon, colour, and motion style — cycling creates a
+// "plane flying → hotel → sun → umbrella → …" travel montage.
+const SCENES = [
+  { Icon: Plane, color: "#F5D166", anim: { x: [-28, 28, -28], y: [0, -14, 0], rotate: [0, 8, -8, 0] }, dur: 3 },
+  { Icon: Sun, color: "#F5B04A", anim: { rotate: 360, scale: [1, 1.12, 1] }, dur: 6 },
+  { Icon: Umbrella, color: "#E8916D", anim: { rotate: [-6, 6, -6], y: [0, -6, 0] }, dur: 2.5 },
+  { Icon: Bed, color: "#7BA7CC", anim: { y: [0, -10, 0] }, dur: 2 },
+  { Icon: Camera, color: "#8B7AB8", anim: { scale: [1, 1.18, 1], rotate: [-4, 4, -4] }, dur: 2 },
+  { Icon: Compass, color: "#5BA6A0", anim: { rotate: [0, -360] }, dur: 5 },
+];
 
 export default function SearchLoading({ destination, checkIn, checkOut }) {
   const { t, lang } = useI18n();
-  const [iconIdx, setIconIdx] = useState(0);
+  const [sceneIdx, setSceneIdx] = useState(0);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setIconIdx((prev) => (prev + 1) % CYCLE_ICONS.length);
-    }, 1800);
+      setSceneIdx((prev) => (prev + 1) % SCENES.length);
+    }, 2400);
     return () => clearInterval(interval);
   }, []);
 
@@ -37,35 +46,60 @@ export default function SearchLoading({ destination, checkIn, checkOut }) {
   };
 
   const nd = calcNightsAndDays();
-  const CurrentIcon = CYCLE_ICONS[iconIdx];
+  const scene = SCENES[sceneIdx];
+  const SceneIcon = scene.Icon;
 
   return (
-    <div className="flex flex-col items-center justify-center py-16 gap-6">
-      <motion.div
-        animate={{ y: [0, -10, 0] }}
-        transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
-        className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-white border border-[#E5E5E5] flex items-center justify-center shadow-horizon"
-      >
+    <div className="flex flex-col items-center justify-center py-20 gap-10">
+      {/* Large animated scene */}
+      <div className="relative w-40 h-40 flex items-center justify-center">
+        {/* Soft glow ring */}
+        <div className="absolute inset-2 rounded-full bg-gradient-to-br from-[#F5D166]/12 to-transparent" />
+
+        {/* Floating clouds */}
+        <motion.div
+          animate={{ x: [-14, 16, -14], opacity: [0.25, 0.45, 0.25] }}
+          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute top-3 left-1"
+        >
+          <Cloud className="w-9 h-9 text-[#C5C5C5]" strokeWidth={1} />
+        </motion.div>
+        <motion.div
+          animate={{ x: [16, -14, 16], opacity: [0.4, 0.2, 0.4] }}
+          transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute bottom-7 right-1"
+        >
+          <Cloud className="w-7 h-7 text-[#C5C5C5]" strokeWidth={1} />
+        </motion.div>
+
+        {/* Main icon with scene-specific animation */}
         <AnimatePresence mode="wait">
           <motion.div
-            key={iconIdx}
-            initial={{ opacity: 0, scale: 0.4, rotate: -25 }}
-            animate={{ opacity: 1, scale: 1, rotate: 0 }}
-            exit={{ opacity: 0, scale: 0.4, rotate: 25 }}
-            transition={{ duration: 0.35 }}
-            className="flex items-center justify-center"
+            key={sceneIdx}
+            initial={{ opacity: 0, scale: 0.3, y: 12 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.3, y: -12 }}
+            transition={{ duration: 0.4 }}
+            className="relative z-10"
           >
-            <CurrentIcon className="w-9 h-9 sm:w-11 sm:h-11 text-[#F5D166]" strokeWidth={1.5} />
+            <motion.div
+              animate={scene.anim}
+              transition={{ duration: scene.dur, repeat: Infinity, ease: "easeInOut" }}
+            >
+              <SceneIcon className="w-20 h-20" style={{ color: scene.color }} strokeWidth={1.25} />
+            </motion.div>
           </motion.div>
         </AnimatePresence>
-      </motion.div>
-      <div className="text-center" style={{ fontFamily: '"Frank Ruhl Libre", "Cormorant Garamond", ui-serif, Georgia, serif' }}>
-        <p className="text-base font-medium text-[#2D3035]">{t("results.searchingIn")}{destination}</p>
-        <div className="text-sm text-[#7D7D7D] mt-1.5">
+      </div>
+
+      {/* Text — David Libre for elegant Hebrew typography, larger sizes */}
+      <div className="text-center" style={{ fontFamily: '"David Libre", "Cormorant Garamond", ui-serif, Georgia, serif' }}>
+        <p className="text-xl font-medium text-[#2D3035]">{t("results.searchingIn")}{destination}</p>
+        <div className="text-base text-[#7D7D7D] mt-3 leading-relaxed">
           <div>{t("results.checkInLabel")} <span dir="ltr">{formatDateWithDay(checkIn)}</span></div>
           <div>{t("results.checkOutLabel")} <span dir="ltr">{formatDateWithDay(checkOut)}</span></div>
           {nd && (
-            <div className="mt-1.5 font-medium text-[#2D3035]">
+            <div className="mt-2.5 font-medium text-[#2D3035] text-lg">
               {nd.nights} {t("results.nights")}, {nd.days} {t("results.days")}
             </div>
           )}

@@ -133,9 +133,11 @@ export default function HotelResults() {
             {t("results.backToSearch")}
           </Link>
         )}
-        <h1 className="text-2xl font-heading text-[#2D3035] mb-1">
-          {loading ? `${t("results.searchingIn")}${destination}` : `${t("results.hotelsIn")} ${destination}`}
-        </h1>
+        {!loading && (
+          <h1 className="text-2xl font-heading text-[#2D3035] mb-1">
+            {`${t("results.hotelsIn")} ${destination}`}
+          </h1>
+        )}
         {!loading && (
           <div className="text-sm text-[#7D7D7D] mb-4">
             <div>{t("results.checkInLabel")} <span dir="ltr">{formatDateWithDay(checkIn)}</span></div>

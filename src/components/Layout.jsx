@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Outlet, Link } from "react-router-dom";
+import { Outlet, Link, useLocation } from "react-router-dom";
 import { Globe2, Menu, X } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/AuthContext";
@@ -48,6 +48,8 @@ function AuthLinks({ scrolled }) {
 function Header() {
   const { t } = useI18n();
   const { isAuthenticated, logout } = useAuth();
+  const location = useLocation();
+  const isHome = location.pathname === "/";
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -56,6 +58,10 @@ function Header() {
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  // On non-home pages the header is always solid (dark text on glass background)
+  // so the logo and nav stay visible against light page backgrounds.
+  const solid = scrolled || !isHome;
 
   const links = [
     { label: t("nav.flights"), href: "#search" },
@@ -67,30 +73,30 @@ function Header() {
   ];
 
   return (
-    <header className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${scrolled ? "glass shadow-horizon py-3" : "py-5 bg-transparent"}`}>
+    <header className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${solid ? "glass shadow-horizon py-3" : "py-5 bg-transparent"}`}>
       <div className="max-w-7xl mx-auto px-6 lg:px-10 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2.5">
-          <Globe2 className={`w-6 h-6 ${scrolled ? "text-gold" : "text-white"}`} strokeWidth={1.25} />
-          <span className={`font-display text-lg sm:text-2xl tracking-wide ${scrolled ? "text-ink" : "text-white"}`}>{t("brand.name")}</span>
+          <Globe2 className={`w-6 h-6 ${solid ? "text-gold" : "text-white"}`} strokeWidth={1.25} />
+          <span className={`font-display text-lg sm:text-2xl tracking-wide ${solid ? "text-ink" : "text-white"}`}>{t("brand.name")}</span>
         </Link>
 
         <nav className="hidden lg:flex items-center gap-8">
           {links.map((l) => (
-            <a key={l.label} href={l.href} className={`text-sm font-medium transition-colors ${scrolled ? "text-ink/75 hover:text-gold" : "text-white/85 hover:text-white"}`}>
+            <a key={l.label} href={l.href} className={`text-sm font-medium transition-colors ${solid ? "text-ink/75 hover:text-gold" : "text-white/85 hover:text-white"}`}>
               {l.label}
             </a>
           ))}
         </nav>
 
         <div className="flex items-center gap-3">
-          <div className={scrolled ? "" : ""}>
+          <div>
             <LanguageSwitcher />
           </div>
-          <AuthLinks scrolled={scrolled} />
+          <AuthLinks scrolled={solid} />
           <a href="#search" className="hidden sm:inline-flex items-center h-10 px-5 rounded-full gold-foil text-ink text-sm font-semibold hover:brightness-105 transition">
             {t("nav.book")}
           </a>
-          <button onClick={() => setOpen((v) => !v)} className={`lg:hidden ${scrolled ? "text-ink" : "text-white"}`}>
+          <button onClick={() => setOpen((v) => !v)} className={`lg:hidden ${solid ? "text-ink" : "text-white"}`}>
             {open ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
