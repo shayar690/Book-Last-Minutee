@@ -37,15 +37,8 @@ const FALLBACK_IMAGES = [
   "https://images.unsplash.com/photo-1590490360182-c33d57733427?w=800&q=80",
   "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&q=80",
   "https://images.unsplash.com/photo-1551105378-78e609c9c5a4?w=800&q=80",
-  "https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=800&q=80",
   "https://images.unsplash.com/photo-1517840901100-8179e982acb7?w=800&q=80",
   "https://images.unsplash.com/photo-144501998305998d9bcc6c3a6c5f5e30?w=800&q=80",
-  "https://images.unsplash.com/photo-1455587734955-081b22074882?w=800&q=80",
-  "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=800&q=80",
-  "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800&q=80",
-  "https://images.unsplash.com/photo-1551105378-78e609c9c5a4?w=800&q=80",
-  "https://images.unsplash.com/photo-1590490360182-c33d57733427?w=800&q=80",
-  "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800&q=80",
 ];
 
 // Simple deterministic string hash — same hotel name always maps to the same images.
@@ -160,7 +153,7 @@ Descriptions should be in ${languageName}.`;
     // assign from our diverse Unsplash library, indexed by a hash of the hotel
     // name — this ensures each hotel gets a consistent but DIFFERENT set of images.
     const enrichedHotels = hotels.map((hotel, idx) => {
-      const start = hashString(hotel.name || `hotel-${idx}`) % FALLBACK_IMAGES.length;
+      const start = (hashString(hotel.name || `hotel-${idx}`) + idx * 7) % FALLBACK_IMAGES.length;
       hotel.images = [
         FALLBACK_IMAGES[start % FALLBACK_IMAGES.length],
         FALLBACK_IMAGES[(start + 1) % FALLBACK_IMAGES.length],
