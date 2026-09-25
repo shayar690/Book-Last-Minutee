@@ -54,7 +54,7 @@ function Dropdown({ label, placeholder, value, onChange, options, icon: Icon, no
         {open && (
           <>
             <div className="fixed inset-0 z-20" onClick={() => setOpen(false)} />
-            <div className="absolute top-full mt-1.5 z-30 w-full max-h-56 overflow-y-auto bg-white rounded-lg border border-[#C5C5C5] shadow-horizon">
+            <div className="absolute top-full mt-1.5 z-30 w-full h-56 overflow-y-auto bg-white rounded-lg border border-[#C5C5C5] shadow-horizon">
               {options.map((opt) => (
                 <button
                   key={opt.value}
