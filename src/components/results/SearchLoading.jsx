@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plane, Sun, Waves, Briefcase, Palmtree, Cloud } from "lucide-react";
-import PassportIcon from "@/components/results/PassportIcon";
+import { Image } from "@/components/ui/image";
+
+const PASSPORT_IMAGE = "https://media.base44.com/images/public/6ab46eccdb257d5931954287/4d8661f08_IMG_1685.webp";
 import DateDisplay from "@/components/results/DateDisplay";
 import { useI18n } from "@/lib/i18n";
 
@@ -9,7 +11,7 @@ import { useI18n } from "@/lib/i18n";
 // "plane flying → hotel → sun → umbrella → …" travel montage.
 const SCENES = [
   { Icon: Plane, color: "#F5D166", anim: { x: [-28, 28, -28], y: [0, -14, 0], rotate: [0, 8, -8, 0] }, dur: 3 },
-  { Icon: PassportIcon, color: "#8B7AB8", anim: { scale: [1, 1.1, 1], rotate: [-4, 4, -4] }, dur: 3 },
+  { image: PASSPORT_IMAGE, anim: { scale: [1, 1.1, 1], rotate: [-4, 4, -4] }, dur: 3 },
   { Icon: Sun, color: "#F5B04A", anim: { rotate: 360, scale: [1, 1.12, 1] }, dur: 6 },
   { Icon: Waves, color: "#7BA7CC", anim: { x: [-8, 8, -8] }, dur: 3 },
   { Icon: Briefcase, color: "#E8916D", anim: { y: [0, -12, 0], rotate: [-3, 3, -3] }, dur: 2.5 },
@@ -99,7 +101,11 @@ export default function SearchLoading({ destination, checkIn, checkOut }) {
               animate={scene.anim}
               transition={{ duration: scene.dur, repeat: Infinity, ease: "easeInOut" }}
             >
-              <SceneIcon className="w-20 h-20" style={{ color: scene.color }} strokeWidth={1.25} />
+              {scene.image ? (
+                <Image src={scene.image} alt="Passport" className="w-20 h-20" fittingType="fit" />
+              ) : (
+                <SceneIcon className="w-20 h-20" style={{ color: scene.color }} strokeWidth={1.25} />
+              )}
             </motion.div>
           </motion.div>
         </AnimatePresence>
