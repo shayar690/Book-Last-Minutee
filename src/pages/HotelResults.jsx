@@ -13,6 +13,7 @@ export default function HotelResults() {
   const { t, lang } = useI18n();
   const [searchParams] = useSearchParams();
   const [hotels, setHotels] = useState([]);
+  const [totalFound, setTotalFound] = useState(null);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState(null);
@@ -65,6 +66,7 @@ export default function HotelResults() {
     const cached = hotelCache.get(searchKey);
     if (cached) {
       setHotels(cached.hotels);
+      setTotalFound(cached.totalFound ?? null);
       setError(cached.error || null);
       loadedNamesRef.current = new Set(cached.hotels.map((h) => h.name));
       setBatchNum(cached.batchNum || 1);
@@ -74,6 +76,7 @@ export default function HotelResults() {
     }
     setLoading(true);
     setHotels([]);
+    setTotalFound(null);
     setHasMore(true);
     setBatchNum(1);
     loadedNamesRef.current = new Set();
@@ -86,8 +89,9 @@ export default function HotelResults() {
         const batchHotels = res.data?.hotels || [];
         batchHotels.forEach((h) => loadedNamesRef.current.add(h.name));
         setHotels(batchHotels);
+        setTotalFound(res.data?.totalFound ?? batchHotels.length);
         setError(res.data?.error || null);
-        hotelCache.set(searchKey, { hotels: batchHotels, error: res.data?.error, batchNum: 1, hasMore: true });
+        hotelCache.set(searchKey, { hotels: batchHotels, totalFound: res.data?.totalFound ?? batchHotels.length, error: res.data?.error, batchNum: 1, hasMore: true });
       })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
@@ -136,7 +140,7 @@ export default function HotelResults() {
         )}
         {!loading && (
           <h1 className="text-2xl font-body font-semibold text-[#2D3035] mb-1">
-            {`${t("results.showing")} ${hotels.length} ${t("results.hotelsIn")}${destination}`}
+            {`${t("results.showing")} ${totalFound ?? hotels.length} ${t("results.hotelsIn")}${destination}`}
           </h1>
         )}
         {!loading && (

@@ -110,6 +110,7 @@ For each hotel provide ONLY these fields:
 - images: Array of 3-5 REAL direct image URLs of this specific hotel. Find actual photos from Booking.com (image URLs start with https://cf.bstatic.com/ or https://q-xx.bstatic.com/) or the hotel's official website. Return ONLY direct image file URLs (ending in .jpg, .jpeg, .png, or .webp) that can be loaded in an <img> tag. Do NOT return Booking.com hotel page URLs (like https://www.booking.com/hotel/...) — only direct image file URLs. If you cannot find real direct image URLs, return an empty array [].
 
 Return exactly ${hotelCount} hotels sorted by price (lowest first).
+Also provide "totalFound": your best estimate of the TOTAL number of real hotels available in "${destination}" matching the dates and filters (not just the ${hotelCount} returned here). For major cities this should be in the hundreds; for small towns it may be only a few dozen.
 HOTEL NAMES — CRITICAL RULES:
 - For hotels OUTSIDE Israel: use the hotel's ORIGINAL ENGLISH name (e.g., "Taj Dubai", "Hilton Paris Opera", "Atlantis The Palm"). NEVER translate to Hebrew.
 - For hotels IN Israel: use the HEBREW name (e.g., "דן תל אביב", "ירושלים גולד", "מצפה נופית").
@@ -124,6 +125,7 @@ Descriptions should be in ${languageName}.`;
         type: "object",
         additionalProperties: true,
         properties: {
+          totalFound: { type: "number", description: "Estimated total number of hotels in this destination matching the search criteria" },
           hotels: {
             type: "array",
             items: {
@@ -150,6 +152,9 @@ Descriptions should be in ${languageName}.`;
     });
 
     const hotels = Array.isArray(result) ? result : (result.hotels || []);
+    const totalFound = !Array.isArray(result) && typeof result.totalFound === "number" && result.totalFound > 0
+      ? result.totalFound
+      : hotels.length;
 
     // Use real images from the LLM if available; fall back to generic Unsplash
     // images only when the LLM didn't return any image URLs for a hotel.
@@ -172,8 +177,8 @@ Descriptions should be in ${languageName}.`;
       return hotel;
     });
 
-    return Response.json({ hotels: enrichedHotels, batch });
+    return Response.json({ hotels: enrichedHotels, totalFound, batch });
   } catch (error) {
-    return Response.json({ error: error.message, hotels: [], batch }, { status: 500 });
+    return Response.json({ error: error.message, hotels: [], totalFound: 0, batch }, { status: 500 });
   }
 }
