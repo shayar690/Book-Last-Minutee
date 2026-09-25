@@ -54,6 +54,7 @@ Provide the following details for this hotel:
    - maxGuests: Maximum guests (number)
    - beds: Bed configuration (e.g. "1 King bed")
    - amenities: Array of room-specific amenities (e.g. ["Free WiFi","Air conditioning","Flat-screen TV","Minibar","Safe","Private bathroom","City view"])
+7. images: Array of 5-8 REAL photo URLs of THIS SPECIFIC hotel. Search the web for actual photos from the hotel's Booking.com page, official website, or Google Images. Return ONLY direct image URLs (ending in .jpg, .jpeg, .png, or .webp) that can be loaded in an <img> tag. Do NOT return page URLs — only direct image file URLs. The photos must show the actual hotel, its rooms, lobby, exterior, pool, restaurant, etc.
 
 Respond in ${languageName}. All text must be in ${languageName}.`;
 
@@ -97,6 +98,10 @@ Respond in ${languageName}. All text must be in ${languageName}.`;
                 amenities: { type: "array", items: { type: "string" } }
               }
             }
+          },
+          images: {
+            type: "array",
+            items: { type: "string" }
           }
         }
       }

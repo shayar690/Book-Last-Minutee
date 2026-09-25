@@ -15,7 +15,8 @@ export default function HotelDetail() {
   const [activeImg, setActiveImg] = useState(0);
   const [details, setDetails] = useState(null);
   const [loadingDetails, setLoadingDetails] = useState(true);
-  const images = hotel?.images || (hotel?.image ? [hotel.image] : []);
+  const baseImages = hotel?.images || (hotel?.image ? [hotel.image] : []);
+  const images = details?.images?.length ? details.images : baseImages;
   const sym = hotel?.currency === "ILS" ? "₪" : "$";
 
   useEffect(() => {
