@@ -19,7 +19,10 @@ async function openMeteoSearch(query: string, lang: string, filter: string) {
       return true;
     })
     .map((r: any) => {
-      const parts = [r.name, r.admin1, r.country].filter(Boolean);
+      // Use city + country only. admin1 (state/emirate) is often in English
+      // even when language=he, producing mixed-language labels like
+      // "דובאי, Dubai, איחוד האמירויות הערביות".
+      const parts = [r.name, r.country].filter(Boolean);
       const key = (r.name + r.country).toLowerCase();
       if (seen.has(key)) return null;
       seen.add(key);
