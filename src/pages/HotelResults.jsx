@@ -134,14 +134,14 @@ export default function HotelResults() {
           </Link>
         )}
         {!loading && (
-          <h1 className="text-2xl font-semibold text-[#2D3035] mb-1">
+          <h1 className="text-2xl font-body font-semibold text-[#2D3035] mb-1">
             {`${t("results.hotelsIn")}${destination}`}
           </h1>
         )}
         {!loading && (
           <div className="text-sm text-[#7D7D7D] mb-4">
-            <div>{t("results.checkInLabel")} <span dir="ltr">{formatDateWithDay(checkIn)}</span></div>
-            <div>{t("results.checkOutLabel")} <span dir="ltr">{formatDateWithDay(checkOut)}</span></div>
+            <div>{t("results.checkInLabel")} <span dir="ltr" style={{ unicodeBidi: "isolate" }}>{formatDateWithDay(checkIn)}</span></div>
+            <div>{t("results.checkOutLabel")} <span dir="ltr" style={{ unicodeBidi: "isolate" }}>{formatDateWithDay(checkOut)}</span></div>
             <div className="mt-1">{adults} {t("results.adults")} · {rooms} {t("results.rooms")}</div>
             {checkIn && checkOut && (() => {
               const nights = Math.round((new Date(checkOut) - new Date(checkIn)) / (1000 * 60 * 60 * 24));
