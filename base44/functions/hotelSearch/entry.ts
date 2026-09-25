@@ -14,6 +14,7 @@ const MEAL_NAMES: Record<string, string> = {
 };
 
 // Fallback hotel images — high-quality travel/hotel photos from Unsplash.
+// Diverse set so different hotels get different images (indexed by hotel-name hash).
 const FALLBACK_IMAGES = [
   "https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=800&q=80",
   "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=800&q=80",
@@ -30,7 +31,32 @@ const FALLBACK_IMAGES = [
   "https://images.unsplash.com/photo-1568084680786-a84f91d115c9?w=800&q=80",
   "https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=800&q=80",
   "https://images.unsplash.com/photo-1535827841776-24afc1e128ac?w=800&q=80",
+  "https://images.unsplash.com/photo-1566073761252-9b4c8f6f6267?w=800&q=80",
+  "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800&q=80",
+  "https://images.unsplash.com/photo-1551918120-9739cb380c18?w=800&q=80",
+  "https://images.unsplash.com/photo-1590490360182-c33d57733427?w=800&q=80",
+  "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&q=80",
+  "https://images.unsplash.com/photo-1551105378-78e609c9c5a4?w=800&q=80",
+  "https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=800&q=80",
+  "https://images.unsplash.com/photo-1517840901100-8179e982acb7?w=800&q=80",
+  "https://images.unsplash.com/photo-144501998305998d9bcc6c3a6c5f5e30?w=800&q=80",
+  "https://images.unsplash.com/photo-1455587734955-081b22074882?w=800&q=80",
+  "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=800&q=80",
+  "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800&q=80",
+  "https://images.unsplash.com/photo-1551105378-78e609c9c5a4?w=800&q=80",
+  "https://images.unsplash.com/photo-1590490360182-c33d57733427?w=800&q=80",
+  "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800&q=80",
 ];
+
+// Simple deterministic string hash — same hotel name always maps to the same images.
+function hashString(str: string): number {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = ((hash << 5) - hash) + str.charCodeAt(i);
+    hash |= 0;
+  }
+  return Math.abs(hash);
+}
 
 export default async function(req) {
   try {
@@ -75,7 +101,6 @@ export default async function(req) {
 CRITICAL INSTRUCTIONS:
 1. Find REAL hotels from Booking.com, Hotels.com, Expedia, and other major booking sites. Major cities (Rome, Milan, Paris, London, Dubai) have HUNDREDS of hotels — you MUST find at least ${hotelCount} real hotels. Do NOT return fewer than ${hotelCount} unless the city genuinely has fewer.
 2. For each hotel, provide the EXACT Booking.com URL (e.g., https://www.booking.com/hotel/XX/NAME.html).
-3. For each hotel, provide 3-5 REAL image URLs from Booking.com's CDN (https://cf.bstatic.com/ or https://q-xx.bstatic.com/). If you cannot find real image URLs, leave the images array empty.
 
 For each hotel provide ONLY these fields:
 - name: Real hotel name
@@ -84,7 +109,6 @@ For each hotel provide ONLY these fields:
 - reviews: Number of guest reviews
 - pricePerNight: Price per night in ${currencyName}
 - currency: "${currency}"
-- images: Array of 3-5 REAL photo URLs from cf.bstatic.com or q-xx.bstatic.com (leave empty if not found)
 - amenities: Array of 5-8 key amenities (e.g. ["Free WiFi","Pool","Spa","Parking","Gym","Restaurant","Bar"])
 - url: EXACT Booking.com URL for this hotel
 - description: Short description (1-2 sentences)
@@ -114,7 +138,6 @@ Respond in ${languageName}. Hotel names and descriptions must be in ${languageNa
                 reviews: { type: "number" },
                 pricePerNight: { type: "number" },
                 currency: { type: "string" },
-                images: { type: "array", items: { type: "string" } },
                 amenities: { type: "array", items: { type: "string" } },
                 url: { type: "string" },
                 description: { type: "string" },
@@ -129,27 +152,18 @@ Respond in ${languageName}. Hotel names and descriptions must be in ${languageNa
 
     const hotels = Array.isArray(result) ? result : (result.hotels || []);
 
-    const isLikelyRealBstatic = (url) => {
-      if (!url || !url.includes('bstatic.com')) return false;
-      const match = url.match(/\/(\d+)\.(?:jpg|jpeg|png|webp)/i);
-      if (!match) return false;
-      const id = match[1];
-      return id.length >= 7 && !/^12345[0-9]/.test(id) && !/^99999/.test(id);
-    };
-
+    // bstatic.com images are blocked by CORS/401 in the browser, so we always
+    // assign from our diverse Unsplash library, indexed by a hash of the hotel
+    // name — this ensures each hotel gets a consistent but DIFFERENT set of images.
     const enrichedHotels = hotels.map((hotel, idx) => {
-      const realImages = (hotel.images || []).filter(isLikelyRealBstatic);
-      if (realImages.length >= 3) {
-        hotel.images = realImages.slice(0, 5);
-      } else {
-        hotel.images = [
-          FALLBACK_IMAGES[idx % FALLBACK_IMAGES.length],
-          FALLBACK_IMAGES[(idx + 1) % FALLBACK_IMAGES.length],
-          FALLBACK_IMAGES[(idx + 2) % FALLBACK_IMAGES.length],
-          FALLBACK_IMAGES[(idx + 3) % FALLBACK_IMAGES.length],
-          FALLBACK_IMAGES[(idx + 4) % FALLBACK_IMAGES.length],
-        ];
-      }
+      const start = hashString(hotel.name || `hotel-${idx}`) % FALLBACK_IMAGES.length;
+      hotel.images = [
+        FALLBACK_IMAGES[start % FALLBACK_IMAGES.length],
+        FALLBACK_IMAGES[(start + 1) % FALLBACK_IMAGES.length],
+        FALLBACK_IMAGES[(start + 2) % FALLBACK_IMAGES.length],
+        FALLBACK_IMAGES[(start + 3) % FALLBACK_IMAGES.length],
+        FALLBACK_IMAGES[(start + 4) % FALLBACK_IMAGES.length],
+      ];
       return hotel;
     });
 
