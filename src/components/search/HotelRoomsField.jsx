@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Users, ChevronDown, Plus, Trash2 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
@@ -23,6 +23,19 @@ export default function HotelRoomsField({ onChange }) {
   const { t } = useI18n();
   const [open, setOpen] = useState(false);
   const [rooms, setRooms] = useState([{ adults: 2, children: 0, infants: 0 }]);
+  const containerRef = useRef(null);
+
+  // Close the dropdown when clicking outside of it.
+  useEffect(() => {
+    if (!open) return;
+    const handleOutside = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleOutside);
+    return () => document.removeEventListener("mousedown", handleOutside);
+  }, [open]);
 
   const totalAdults = rooms.reduce((sum, r) => sum + r.adults, 0);
   const totalChildren = rooms.reduce((sum, r) => sum + r.children, 0);
@@ -51,7 +64,7 @@ export default function HotelRoomsField({ onChange }) {
   };
 
   return (
-    <div className="relative flex flex-col gap-1 min-w-0 flex-1">
+    <div ref={containerRef} className="relative flex flex-col gap-1 min-w-0 flex-1">
       <label className="text-[14px] font-medium text-[#5a5a5a]">{t("search.guests")}</label>
       <button
         type="button"
