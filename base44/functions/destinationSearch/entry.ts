@@ -95,10 +95,10 @@ async function openMeteoSearch(query: string, lang: string, filter: string) {
 // so short city-name queries stay fast.
 async function llmHotelSearch(base44: any, query: string) {
   const words = query.trim().split(/\s+/);
-  if (words.length < 3) return [];
+  if (words.length < 2) return [];
   try {
     const result = await base44.asServiceRole.integrations.Core.InvokeLLM({
-      prompt: `Search the web for a hotel called "${query}". If it exists, return its exact name, city, country, latitude, and longitude. If you cannot find it or it is not a real hotel, set "found" to false.`,
+      prompt: `Search the web for hotels matching "${query}". The query might be a partial or short name (e.g. "JW Mar", "Hilton Par", "Marriott Buch"). Return up to 3 matching real hotels with their exact name, city, country, latitude, and longitude. If no real hotels match, set "found" to false.`,
       add_context_from_internet: true,
       model: "gemini_3_flash",
       response_json_schema: {
@@ -106,17 +106,33 @@ async function llmHotelSearch(base44: any, query: string) {
         additionalProperties: true,
         properties: {
           found: { type: "boolean" },
-          name: { type: "string" },
-          city: { type: "string" },
-          country: { type: "string" },
-          lat: { type: "number" },
-          lon: { type: "number" },
+          hotels: {
+            type: "array",
+            items: {
+              type: "object",
+              additionalProperties: true,
+              properties: {
+                name: { type: "string" },
+                city: { type: "string" },
+                country: { type: "string" },
+                lat: { type: "number" },
+                lon: { type: "number" },
+              }
+            }
+          }
         }
       }
     });
-    if (!result?.found || !result.name || !result.city) return [];
-    const label = [result.name, result.city, result.country].filter(Boolean).join(", ");
-    return [{ label, lat: result.lat, lon: result.lon, result_type: "hotel" }];
+    if (!result?.found || !Array.isArray(result.hotels)) return [];
+    return result.hotels
+      .filter((h: any) => h.name && h.city)
+      .slice(0, 3)
+      .map((h: any) => ({
+        label: [h.name, h.city, h.country].filter(Boolean).join(", "),
+        lat: h.lat,
+        lon: h.lon,
+        result_type: "hotel",
+      }));
   } catch {
     return [];
   }
@@ -140,11 +156,9 @@ export default async function(req: any) {
       const curatedHotels = curated.filter((r: any) => r.result_type === "hotel");
       const cities = await openMeteoSearch(query, lang, filter).catch(() => []);
 
-      // LLM hotel search — only if no curated hotels matched and query is 3+ words.
-      let llmHotels: any[] = [];
-      if (curatedHotels.length === 0) {
-        llmHotels = await llmHotelSearch(base44, query).catch(() => []);
-      }
+      // LLM hotel search — always runs for 2+ word queries to find any hotel
+      // in the world, even with partial names. Results are merged with curated.
+      const llmHotels = await llmHotelSearch(base44, query).catch(() => []);
 
       // Dedup: for cities, use the city name (first part of label) as the key
       // so curated cities (with correct Hebrew names) take priority over
