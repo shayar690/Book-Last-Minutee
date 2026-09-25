@@ -163,7 +163,7 @@ export default function AdditionalParams({ onChange }) {
           icon={Clock}
         />
       </div>
-      <p className="sm:hidden text-[14px] leading-relaxed text-[#5a5a5a] mt-1 font-medium whitespace-pre-line">{t("search.requestOnlyNote")}</p>
+      <p className="sm:hidden text-[14px] leading-relaxed text-[#5a5a5a] -mt-1 font-medium whitespace-pre-line">{t("search.requestOnlyNote")}</p>
     </div>
   );
 }
