@@ -143,15 +143,17 @@ export default function AdditionalParams({ onChange }) {
 
       {/* Early check-in + Late check-out */}
       <div className="flex flex-col sm:flex-row gap-3">
-        <Dropdown
-          label={t("search.earlyCheckin")}
-          placeholder={t("search.selectTime")}
-          value={earlyIn}
-          onChange={setEarlyIn}
-          options={earlyOptions}
-          icon={Clock}
-          note={t("search.requestOnlyNote")}
-        />
+        <div className="flex flex-col gap-1 min-w-0 flex-1">
+          <Dropdown
+            label={t("search.earlyCheckin")}
+            placeholder={t("search.selectTime")}
+            value={earlyIn}
+            onChange={setEarlyIn}
+            options={earlyOptions}
+            icon={Clock}
+          />
+          <p className="hidden sm:block text-[14px] leading-relaxed text-[#5a5a5a] mt-1 font-medium whitespace-pre-line">{t("search.requestOnlyNote")}</p>
+        </div>
         <Dropdown
           label={t("search.lateCheckout")}
           placeholder={t("search.selectTime")}
@@ -161,6 +163,7 @@ export default function AdditionalParams({ onChange }) {
           icon={Clock}
         />
       </div>
+      <p className="sm:hidden text-[14px] leading-relaxed text-[#5a5a5a] mt-1 font-medium whitespace-pre-line">{t("search.requestOnlyNote")}</p>
     </div>
   );
 }

@@ -43,8 +43,6 @@
     @apply bg-background text-foreground font-body antialiased;
     font-size: 1.0625rem;
     line-height: 1.6;
-    -webkit-user-select: none;
-    user-select: none;
   }
   /* Re-enable text selection only where it's needed */
   input, textarea, [contenteditable="true"] {
@@ -95,8 +93,7 @@ html { scroll-behavior: smooth; }
 /* Prevent text selection artifacts on search widget labels and text */
 label,
 label *,
-button > span,
-p {
+button > span {
   -webkit-user-select: none;
   user-select: none;
 }
