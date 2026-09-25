@@ -55,7 +55,7 @@ export default function HotelResults() {
     const dd = String(date.getDate()).padStart(2, "0");
     const mm = String(date.getMonth() + 1).padStart(2, "0");
     const yyyy = date.getFullYear();
-    return `${weekdayClean}, ${dd}-${mm}-${yyyy}`;
+    return `${weekdayClean} • ${dd}-${mm}-${yyyy}`;
   };
 
   // Batch 1 — fast initial results (with cache for back-navigation).
@@ -141,6 +141,14 @@ export default function HotelResults() {
             <div>{t("results.checkInLabel")} <span dir="ltr">{formatDateWithDay(checkIn)}</span></div>
             <div>{t("results.checkOutLabel")} <span dir="ltr">{formatDateWithDay(checkOut)}</span></div>
             <div className="mt-1">{adults} {t("results.adults")} · {rooms} {t("results.rooms")}</div>
+            {checkIn && checkOut && (() => {
+              const nights = Math.round((new Date(checkOut) - new Date(checkIn)) / (1000 * 60 * 60 * 24));
+              return (
+                <div className="mt-1 font-medium text-[#2D3035]">
+                  {nights} {t("results.nights")}, {nights + 1} {t("results.days")}
+                </div>
+              );
+            })()}
           </div>
         )}
         {loading && <div className="mb-4" />}
