@@ -87,6 +87,7 @@ export default function HotelResults() {
         setHotels(batchHotels);
         setError(res.data?.error || null);
         hotelCache.set(searchKey, { hotels: batchHotels, error: res.data?.error, batchNum: 1, hasMore: true });
+        fetchRealImages(batchHotels);
       })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
@@ -118,10 +119,32 @@ export default function HotelResults() {
             hotelCache.set(searchKey, { hotels: updated, error: cached?.error || null, batchNum: nextBatch, hasMore: true });
             return updated;
           });
+          fetchRealImages(moreHotels);
         }
       })
       .catch(() => {})
       .finally(() => setLoadingMore(false));
+  };
+
+  // Fetch real images from hotels' official websites — progressively replaces
+  // generic Unsplash placeholders with actual hotel photos.
+  const fetchRealImages = (hotelBatch) => {
+    const hotelData = hotelBatch.map((h) => ({ name: h.name, url: h.url, destination }));
+    base44.functions.invoke("hotelImages", { hotels: hotelData })
+      .then((res) => {
+        const results = res.data?.results || {};
+        setHotels((prev) => {
+          const updated = prev.map((h) => {
+            const key = h.url || h.name;
+            const realImages = results[key];
+            return realImages && realImages.length > 0 ? { ...h, images: realImages } : h;
+          });
+          const cached = hotelCache.get(searchKey);
+          if (cached) hotelCache.set(searchKey, { ...cached, hotels: updated });
+          return updated;
+        });
+      })
+      .catch(() => {});
   };
 
   return (

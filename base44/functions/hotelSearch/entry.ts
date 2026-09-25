@@ -107,6 +107,7 @@ For each hotel provide ONLY these fields:
 - description: Short description (1-2 sentences)
 - location: Area or neighborhood within the city
 - distanceToCenter: Distance from city center in km (number, e.g. 0.5 = 500m, 2.5 = 2.5km)
+- images: Array of 3-5 REAL photo URLs of this specific hotel. Find actual photos from the hotel's Booking.com page (image URLs typically start with https://cf.bstatic.com/ or https://q-xx.bstatic.com/), the hotel's official website, or other travel sites. Return ONLY direct image file URLs (ending in .jpg, .jpeg, .png, or .webp) that can be loaded in an <img> tag. Do NOT return page URLs — only direct image URLs.
 
 Return exactly ${hotelCount} hotels sorted by price (lowest first).
 HOTEL NAMES — CRITICAL RULES:
@@ -140,6 +141,7 @@ Descriptions should be in ${languageName}.`;
                 description: { type: "string" },
                 location: { type: "string" },
                 distanceToCenter: { type: "number" },
+                images: { type: "array", items: { type: "string" } },
               }
             }
           }
@@ -149,18 +151,19 @@ Descriptions should be in ${languageName}.`;
 
     const hotels = Array.isArray(result) ? result : (result.hotels || []);
 
-    // bstatic.com images are blocked by CORS/401 in the browser, so we always
-    // assign from our diverse Unsplash library, indexed by a hash of the hotel
-    // name — this ensures each hotel gets a consistent but DIFFERENT set of images.
+    // Use real images from the LLM if available; fall back to generic Unsplash
+    // images only when the LLM didn't return any image URLs for a hotel.
     const enrichedHotels = hotels.map((hotel, idx) => {
-      const start = (hashString(hotel.name || `hotel-${idx}`) + idx * 7) % FALLBACK_IMAGES.length;
-      hotel.images = [
-        FALLBACK_IMAGES[start % FALLBACK_IMAGES.length],
-        FALLBACK_IMAGES[(start + 1) % FALLBACK_IMAGES.length],
-        FALLBACK_IMAGES[(start + 2) % FALLBACK_IMAGES.length],
-        FALLBACK_IMAGES[(start + 3) % FALLBACK_IMAGES.length],
-        FALLBACK_IMAGES[(start + 4) % FALLBACK_IMAGES.length],
-      ];
+      if (!hotel.images || hotel.images.length === 0) {
+        const start = (hashString(hotel.name || `hotel-${idx}`) + idx * 7) % FALLBACK_IMAGES.length;
+        hotel.images = [
+          FALLBACK_IMAGES[start % FALLBACK_IMAGES.length],
+          FALLBACK_IMAGES[(start + 1) % FALLBACK_IMAGES.length],
+          FALLBACK_IMAGES[(start + 2) % FALLBACK_IMAGES.length],
+          FALLBACK_IMAGES[(start + 3) % FALLBACK_IMAGES.length],
+          FALLBACK_IMAGES[(start + 4) % FALLBACK_IMAGES.length],
+        ];
+      }
       return hotel;
     });
 

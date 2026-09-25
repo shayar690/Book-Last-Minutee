@@ -14,25 +14,37 @@ export default function HotelDetail() {
   const scrollRef = useRef(null);
   const [activeImg, setActiveImg] = useState(0);
   const [details, setDetails] = useState(null);
+  const [scrapedImages, setScrapedImages] = useState(null);
   const [loadingDetails, setLoadingDetails] = useState(true);
   const baseImages = hotel?.images || (hotel?.image ? [hotel.image] : []);
-  const images = details?.images?.length ? details.images : baseImages;
+  const images = scrapedImages?.length ? scrapedImages : (details?.images?.length ? details.images : baseImages);
   const sym = hotel?.currency === "ILS" ? "₪" : "$";
 
   useEffect(() => {
     if (!hotel) return;
     setLoadingDetails(true);
-    base44.functions.invoke("hotelDetail", {
-      hotelName: hotel.name,
-      hotelUrl: hotel.url || "",
-      destination: searchContext.destination || "",
-      checkIn: searchContext.checkIn || "",
-      checkOut: searchContext.checkOut || "",
-      adults: Number(searchContext.adults) || 2,
-      rooms: Number(searchContext.rooms) || 1,
-      lang,
-    })
-      .then((res) => setDetails(res.data?.details || {}))
+    setScrapedImages(null);
+    Promise.all([
+      base44.functions.invoke("hotelDetail", {
+        hotelName: hotel.name,
+        hotelUrl: hotel.url || "",
+        destination: searchContext.destination || "",
+        checkIn: searchContext.checkIn || "",
+        checkOut: searchContext.checkOut || "",
+        adults: Number(searchContext.adults) || 2,
+        rooms: Number(searchContext.rooms) || 1,
+        lang,
+      }),
+      base44.functions.invoke("hotelImages", {
+        hotels: [{ name: hotel.name, url: hotel.url || "", destination: searchContext.destination || "" }],
+      }),
+    ])
+      .then(([detailRes, imageRes]) => {
+        setDetails(detailRes.data?.details || {});
+        const key = hotel.url || hotel.name;
+        const imgs = imageRes.data?.results?.[key];
+        if (imgs && imgs.length > 0) setScrapedImages(imgs);
+      })
       .catch(() => setDetails({}))
       .finally(() => setLoadingDetails(false));
   }, [hotel, lang]);
