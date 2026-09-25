@@ -34,7 +34,7 @@ export default function SearchLoading({ destination, checkIn, checkOut }) {
           </motion.div>
         ))}
       </div>
-      <div className="text-center">
+      <div className="text-center" style={{ fontFamily: '"Frank Ruhl Libre", "Cormorant Garamond", ui-serif, Georgia, serif' }}>
         <p className="text-base font-medium text-[#2D3035]">{t("results.searchingIn")}{destination}</p>
         <div className="text-sm text-[#7D7D7D] mt-1.5">
           <div>{t("results.checkInLabel")} <span dir="ltr">{formatDateWithDay(checkIn)}</span></div>

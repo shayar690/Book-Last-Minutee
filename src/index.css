@@ -28,9 +28,9 @@
     --ether: 210 40% 98%;
     --mist: 214 32% 91%;
     --radius: 0.75rem;
-    --font-heading: "Cormorant Garamond", "Frank Ruhl Libre", ui-serif, Georgia, serif;
-    --font-body: "Inter", "Frank Ruhl Libre", ui-sans-serif, system-ui, sans-serif;
-    --font-display: "Cormorant Garamond", "Frank Ruhl Libre", ui-serif, Georgia, serif;
+    --font-heading: "Cormorant Garamond", ui-serif, Georgia, serif;
+    --font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
+    --font-display: "Cormorant Garamond", ui-serif, Georgia, serif;
     --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   }
 }

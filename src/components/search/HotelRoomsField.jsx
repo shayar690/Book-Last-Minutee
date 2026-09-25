@@ -22,22 +22,24 @@ function Stepper({ label, hint, value, setValue, min, max }) {
 export default function HotelRoomsField({ onChange }) {
   const { t } = useI18n();
   const [open, setOpen] = useState(false);
-  const [rooms, setRooms] = useState([{ adults: 2, children: 0 }]);
+  const [rooms, setRooms] = useState([{ adults: 2, children: 0, infants: 0 }]);
 
   const totalAdults = rooms.reduce((sum, r) => sum + r.adults, 0);
   const totalChildren = rooms.reduce((sum, r) => sum + r.children, 0);
+  const totalInfants = rooms.reduce((sum, r) => sum + r.infants, 0);
 
   useEffect(() => {
-    if (onChange) onChange({ adults: totalAdults, rooms: rooms.length });
+    if (onChange) onChange({ adults: totalAdults, rooms: rooms.length, children: totalChildren, infants: totalInfants });
   }, [rooms]);
 
   const summaryParts = [`${rooms.length} ${t("search.rooms")}`, `${totalAdults} ${t("search.adults")}`];
   if (totalChildren > 0) summaryParts.push(`${totalChildren} ${t("search.children")}`);
+  if (totalInfants > 0) summaryParts.push(`${totalInfants} ${t("search.infants")}`);
   const summary = summaryParts.join(" · ");
 
   const addRoom = () => {
     if (rooms.length >= 6) return;
-    setRooms((prev) => [...prev, { adults: 2, children: 0 }]);
+    setRooms((prev) => [...prev, { adults: 2, children: 0, infants: 0 }]);
   };
 
   const removeRoom = (idx) => {
@@ -91,6 +93,7 @@ export default function HotelRoomsField({ onChange }) {
                 <div className="flex flex-col gap-2.5">
                   <Stepper
                     label={t("search.adults")}
+                    hint={t("search.adultsHint")}
                     value={room.adults}
                     setValue={(v) => updateRoom(idx, "adults", v)}
                     min={1}
@@ -103,6 +106,14 @@ export default function HotelRoomsField({ onChange }) {
                     setValue={(v) => updateRoom(idx, "children", v)}
                     min={0}
                     max={6}
+                  />
+                  <Stepper
+                    label={t("search.infants")}
+                    hint={t("search.infantsHint")}
+                    value={room.infants}
+                    setValue={(v) => updateRoom(idx, "infants", v)}
+                    min={0}
+                    max={4}
                   />
                 </div>
               </div>
