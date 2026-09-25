@@ -16,8 +16,6 @@ export default function HotelResults() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState(null);
   const [sortBy, setSortBy] = useState("popularity");
-  const [page, setPage] = useState(1);
-  const perPage = 20;
   const loadedNamesRef = useRef(new Set());
   const [hasMore, setHasMore] = useState(true);
   const [batchNum, setBatchNum] = useState(1);
@@ -32,11 +30,6 @@ export default function HotelResults() {
       default: return arr;
     }
   }, [hotels, sortBy]);
-
-  useEffect(() => { setPage(1); }, [hotels]);
-
-  const totalPages = Math.ceil(sortedHotels.length / perPage);
-  const pagedHotels = sortedHotels.slice((page - 1) * perPage, page * perPage);
 
   const destination = searchParams.get("destination") || "";
   const checkIn = searchParams.get("checkIn") || "";
@@ -99,32 +92,7 @@ export default function HotelResults() {
       .finally(() => setLoading(false));
   }, [searchKey]);
 
-  // Batch 2 — more hotels loaded in the background after batch 1 is shown.
-  useEffect(() => {
-    if (loading || hotels.length === 0) return;
-    const cached = hotelCache.get(searchKey);
-    if (cached && cached.batchNum >= 2) return;
-    setLoadingMore(true);
-
-    base44.functions.invoke("hotelSearch", {
-      destination, checkIn, checkOut, adults: Number(adults), rooms: Number(rooms), lang,
-      stars, meal, earlyIn, lateOut, freeCancel, citizenship, batch: 2,
-      exclude: Array.from(loadedNamesRef.current),
-    })
-      .then((res) => {
-        const moreHotels = (res.data?.hotels || []).filter((h) => !loadedNamesRef.current.has(h.name));
-        moreHotels.forEach((h) => loadedNamesRef.current.add(h.name));
-        setHotels((prev) => {
-          const updated = [...prev, ...moreHotels];
-          hotelCache.set(searchKey, { hotels: updated, error: cached?.error || null, batchNum: 2, hasMore: moreHotels.length > 0 });
-          return updated;
-        });
-      })
-      .catch(() => {})
-      .finally(() => setLoadingMore(false));
-  }, [loading]);
-
-  // Load more — user-triggered batch 3+.
+  // Load more — user-triggered batch 2+.
   const loadMore = () => {
     if (loadingMore) return;
     const nextBatch = batchNum + 1;
@@ -196,7 +164,7 @@ export default function HotelResults() {
         ) : (
           <>
             <div className="flex flex-col gap-3">
-              {pagedHotels.map((hotel, i) => (
+              {sortedHotels.map((hotel, i) => (
                 <HotelCard key={`${hotel.name}-${i}`} hotel={hotel} />
               ))}
             </div>
@@ -207,25 +175,6 @@ export default function HotelResults() {
               </div>
             )}
           </>
-        )}
-        {totalPages > 1 && (
-          <div className="flex items-center justify-center gap-4 mt-6">
-            <button
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page === 1}
-              className="px-4 h-10 rounded-lg bg-white border border-[#C5C5C5] text-sm text-[#2D3035] disabled:opacity-40 hover:border-[#2D3035] transition"
-            >
-              {t("results.previous")}
-            </button>
-            <span className="text-sm text-[#7D7D7D]">{page} / {totalPages}</span>
-            <button
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              disabled={page === totalPages}
-              className="px-4 h-10 rounded-lg bg-white border border-[#C5C5C5] text-sm text-[#2D3035] disabled:opacity-40 hover:border-[#2D3035] transition"
-            >
-              {t("results.next")}
-            </button>
-          </div>
         )}
         {hasMore && !loading && hotels.length > 0 && (
           <div className="flex justify-center mt-6">

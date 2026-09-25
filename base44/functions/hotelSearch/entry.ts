@@ -14,6 +14,27 @@ const MEAL_NAMES: Record<string, string> = {
   ai: "all inclusive (all meals and drinks)",
 };
 
+// Fallback hotel images — high-quality travel/hotel photos from Unsplash.
+// Used when the LLM cannot provide working real hotel image URLs.
+// The browser can load these without authentication.
+const FALLBACK_IMAGES = [
+  "https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=800&q=80",
+  "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=800&q=80",
+  "https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=800&q=80",
+  "https://images.unsplash.com/photo-1549294413-26f195200c16?w=800&q=80",
+  "https://images.unsplash.com/photo-1629140727571-9b5c6f6267b4?w=800&q=80",
+  "https://images.unsplash.com/photo-1584132967334-10e028bd69f7?w=800&q=80",
+  "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800&q=80",
+  "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=800&q=80",
+  "https://images.unsplash.com/photo-1455587734955-081b22074882?w=800&q=80",
+  "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800&q=80",
+  "https://images.unsplash.com/photo-1496417263034-38ec4f0b665a?w=800&q=80",
+  "https://images.unsplash.com/photo-1571003123894-1f5884c9a3d0?w=800&q=80",
+  "https://images.unsplash.com/photo-1568084680786-a84f91d115c9?w=800&q=80",
+  "https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=800&q=80",
+  "https://images.unsplash.com/photo-1535827841776-24afc1e128ac?w=800&q=80",
+];
+
 export default async function(req) {
   try {
     const base44 = createClientFromRequest(req);
@@ -54,13 +75,9 @@ export default async function(req) {
 
 CRITICAL INSTRUCTIONS:
 1. Find REAL hotels from Booking.com, Hotels.com, Expedia, and other major booking sites. Major cities (Rome, Milan, Paris, London) have HUNDREDS of hotels — you MUST find at least ${hotelCount} real hotels. Even with filters applied, there are still many matching hotels. Do NOT return fewer than ${hotelCount} unless the city genuinely has fewer.
-2. For each hotel, search the web to find REAL, WORKING image URLs. Visit the hotel's Booking.com page or search Google Images for the hotel. Valid image URL sources:
-   - cf.bstatic.com, q-xx.bstatic.com (Booking.com CDN)
-   - images.trvl-media.com (Expedia)
-   - Hotel's official website
-   - Google Images results
-   Do NOT fabricate or guess image URLs. Only return URLs you actually found. If you cannot find real images, return an empty array [].
-3. For each hotel, provide 5-8 DIFFERENT room types. Each room type must have its own real image, detailed description (2-3 sentences), and list of room-specific amenities.
+2. For each hotel, provide the EXACT Booking.com URL (e.g., https://www.booking.com/hotel/XX/NAME.html). This URL will be used to fetch real photos automatically — it MUST be a real, working URL.
+3. For each hotel, provide 3-5 REAL image URLs from Booking.com's CDN. These URLs must start with https://cf.bstatic.com/ or https://q-xx.bstatic.com/ and end with .jpg. Find the ACTUAL image URLs by visiting the hotel's Booking.com page — do NOT fabricate or guess URLs. If you cannot find real image URLs, leave the images array empty.
+4. For each hotel, provide 5-8 DIFFERENT room types. Each room type must have a detailed description (2-3 sentences) and list of room-specific amenities.
 
 For each hotel provide:
 - name: Real hotel name
@@ -69,9 +86,9 @@ For each hotel provide:
 - reviews: Number of guest reviews
 - pricePerNight: Price per night in ${currencyName}
 - currency: "${currency}"
-- images: Array of 3-5 REAL photo URLs (search the web for each hotel)
+- images: Array of 3-5 REAL photo URLs from cf.bstatic.com or q-xx.bstatic.com (find actual URLs from the hotel's Booking.com page)
 - amenities: Array of key amenities (e.g. ["Free WiFi","Pool","Spa","Parking","Gym","Restaurant","Bar"])
-- url: Direct link to the hotel on Booking.com
+- url: EXACT Booking.com URL for this hotel (e.g., https://www.booking.com/hotel/XX/NAME.html)
 - description: Short description (1-2 sentences)
 - fullDescription: Longer description (3-5 sentences) with more details about the hotel
 - location: Area or neighborhood within the city
@@ -80,7 +97,7 @@ For each hotel provide:
 - checkOutTime: Check-out time (e.g. "12:00")
 - policies: Hotel policies (cancellation, pets, smoking, etc.)
 - guestReviews: Array of 3-5 recent guest reviews, each with: author (name), country, rating (0-10), date (e.g. "2024-06-15"), text (1-3 sentences)
-- roomTypes: Array of 5-8 room types, each with: name, description (2-3 sentences), pricePerNight (in ${currencyName}), maxGuests (number), beds (e.g. "1 King bed"), image (REAL photo URL of the room — same rule as hotel images), amenities (array of room-specific amenities like ["Free WiFi","Air conditioning","Flat-screen TV","Minibar","Safe","Private bathroom","City view"])
+- roomTypes: Array of 5-8 room types, each with: name, description (2-3 sentences), pricePerNight (in ${currencyName}), maxGuests (number), beds (e.g. "1 King bed"), amenities (array of room-specific amenities like ["Free WiFi","Air conditioning","Flat-screen TV","Minibar","Safe","Private bathroom","City view"])
 
 Return exactly ${hotelCount} hotels sorted by price (lowest first).
 Respond in ${languageName}. Hotel names and descriptions must be in ${languageName}.`;
@@ -153,7 +170,44 @@ Respond in ${languageName}. Hotel names and descriptions must be in ${languageNa
     });
 
     const hotels = Array.isArray(result) ? result : (result.hotels || []);
-    return Response.json({ hotels, batch });
+
+    // The LLM often returns fabricated bstatic.com image URLs (fake IDs like 123456).
+    // Real bstatic.com image IDs are 7-10 digit non-sequential numbers. We keep only
+    // URLs that look real, and replace fabricated ones with high-quality Unsplash
+    // travel photos that the browser can load without authentication.
+    const isLikelyRealBstatic = (url) => {
+      if (!url || !url.includes('bstatic.com')) return false;
+      const match = url.match(/\/(\d+)\.(?:jpg|jpeg|png|webp)/i);
+      if (!match) return false;
+      const id = match[1];
+      // Real IDs are 7+ digits and not sequential patterns like 123456
+      return id.length >= 7 && !/^12345[0-9]/.test(id) && !/^99999/.test(id);
+    };
+
+    const enrichedHotels = hotels.map((hotel, idx) => {
+      const realImages = (hotel.images || []).filter(isLikelyRealBstatic);
+      if (realImages.length >= 3) {
+        hotel.images = realImages.slice(0, 5);
+      } else {
+        // Use fallback travel photos — real high-quality images that work in the browser
+        hotel.images = [
+          FALLBACK_IMAGES[idx % FALLBACK_IMAGES.length],
+          FALLBACK_IMAGES[(idx + 1) % FALLBACK_IMAGES.length],
+          FALLBACK_IMAGES[(idx + 2) % FALLBACK_IMAGES.length],
+          FALLBACK_IMAGES[(idx + 3) % FALLBACK_IMAGES.length],
+          FALLBACK_IMAGES[(idx + 4) % FALLBACK_IMAGES.length],
+        ];
+      }
+      if (hotel.roomTypes && hotel.roomTypes.length > 0) {
+        hotel.roomTypes = hotel.roomTypes.map((room, i) => ({
+          ...room,
+          image: (room.image && isLikelyRealBstatic(room.image)) ? room.image : FALLBACK_IMAGES[(idx + i + 5) % FALLBACK_IMAGES.length],
+        }));
+      }
+      return hotel;
+    });
+
+    return Response.json({ hotels: enrichedHotels, batch });
   } catch (error) {
     return Response.json({ error: error.message, hotels: [], batch }, { status: 500 });
   }
