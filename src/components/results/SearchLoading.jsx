@@ -36,9 +36,10 @@ export default function SearchLoading({ destination, checkIn, checkOut }) {
       </div>
       <div className="text-center">
         <p className="text-base font-medium text-[#2D3035]">{t("results.searchingIn")}{destination}</p>
-        <p dir="ltr" className="text-sm text-[#7D7D7D] mt-1.5">
-          {formatDateWithDay(checkIn)} <span className="text-[#F5D166]">→</span> {formatDateWithDay(checkOut)}
-        </p>
+        <div className="text-sm text-[#7D7D7D] mt-1.5">
+          <div>{t("results.checkInLabel")} <span dir="ltr">{formatDateWithDay(checkIn)}</span></div>
+          <div>{t("results.checkOutLabel")} <span dir="ltr">{formatDateWithDay(checkOut)}</span></div>
+        </div>
       </div>
     </div>
   );

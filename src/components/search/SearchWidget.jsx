@@ -6,6 +6,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { useI18n } from "@/lib/i18n";
 import AutocompleteField from "@/components/search/AutocompleteField";
 import FlightAutocompleteField from "@/components/search/FlightAutocompleteField";
+import HotelRoomsField from "@/components/search/HotelRoomsField";
 import DateField from "@/components/search/DateField";
 import DatePickerModal from "@/components/search/DatePickerModal";
 import AdditionalParams from "@/components/search/AdditionalParams";
@@ -267,7 +268,7 @@ export default function SearchWidget() {
                 <AutocompleteField label={t("search.destination")} placeholder={t("search.destinationPlaceholder")} flex filter="hotels" onSelect={(r) => setHotelDest(r.label)} />
                 <DateField label={t("search.checkIn")} value={checkIn} placeholder={t("search.addDate")} active={dateModal.open && dateModal.active === "in"} onClick={() => openRange("in")} />
                 <DateField label={t("search.checkOut")} value={checkOut} placeholder={t("search.addDate")} active={dateModal.open && dateModal.active === "out"} onClick={() => openRange("out")} />
-                <GuestsField t={t} onChange={setGuestInfo} />
+                <HotelRoomsField onChange={setGuestInfo} />
               </>
             )}
             {active === "flights" && (

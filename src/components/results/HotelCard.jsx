@@ -4,7 +4,7 @@ import { Star, MapPin, ChevronLeft, ChevronRight } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import ImageWithFallback from "@/components/results/ImageWithFallback";
 
-export default function HotelCard({ hotel }) {
+export default function HotelCard({ hotel, searchContext }) {
   const { t } = useI18n();
   const navigate = useNavigate();
   const scrollRef = useRef(null);
@@ -26,7 +26,7 @@ export default function HotelCard({ hotel }) {
 
   return (
     <div
-      onClick={() => navigate("/hotel", { state: { hotel } })}
+      onClick={() => navigate("/hotel", { state: { hotel, searchContext } })}
       className="flex flex-col sm:flex-row gap-4 p-4 bg-white rounded-xl border border-[#E5E5E5] shadow-sm hover:shadow-md transition-shadow cursor-pointer"
     >
       {images.length > 0 && (

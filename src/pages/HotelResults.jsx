@@ -132,12 +132,16 @@ export default function HotelResults() {
           {t("results.backToSearch")}
         </Link>
         <h1 className="text-2xl font-heading text-[#2D3035] mb-1">
-          {t("results.hotelsIn")} {destination}
+          {loading ? `${t("results.searchingIn")}${destination}` : `${t("results.hotelsIn")} ${destination}`}
         </h1>
-        <p className="text-sm text-[#7D7D7D] mb-4">
-          <span dir="ltr">{formatDateWithDay(checkIn)} → {formatDateWithDay(checkOut)}</span>
-          {" · "}{adults} {t("results.adults")} · {rooms} {t("results.rooms")}
-        </p>
+        {!loading && (
+          <div className="text-sm text-[#7D7D7D] mb-4">
+            <div>{t("results.checkInLabel")} <span dir="ltr">{formatDateWithDay(checkIn)}</span></div>
+            <div>{t("results.checkOutLabel")} <span dir="ltr">{formatDateWithDay(checkOut)}</span></div>
+            <div className="mt-1">{adults} {t("results.adults")} · {rooms} {t("results.rooms")}</div>
+          </div>
+        )}
+        {loading && <div className="mb-4" />}
         {hotels.length > 0 && (
           <div className="flex items-center gap-2 mb-4">
             <span className="text-sm text-[#7D7D7D]">{t("results.sortBy")}</span>
@@ -165,7 +169,7 @@ export default function HotelResults() {
           <>
             <div className="flex flex-col gap-3">
               {sortedHotels.map((hotel, i) => (
-                <HotelCard key={`${hotel.name}-${i}`} hotel={hotel} />
+                <HotelCard key={`${hotel.name}-${i}`} hotel={hotel} searchContext={{ destination, checkIn, checkOut, adults, rooms }} />
               ))}
             </div>
             {loadingMore && (

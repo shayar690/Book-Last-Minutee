@@ -1,18 +1,40 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Star, MapPin, ChevronLeft, ChevronRight, ExternalLink, Check, Clock, Quote, BedDouble, Users } from "lucide-react";
+import { Star, MapPin, ChevronLeft, ChevronRight, ExternalLink, Check, Clock, Quote, BedDouble, Users, Loader2 } from "lucide-react";
+import { base44 } from "@/api/base44Client";
 import { useI18n } from "@/lib/i18n";
 import ImageWithFallback from "@/components/results/ImageWithFallback";
 
 export default function HotelDetail() {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const location = useLocation();
   const navigate = useNavigate();
   const hotel = location.state?.hotel;
+  const searchContext = location.state?.searchContext || {};
   const scrollRef = useRef(null);
   const [activeImg, setActiveImg] = useState(0);
+  const [details, setDetails] = useState(null);
+  const [loadingDetails, setLoadingDetails] = useState(true);
   const images = hotel?.images || (hotel?.image ? [hotel.image] : []);
   const sym = hotel?.currency === "ILS" ? "₪" : "$";
+
+  useEffect(() => {
+    if (!hotel) return;
+    setLoadingDetails(true);
+    base44.functions.invoke("hotelDetail", {
+      hotelName: hotel.name,
+      hotelUrl: hotel.url || "",
+      destination: searchContext.destination || "",
+      checkIn: searchContext.checkIn || "",
+      checkOut: searchContext.checkOut || "",
+      adults: Number(searchContext.adults) || 2,
+      rooms: Number(searchContext.rooms) || 1,
+      lang,
+    })
+      .then((res) => setDetails(res.data?.details || {}))
+      .catch(() => setDetails({}))
+      .finally(() => setLoadingDetails(false));
+  }, [hotel, lang]);
 
   if (!hotel) {
     return (
@@ -113,10 +135,10 @@ export default function HotelDetail() {
         </div>
 
         {/* Description */}
-        {(hotel.fullDescription || hotel.description) && (
+        {(details?.fullDescription || hotel.description) && (
           <div className="p-4 bg-white rounded-xl border border-[#E5E5E5] mb-4">
             <h2 className="text-lg font-semibold text-[#2D3035] mb-2">{t("hotel.about")}</h2>
-            <p className="text-sm text-[#5a5a5a] leading-relaxed">{hotel.fullDescription || hotel.description}</p>
+            <p className="text-sm text-[#5a5a5a] leading-relaxed">{details?.fullDescription || hotel.description}</p>
           </div>
         )}
 
@@ -136,11 +158,16 @@ export default function HotelDetail() {
         )}
 
         {/* Room Types */}
-        {hotel.roomTypes && hotel.roomTypes.length > 0 && (
+        {loadingDetails ? (
+          <div className="p-4 bg-white rounded-xl border border-[#E5E5E5] mb-4 flex items-center justify-center gap-2">
+            <Loader2 className="w-5 h-5 text-[#F5D166] animate-spin" />
+            <span className="text-sm text-[#7D7D7D]">{t("hotel.loadingDetails")}</span>
+          </div>
+        ) : details?.roomTypes && details.roomTypes.length > 0 && (
           <div className="p-4 bg-white rounded-xl border border-[#E5E5E5] mb-4">
             <h2 className="text-lg font-semibold text-[#2D3035] mb-3">{t("hotel.roomTypes")}</h2>
             <div className="flex flex-col gap-3">
-              {hotel.roomTypes.map((room, i) => (
+              {details.roomTypes.map((room, i) => (
                 <div key={i} className="flex flex-col sm:flex-row gap-3 p-3 rounded-lg border border-[#EAEAEA]">
                   {room.image && (
                     <div className="w-full sm:w-32 h-28 sm:h-24 rounded-lg overflow-hidden shrink-0 bg-[#F5F5F5]">
@@ -182,11 +209,11 @@ export default function HotelDetail() {
         )}
 
         {/* Guest Reviews */}
-        {hotel.guestReviews && hotel.guestReviews.length > 0 && (
+        {loadingDetails ? null : details?.guestReviews && details.guestReviews.length > 0 && (
           <div className="p-4 bg-white rounded-xl border border-[#E5E5E5] mb-4">
             <h2 className="text-lg font-semibold text-[#2D3035] mb-3">{t("hotel.reviews")}</h2>
             <div className="flex flex-col gap-3">
-              {hotel.guestReviews.map((review, i) => (
+              {details.guestReviews.map((review, i) => (
                 <div key={i} className="p-3 rounded-lg bg-[#FAFAF8] border border-[#EAEAEA]">
                   <div className="flex items-center justify-between gap-2 mb-1.5">
                     <div className="flex items-center gap-2">
@@ -216,29 +243,29 @@ export default function HotelDetail() {
         {/* Check-in/out + Policies */}
         <div className="p-4 bg-white rounded-xl border border-[#E5E5E5] mb-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {hotel.checkInTime && (
+            {details?.checkInTime && (
               <div className="flex items-center gap-2">
                 <Clock className="w-4 h-4 text-[#7D7D7D]" strokeWidth={1.5} />
                 <div>
                   <div className="text-xs text-[#7D7D7D]">{t("hotel.checkInTime")}</div>
-                  <div className="text-sm text-[#2D3035]">{hotel.checkInTime}</div>
+                  <div className="text-sm text-[#2D3035]">{details.checkInTime}</div>
                 </div>
               </div>
             )}
-            {hotel.checkOutTime && (
+            {details?.checkOutTime && (
               <div className="flex items-center gap-2">
                 <Clock className="w-4 h-4 text-[#7D7D7D]" strokeWidth={1.5} />
                 <div>
                   <div className="text-xs text-[#7D7D7D]">{t("hotel.checkOutTime")}</div>
-                  <div className="text-sm text-[#2D3035]">{hotel.checkOutTime}</div>
+                  <div className="text-sm text-[#2D3035]">{details.checkOutTime}</div>
                 </div>
               </div>
             )}
           </div>
-          {hotel.policies && (
+          {details?.policies && (
             <div className="mt-4 pt-4 border-t border-[#EAEAEA]">
               <h3 className="text-sm font-semibold text-[#2D3035] mb-1">{t("hotel.policies")}</h3>
-              <p className="text-sm text-[#5a5a5a]">{hotel.policies}</p>
+              <p className="text-sm text-[#5a5a5a]">{details.policies}</p>
             </div>
           )}
         </div>
