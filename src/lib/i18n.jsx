@@ -107,7 +107,7 @@ const translations = {
     "search.cabinBag": "Cabin bag",
     "search.checkedBag": "Checked bag",
     "results.backToSearch": "Back to search",
-    "results.hotelsIn": "Hotels in",
+    "results.hotelsIn": "Hotels in ",
     "results.adults": "adults",
     "results.rooms": "rooms",
     "results.passengers": "passengers",

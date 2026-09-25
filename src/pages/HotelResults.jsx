@@ -55,7 +55,7 @@ export default function HotelResults() {
     const dd = String(date.getDate()).padStart(2, "0");
     const mm = String(date.getMonth() + 1).padStart(2, "0");
     const yyyy = date.getFullYear();
-    return `${weekdayClean} • ${dd}-${mm}-${yyyy}`;
+    return `${dd}-${mm}-${yyyy} (${weekdayClean})`;
   };
 
   // Batch 1 — fast initial results (with cache for back-navigation).
@@ -134,8 +134,8 @@ export default function HotelResults() {
           </Link>
         )}
         {!loading && (
-          <h1 className="text-2xl font-heading text-[#2D3035] mb-1">
-            {`${t("results.hotelsIn")} ${destination}`}
+          <h1 className="text-2xl text-[#2D3035] mb-1" style={{ fontFamily: '"David Libre", "Cormorant Garamond", ui-serif, Georgia, serif' }}>
+            {`${t("results.hotelsIn")}${destination}`}
           </h1>
         )}
         {!loading && (
