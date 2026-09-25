@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plane, Bed, Sun, Camera, Compass, Umbrella, Cloud } from "lucide-react";
+import { Plane, IdCard as Passport, Sun, Waves, Briefcase, Palmtree, Cloud } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 
 // Each scene has its own icon, colour, and motion style — cycling creates a
 // "plane flying → hotel → sun → umbrella → …" travel montage.
 const SCENES = [
   { Icon: Plane, color: "#F5D166", anim: { x: [-28, 28, -28], y: [0, -14, 0], rotate: [0, 8, -8, 0] }, dur: 3 },
+  { Icon: Passport, color: "#8B7AB8", anim: { scale: [1, 1.1, 1], rotate: [-4, 4, -4] }, dur: 3 },
   { Icon: Sun, color: "#F5B04A", anim: { rotate: 360, scale: [1, 1.12, 1] }, dur: 6 },
-  { Icon: Umbrella, color: "#E8916D", anim: { rotate: [-6, 6, -6], y: [0, -6, 0] }, dur: 2.5 },
-  { Icon: Bed, color: "#7BA7CC", anim: { y: [0, -10, 0] }, dur: 2 },
-  { Icon: Camera, color: "#8B7AB8", anim: { scale: [1, 1.18, 1], rotate: [-4, 4, -4] }, dur: 2 },
-  { Icon: Compass, color: "#5BA6A0", anim: { rotate: [0, -360] }, dur: 5 },
+  { Icon: Waves, color: "#7BA7CC", anim: { x: [-8, 8, -8] }, dur: 3 },
+  { Icon: Briefcase, color: "#E8916D", anim: { y: [0, -12, 0], rotate: [-3, 3, -3] }, dur: 2.5 },
+  { Icon: Palmtree, color: "#5BA6A0", anim: { rotate: [-4, 4, -4] }, dur: 3 },
 ];
 
 export default function SearchLoading({ destination, checkIn, checkOut }) {
