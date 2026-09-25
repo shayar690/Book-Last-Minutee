@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { useSearchParams, Link } from "react-router-dom";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2, Search } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useI18n } from "@/lib/i18n";
 import HotelCard from "@/components/results/HotelCard";
@@ -21,6 +21,7 @@ export default function HotelResults() {
   const loadedNamesRef = useRef(new Set());
   const [hasMore, setHasMore] = useState(true);
   const [batchNum, setBatchNum] = useState(1);
+  const [filterQuery, setFilterQuery] = useState("");
 
   const sortedHotels = useMemo(() => {
     const arr = [...hotels];
@@ -32,6 +33,12 @@ export default function HotelResults() {
       default: return arr;
     }
   }, [hotels, sortBy]);
+
+  const filteredHotels = useMemo(() => {
+    if (!filterQuery.trim()) return sortedHotels;
+    const q = filterQuery.trim().toLowerCase();
+    return sortedHotels.filter((h) => (h.name || "").toLowerCase().includes(q));
+  }, [sortedHotels, filterQuery]);
 
   const destination = searchParams.get("destination") || "";
   const checkIn = searchParams.get("checkIn") || "";
@@ -160,6 +167,18 @@ export default function HotelResults() {
         )}
         {loading && <div className="mb-4" />}
         {hotels.length > 0 && (
+          <div className="relative mb-4">
+            <Search className="absolute top-1/2 -translate-y-1/2 start-3 w-4 h-4 text-[#7D7D7D]" strokeWidth={1.5} />
+            <input
+              type="text"
+              value={filterQuery}
+              onChange={(e) => setFilterQuery(e.target.value)}
+              placeholder={t("results.filterHotels")}
+              className="w-full h-11 ps-10 pe-4 rounded-lg bg-white border border-[#C5C5C5] text-sm text-[#2D3035] outline-none focus:border-[#2D3035] transition-colors"
+            />
+          </div>
+        )}
+        {hotels.length > 0 && (
           <div className="flex items-center gap-2 mb-4">
             <span className="text-sm text-[#7D7D7D]">{t("results.sortBy")}</span>
             <select
@@ -182,10 +201,14 @@ export default function HotelResults() {
             {error && <p className="text-sm text-red-500 mb-2">{error}</p>}
             <p className="text-sm text-[#7D7D7D]">{t("results.noHotels")}</p>
           </div>
+        ) : filteredHotels.length === 0 ? (
+          <div className="text-center py-20">
+            <p className="text-sm text-[#7D7D7D]">{t("results.noMatchingHotels")}</p>
+          </div>
         ) : (
           <>
             <div className="flex flex-col gap-3">
-              {sortedHotels.map((hotel, i) => (
+              {filteredHotels.map((hotel, i) => (
                 <HotelCard key={`${hotel.name}-${i}`} hotel={hotel} searchContext={{ destination, checkIn, checkOut, adults, rooms }} />
               ))}
             </div>

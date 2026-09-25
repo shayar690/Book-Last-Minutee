@@ -43,6 +43,10 @@
     @apply bg-background text-foreground font-body antialiased;
     font-size: 1.0625rem;
     line-height: 1.6;
+    caret-color: transparent;
+  }
+  input, textarea, [contenteditable="true"] {
+    caret-color: auto;
   }
   /* Re-enable text selection only where it's needed */
   input, textarea, [contenteditable="true"] {
