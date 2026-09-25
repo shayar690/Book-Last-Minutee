@@ -151,7 +151,7 @@ export default function SearchWidget() {
   const { toast } = useToast();
   const [active, setActive] = useState("hotels");
   const [searching, setSearching] = useState(false);
-  const [showParams, setShowParams] = useState(true);
+  const [showParams, setShowParams] = useState(false);
 
   const [checkIn, setCheckIn] = useState(null);
   const [checkOut, setCheckOut] = useState(null);
@@ -176,12 +176,12 @@ export default function SearchWidget() {
   useEffect(() => {
     setCheckIn(null);
     setCheckOut(null);
-    setShowParams(true);
+    setShowParams(false);
     setDateModal({ open: false, mode: "range", active: "in" });
   }, [lang]);
 
-  // Keep additional params open when switching tabs.
-  useEffect(() => { setShowParams(true); }, [active]);
+  // Collapse additional params when switching tabs.
+  useEffect(() => { setShowParams(false); }, [active]);
 
   // Required-field validation for the hotels tab.
   const hotelsMissing = active === "hotels" && (!hotelDest || !checkIn || !checkOut);
