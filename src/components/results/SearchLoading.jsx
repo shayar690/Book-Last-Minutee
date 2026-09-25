@@ -69,22 +69,22 @@ export default function SearchLoading({ destination, checkIn, checkOut }) {
       {/* Large animated scene */}
       <div className="relative w-40 h-40 flex items-center justify-center">
         {/* Soft glow ring */}
-        <div className="absolute inset-2 rounded-full bg-gradient-to-br from-[#F5D166]/12 to-transparent" />
+        <div className="absolute inset-2 rounded-full bg-gradient-to-br from-[#F5D166]/40 to-transparent" />
 
         {/* Floating clouds */}
         <motion.div
-          animate={{ x: [-14, 16, -14], opacity: [0.25, 0.45, 0.25] }}
+          animate={{ x: [-14, 16, -14], opacity: [0.5, 0.75, 0.5] }}
           transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
           className="absolute top-3 left-1"
         >
-          <Cloud className="w-9 h-9 text-[#C5C5C5]" strokeWidth={1} />
+          <Cloud className="w-9 h-9 text-[#8A8A8A]" strokeWidth={1.5} />
         </motion.div>
         <motion.div
-          animate={{ x: [16, -14, 16], opacity: [0.4, 0.2, 0.4] }}
+          animate={{ x: [16, -14, 16], opacity: [0.6, 0.8, 0.6] }}
           transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
           className="absolute bottom-7 right-1"
         >
-          <Cloud className="w-7 h-7 text-[#C5C5C5]" strokeWidth={1} />
+          <Cloud className="w-7 h-7 text-[#8A8A8A]" strokeWidth={1.5} />
         </motion.div>
 
         {/* Main icon with scene-specific animation */}
