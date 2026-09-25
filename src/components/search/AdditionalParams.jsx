@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { ChevronDown, Clock, Check } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 
@@ -36,13 +36,25 @@ function Chip({ label, active, onClick }) {
 
 function Dropdown({ label, placeholder, value, onChange, options, icon: Icon, note }) {
   const [open, setOpen] = useState(false);
+  const btnRef = useRef(null);
+  const [menuPos, setMenuPos] = useState({ top: 0, left: 0, width: 0 });
+
+  const toggle = () => {
+    if (!open && btnRef.current) {
+      const rect = btnRef.current.getBoundingClientRect();
+      setMenuPos({ top: rect.bottom + 6, left: rect.left, width: rect.width });
+    }
+    setOpen((v) => !v);
+  };
+
   return (
     <div className="flex flex-col gap-1 min-w-0 flex-1">
       <label className="text-[15px] font-medium text-[#5a5a5a]">{label}</label>
       <div className="relative">
         <button
+          ref={btnRef}
           type="button"
-          onClick={() => setOpen((v) => !v)}
+          onClick={toggle}
           className="flex items-center justify-between gap-2 w-full px-3 h-12 rounded-lg bg-white border border-[#C5C5C5] focus:border-[#2D3035] transition-colors"
         >
           <span className="flex items-center gap-2 min-w-0">
@@ -51,25 +63,28 @@ function Dropdown({ label, placeholder, value, onChange, options, icon: Icon, no
           </span>
           <ChevronDown className="w-4 h-4 text-[#7D7D7D] shrink-0" strokeWidth={1.5} />
         </button>
-        {open && (
-          <>
-            <div className="fixed inset-0 z-20" onClick={() => setOpen(false)} />
-            <div className="absolute top-full mt-1.5 z-30 w-full h-56 overflow-y-auto bg-white rounded-lg border border-[#C5C5C5] shadow-horizon">
-              {options.map((opt) => (
-                <button
-                  key={opt.value}
-                  type="button"
-                  onClick={() => { onChange(opt.value); setOpen(false); }}
-                  className={`w-full text-start px-3 py-2.5 text-base hover:bg-[#FFFAD9] ${value === opt.value ? "bg-[#FFFAD9] font-medium" : ""}`}
-                >
-                  {opt.label}
-                </button>
-              ))}
-            </div>
-          </>
-        )}
       </div>
       {note && <p className="text-[14px] leading-relaxed text-[#5a5a5a] mt-1 font-medium whitespace-pre-line">{note}</p>}
+      {open && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+          <div
+            style={{ position: "fixed", top: menuPos.top, left: menuPos.left, width: menuPos.width }}
+            className="z-50 h-56 overflow-y-auto bg-white rounded-lg border border-[#C5C5C5] shadow-horizon"
+          >
+            {options.map((opt) => (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => { onChange(opt.value); setOpen(false); }}
+                className={`w-full text-start px-3 py-2.5 text-base hover:bg-[#FFFAD9] ${value === opt.value ? "bg-[#FFFAD9] font-medium" : ""}`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 }
