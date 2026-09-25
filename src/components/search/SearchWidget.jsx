@@ -15,10 +15,10 @@ import FlightsAdditionalParams from "@/components/search/FlightsAdditionalParams
 const TABS = [
   { id: "hotels", icon: Bed },
   { id: "flights", icon: Plane },
-  { id: "vacationPackages", icon: Package },
-  { id: "attractions", icon: Ticket },
-  { id: "transfers", icon: Bus },
-  { id: "cars", icon: Car },
+  { id: "vacationPackages", icon: Package, comingSoon: true },
+  { id: "attractions", icon: Ticket, comingSoon: true },
+  { id: "transfers", icon: Bus, comingSoon: true },
+  { id: "cars", icon: Car, comingSoon: true },
   { id: "marriageProposals", icon: Gem },
 ];
 
@@ -152,6 +152,7 @@ export default function SearchWidget() {
   const [active, setActive] = useState("hotels");
   const [searching, setSearching] = useState(false);
   const [showParams, setShowParams] = useState(false);
+  const [comingSoonClicked, setComingSoonClicked] = useState(new Set());
 
   const [checkIn, setCheckIn] = useState(null);
   const [checkOut, setCheckOut] = useState(null);
@@ -237,16 +238,32 @@ export default function SearchWidget() {
         {TABS.map((tab) => {
           const Icon = tab.icon;
           const isActive = active === tab.id;
+          const isComingSoon = tab.comingSoon;
+          const wasClicked = comingSoonClicked.has(tab.id);
           return (
             <button
               key={tab.id}
-              onClick={() => (tab.id === "marriageProposals" ? navigate("/marriage-proposals-dubai") : setActive(tab.id))}
+              onClick={() => {
+                if (tab.id === "marriageProposals") {
+                  navigate("/marriage-proposals-dubai");
+                } else if (isComingSoon) {
+                  setComingSoonClicked((prev) => new Set(prev).add(tab.id));
+                } else {
+                  setActive(tab.id);
+                }
+              }}
               className={`flex items-center justify-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-xl text-sm font-medium transition-colors whitespace-nowrap w-full sm:w-auto sm:justify-start ${
                 tab.id === "vacationPackages" ? "col-span-2 sm:col-span-1" : ""
-              } ${isActive ? "bg-[#2D3035] text-white" : "bg-[#F5D166] text-[#2D3035] hover:bg-[#ECC45A]"}`}
+              } ${
+                isComingSoon && wasClicked
+                  ? "bg-red-600 text-white"
+                  : isActive
+                  ? "bg-[#2D3035] text-white"
+                  : "bg-[#F5D166] text-[#2D3035] hover:bg-[#ECC45A]"
+              }`}
             >
               <Icon className="w-4 h-4" strokeWidth={1.5} />
-              {t(`tab.${tab.id}`)}
+              {isComingSoon && wasClicked ? t("tab.comingSoon") : t(`tab.${tab.id}`)}
             </button>
           );
         })}

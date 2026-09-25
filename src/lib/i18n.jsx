@@ -25,6 +25,7 @@ const translations = {
     "tab.trains": "Trains",
     "tab.attractions": "Attractions & Activities",
     "tab.marriageProposals": "Marriage proposals in Dubai",
+    "tab.comingSoon": "Coming soon",
 
     "search.attractionDestination": "Attraction or city",
     "search.attractionPlaceholder": "Eiffel Tower, Louvre, London…",
@@ -247,6 +248,7 @@ const translations = {
     "tab.trains": "רכבות",
     "tab.attractions": "אטרקציות ופעילויות",
     "tab.marriageProposals": "הצעות נישואין בדובאי",
+    "tab.comingSoon": "בקרוב",
 
     "search.attractionDestination": "אטרקציה או עיר",
     "search.attractionPlaceholder": "מגדל אייפל, הלובר, לונדון…",
