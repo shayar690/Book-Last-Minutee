@@ -43,10 +43,6 @@
     @apply bg-background text-foreground font-body antialiased;
     font-size: 1.0625rem;
     line-height: 1.6;
-    caret-color: transparent;
-  }
-  input, textarea, [contenteditable="true"] {
-    caret-color: auto;
   }
   /* Re-enable text selection only where it's needed */
   input, textarea, [contenteditable="true"] {
@@ -57,6 +53,16 @@
     @apply font-heading;
     line-height: 1.15;
   }
+}
+
+/* Hide the text caret/cursor on all non-input elements — prevents the
+   blinking vertical line from appearing when clicking on text or empty
+   space on desktop. Inputs/textareas keep their visible caret. */
+* {
+  caret-color: transparent;
+}
+input, textarea, [contenteditable="true"] {
+  caret-color: auto;
 }
 
 @layer utilities {
