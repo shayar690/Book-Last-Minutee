@@ -55,7 +55,7 @@ export default function HotelResults() {
     const dd = String(date.getDate()).padStart(2, "0");
     const mm = String(date.getMonth() + 1).padStart(2, "0");
     const yyyy = date.getFullYear();
-    return `${dd}.${mm}.${yyyy} \u200E(${weekdayClean})\u200E`;
+    return `${dd}.${mm}.${yyyy} (\u2068${weekdayClean}\u2069)`;
   };
 
   // Batch 1 — fast initial results (with cache for back-navigation).
