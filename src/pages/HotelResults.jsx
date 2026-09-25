@@ -127,10 +127,12 @@ export default function HotelResults() {
   return (
     <div className="min-h-screen bg-[#F9F9F9] pt-20">
       <div className="max-w-5xl mx-auto px-4 py-6">
-        <Link to="/" className="inline-flex items-center gap-1.5 px-3 h-10 rounded-lg bg-white border border-[#E5E5E5] text-sm text-[#2D3035] hover:border-[#2D3035] transition-colors mb-4 shadow-sm">
-          <ArrowLeft className="w-4 h-4 rtl:rotate-180" strokeWidth={1.5} />
-          {t("results.backToSearch")}
-        </Link>
+        {!loading && (
+          <Link to="/" className="inline-flex items-center gap-1.5 px-3 h-10 rounded-lg bg-white border border-[#E5E5E5] text-sm text-[#2D3035] hover:border-[#2D3035] transition-colors mb-4 shadow-sm">
+            <ArrowLeft className="w-4 h-4 rtl:rotate-180" strokeWidth={1.5} />
+            {t("results.backToSearch")}
+          </Link>
+        )}
         <h1 className="text-2xl font-heading text-[#2D3035] mb-1">
           {loading ? `${t("results.searchingIn")}${destination}` : `${t("results.hotelsIn")} ${destination}`}
         </h1>
