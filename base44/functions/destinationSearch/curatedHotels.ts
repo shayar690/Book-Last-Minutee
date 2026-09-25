@@ -382,7 +382,19 @@ export function searchCuratedHotels(query: string, limit = 12, lang = "en") {
   }
   const cityMatches = Array.from(cityMap.values())
     .map((c) => {
-      const s = Math.max(matchScore(c.city, q), c.city_he ? matchScore(c.city_he, q) : 0);
+      let s = Math.max(matchScore(c.city, q), c.city_he ? matchScore(c.city_he, q) : 0);
+      // Reverse matching: if the query CONTAINS the city name at a word boundary
+      // (e.g. "JW Marriott Bucharest" → "Bucharest"), suggest that city.
+      if (s === 0) {
+        const cityName = normalize(c.city);
+        const cityNameHe = c.city_he ? normalize(c.city_he) : "";
+        const checkContains = (name: string) => {
+          if (name.length < 4) return false;
+          const idx = q.indexOf(name);
+          return idx >= 0 && (idx === 0 || q[idx - 1] === " ");
+        };
+        if (checkContains(cityName) || (cityNameHe && checkContains(cityNameHe))) s = 1;
+      }
       return { c, s };
     })
     .filter((x) => x.s > 0)

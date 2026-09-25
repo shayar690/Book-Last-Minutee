@@ -1,6 +1,7 @@
 // Destination autocomplete — Open-Meteo (cities, multilingual, free, no API key)
 // + curated hotel database. Fast, reliable, no API key required.
 import { searchCuratedHotels } from "./curatedHotels.ts";
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.49';
 
 // ISO 3166-1 alpha-2 country code → Hebrew country name.
 // Used to guarantee 100% Hebrew country names in Hebrew mode, regardless
@@ -89,7 +90,40 @@ async function openMeteoSearch(query: string, lang: string, filter: string) {
     .filter((r: any) => r !== null);
 }
 
+// LLM-based hotel search — finds specific hotels not in the curated list.
+// Only runs for longer queries (3+ words) that didn't match curated hotels,
+// so short city-name queries stay fast.
+async function llmHotelSearch(base44: any, query: string) {
+  const words = query.trim().split(/\s+/);
+  if (words.length < 3) return [];
+  try {
+    const result = await base44.asServiceRole.integrations.Core.InvokeLLM({
+      prompt: `Search the web for a hotel called "${query}". If it exists, return its exact name, city, country, latitude, and longitude. If you cannot find it or it is not a real hotel, set "found" to false.`,
+      add_context_from_internet: true,
+      model: "gemini_3_flash",
+      response_json_schema: {
+        type: "object",
+        additionalProperties: true,
+        properties: {
+          found: { type: "boolean" },
+          name: { type: "string" },
+          city: { type: "string" },
+          country: { type: "string" },
+          lat: { type: "number" },
+          lon: { type: "number" },
+        }
+      }
+    });
+    if (!result?.found || !result.name || !result.city) return [];
+    const label = [result.name, result.city, result.country].filter(Boolean).join(", ");
+    return [{ label, lat: result.lat, lon: result.lon, result_type: "hotel" }];
+  } catch {
+    return [];
+  }
+}
+
 export default async function(req: any) {
+  const base44 = createClientFromRequest(req);
   try {
     const body = await req.json().catch(() => ({}));
     const query = (body.query || "").trim();
@@ -106,13 +140,19 @@ export default async function(req: any) {
       const curatedHotels = curated.filter((r: any) => r.result_type === "hotel");
       const cities = await openMeteoSearch(query, lang, filter).catch(() => []);
 
+      // LLM hotel search — only if no curated hotels matched and query is 3+ words.
+      let llmHotels: any[] = [];
+      if (curatedHotels.length === 0) {
+        llmHotels = await llmHotelSearch(base44, query).catch(() => []);
+      }
+
       // Dedup: for cities, use the city name (first part of label) as the key
       // so curated cities (with correct Hebrew names) take priority over
       // Open-Meteo results that may have wrong Hebrew names.
       // For hotels, use hotel name + city (first 2 parts) as before.
       const seen = new Set<string>();
       const merged: any[] = [];
-      for (const r of [...curatedCities, ...cities, ...curatedHotels]) {
+      for (const r of [...curatedCities, ...cities, ...llmHotels, ...curatedHotels]) {
         const isCity = r.result_type === "city";
         const key = (r.label || "").toLowerCase().split(",").slice(0, isCity ? 1 : 2).join(",").trim();
         if (seen.has(key)) continue;
