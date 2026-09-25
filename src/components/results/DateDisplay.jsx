@@ -19,11 +19,8 @@ export default function DateDisplay({ dateStr }) {
   const datePart = `${dd}.${mm}.${yyyy}`;
 
   return (
-    <span
-      dir="ltr"
-      style={{ unicodeBidi: "isolate", whiteSpace: "nowrap" }}
-    >
-      {`${datePart} (${weekdayClean})`}
-    </span>
+    <bdi dir="ltr" style={{ whiteSpace: "nowrap" }}>
+      {datePart} (<bdi dir={lang === "he" ? "rtl" : "ltr"}>{weekdayClean}</bdi>)
+    </bdi>
   );
 }
