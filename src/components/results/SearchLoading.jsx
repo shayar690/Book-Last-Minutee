@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plane, Sun, Waves, Briefcase, Palmtree, Cloud } from "lucide-react";
 import PassportIcon from "@/components/results/PassportIcon";
+import DateDisplay from "@/components/results/DateDisplay";
 import { useI18n } from "@/lib/i18n";
 
 // Each scene has its own icon, colour, and motion style — cycling creates a
@@ -97,8 +98,8 @@ export default function SearchLoading({ destination, checkIn, checkOut }) {
       <div className="text-center font-body">
         <p className="text-xl font-medium text-[#2D3035]">{t("results.searchingIn")}{destination}</p>
         <div className="text-base text-[#7D7D7D] mt-3 leading-relaxed">
-          <div>{t("results.checkInLabel")} <span dir="ltr" style={{ unicodeBidi: "isolate" }}>{formatDateWithDay(checkIn)}</span></div>
-          <div>{t("results.checkOutLabel")} <span dir="ltr" style={{ unicodeBidi: "isolate" }}>{formatDateWithDay(checkOut)}</span></div>
+          <div>{t("results.checkInLabel")} <DateDisplay dateStr={checkIn} /></div>
+          <div>{t("results.checkOutLabel")} <DateDisplay dateStr={checkOut} /></div>
           {nd && (
             <div className="mt-2.5 font-medium text-[#2D3035] text-lg">
               {nd.nights} {t("results.nights")}, {nd.days} {t("results.days")}

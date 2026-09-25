@@ -107,7 +107,7 @@ For each hotel provide ONLY these fields:
 - description: Short description (1-2 sentences)
 - location: Area or neighborhood within the city
 - distanceToCenter: Distance from city center in km (number, e.g. 0.5 = 500m, 2.5 = 2.5km)
-- images: Array of 3-5 REAL photo URLs of this specific hotel. Find actual photos from the hotel's Booking.com page (image URLs typically start with https://cf.bstatic.com/ or https://q-xx.bstatic.com/), the hotel's official website, or other travel sites. Return ONLY direct image file URLs (ending in .jpg, .jpeg, .png, or .webp) that can be loaded in an <img> tag. Do NOT return page URLs — only direct image URLs.
+- images: Array of 3-5 REAL direct image URLs of this specific hotel. Find actual photos from Booking.com (image URLs start with https://cf.bstatic.com/ or https://q-xx.bstatic.com/) or the hotel's official website. Return ONLY direct image file URLs (ending in .jpg, .jpeg, .png, or .webp) that can be loaded in an <img> tag. Do NOT return Booking.com hotel page URLs (like https://www.booking.com/hotel/...) — only direct image file URLs. If you cannot find real direct image URLs, return an empty array [].
 
 Return exactly ${hotelCount} hotels sorted by price (lowest first).
 HOTEL NAMES — CRITICAL RULES:
@@ -154,15 +154,20 @@ Descriptions should be in ${languageName}.`;
     // Use real images from the LLM if available; fall back to generic Unsplash
     // images only when the LLM didn't return any image URLs for a hotel.
     const enrichedHotels = hotels.map((hotel, idx) => {
+      // Filter out invalid image URLs — page URLs, non-http, etc.
+      if (hotel.images && hotel.images.length > 0) {
+        hotel.images = hotel.images.filter(u =>
+          u && (u.startsWith("http://") || u.startsWith("https://")) &&
+          !u.includes("booking.com/hotel/") && !u.includes("expedia.com/") &&
+          !u.includes("hotels.com/") && !u.includes("tripadvisor.com/") &&
+          !u.includes("booking.com/Hotel/")
+        ).slice(0, 5);
+      }
+      // Assign a single unique fallback if no valid images remain — one per hotel
+      // prevents duplicate images across the results list.
       if (!hotel.images || hotel.images.length === 0) {
-        const start = (hashString(hotel.name || `hotel-${idx}`) + idx * 7) % FALLBACK_IMAGES.length;
-        hotel.images = [
-          FALLBACK_IMAGES[start % FALLBACK_IMAGES.length],
-          FALLBACK_IMAGES[(start + 1) % FALLBACK_IMAGES.length],
-          FALLBACK_IMAGES[(start + 2) % FALLBACK_IMAGES.length],
-          FALLBACK_IMAGES[(start + 3) % FALLBACK_IMAGES.length],
-          FALLBACK_IMAGES[(start + 4) % FALLBACK_IMAGES.length],
-        ];
+        const fallbackIdx = (hashString(hotel.name || `hotel-${idx}`) + idx * 7) % FALLBACK_IMAGES.length;
+        hotel.images = [FALLBACK_IMAGES[fallbackIdx]];
       }
       return hotel;
     });

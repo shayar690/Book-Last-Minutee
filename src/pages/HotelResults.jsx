@@ -5,6 +5,7 @@ import { base44 } from "@/api/base44Client";
 import { useI18n } from "@/lib/i18n";
 import HotelCard from "@/components/results/HotelCard";
 import SearchLoading from "@/components/results/SearchLoading";
+import DateDisplay from "@/components/results/DateDisplay";
 
 const hotelCache = new Map();
 
@@ -87,7 +88,6 @@ export default function HotelResults() {
         setHotels(batchHotels);
         setError(res.data?.error || null);
         hotelCache.set(searchKey, { hotels: batchHotels, error: res.data?.error, batchNum: 1, hasMore: true });
-        fetchRealImages(batchHotels);
       })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
@@ -119,32 +119,10 @@ export default function HotelResults() {
             hotelCache.set(searchKey, { hotels: updated, error: cached?.error || null, batchNum: nextBatch, hasMore: true });
             return updated;
           });
-          fetchRealImages(moreHotels);
         }
       })
       .catch(() => {})
       .finally(() => setLoadingMore(false));
-  };
-
-  // Fetch real images from hotels' official websites — progressively replaces
-  // generic Unsplash placeholders with actual hotel photos.
-  const fetchRealImages = (hotelBatch) => {
-    const hotelData = hotelBatch.map((h) => ({ name: h.name, url: h.url, destination }));
-    base44.functions.invoke("hotelImages", { hotels: hotelData })
-      .then((res) => {
-        const results = res.data?.results || {};
-        setHotels((prev) => {
-          const updated = prev.map((h) => {
-            const key = h.url || h.name;
-            const realImages = results[key];
-            return realImages && realImages.length > 0 ? { ...h, images: realImages } : h;
-          });
-          const cached = hotelCache.get(searchKey);
-          if (cached) hotelCache.set(searchKey, { ...cached, hotels: updated });
-          return updated;
-        });
-      })
-      .catch(() => {});
   };
 
   return (
@@ -163,8 +141,8 @@ export default function HotelResults() {
         )}
         {!loading && (
           <div className="text-sm text-[#7D7D7D] mb-4">
-            <div>{t("results.checkInLabel")} <span dir="ltr" style={{ unicodeBidi: "isolate" }}>{formatDateWithDay(checkIn)}</span></div>
-            <div>{t("results.checkOutLabel")} <span dir="ltr" style={{ unicodeBidi: "isolate" }}>{formatDateWithDay(checkOut)}</span></div>
+            <div>{t("results.checkInLabel")} <DateDisplay dateStr={checkIn} /></div>
+            <div>{t("results.checkOutLabel")} <DateDisplay dateStr={checkOut} /></div>
             <div className="mt-1">{adults} {t("results.adults")} · {rooms} {t("results.rooms")}</div>
             {checkIn && checkOut && (() => {
               const nights = Math.round((new Date(checkOut) - new Date(checkIn)) / (1000 * 60 * 60 * 24));
