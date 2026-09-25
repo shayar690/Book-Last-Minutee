@@ -134,7 +134,7 @@ export default function HotelResults() {
           </Link>
         )}
         {!loading && (
-          <h1 className="text-2xl text-[#2D3035] mb-1" style={{ fontFamily: '"David Libre", "Cormorant Garamond", ui-serif, Georgia, serif' }}>
+          <h1 className="text-2xl font-semibold text-[#2D3035] mb-1">
             {`${t("results.hotelsIn")}${destination}`}
           </h1>
         )}
