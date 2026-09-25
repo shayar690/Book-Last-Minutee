@@ -93,7 +93,7 @@ const translations = {
     "search.lateCheckout": "Late check-out",
     "search.selectTime": "Select the time",
     "search.freeCancellation": "Free cancellation",
-    "search.requestOnlyNote": "Special requests are subject to the hotel's discretion and availability. If you wish to add a guaranteed service for an additional fee, you must contact our customer service.",
+    "search.requestOnlyNote": "Special requests are subject to the hotel's discretion and availability. If you wish to add a guaranteed service for an additional fee, please reach out to our customer service.",
     "search.addDate": "Add date",
     "search.departureDate": "Departure date",
     "search.returnDate": "Return date",
