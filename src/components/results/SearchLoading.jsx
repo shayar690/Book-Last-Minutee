@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plane, BookOpen as Passport, Sun, Waves, Briefcase, Palmtree, Cloud } from "lucide-react";
+import { Plane, Sun, Waves, Briefcase, Palmtree, Cloud } from "lucide-react";
+import PassportIcon from "@/components/results/PassportIcon";
 import { useI18n } from "@/lib/i18n";
 
 // Each scene has its own icon, colour, and motion style — cycling creates a
 // "plane flying → hotel → sun → umbrella → …" travel montage.
 const SCENES = [
   { Icon: Plane, color: "#F5D166", anim: { x: [-28, 28, -28], y: [0, -14, 0], rotate: [0, 8, -8, 0] }, dur: 3 },
-  { Icon: Passport, color: "#8B7AB8", anim: { scale: [1, 1.1, 1], rotate: [-4, 4, -4] }, dur: 3 },
+  { Icon: PassportIcon, color: "#8B7AB8", anim: { scale: [1, 1.1, 1], rotate: [-4, 4, -4] }, dur: 3 },
   { Icon: Sun, color: "#F5B04A", anim: { rotate: 360, scale: [1, 1.12, 1] }, dur: 6 },
   { Icon: Waves, color: "#7BA7CC", anim: { x: [-8, 8, -8] }, dur: 3 },
   { Icon: Briefcase, color: "#E8916D", anim: { y: [0, -12, 0], rotate: [-3, 3, -3] }, dur: 2.5 },
@@ -34,7 +35,7 @@ export default function SearchLoading({ destination, checkIn, checkOut }) {
     const dd = String(date.getDate()).padStart(2, "0");
     const mm = String(date.getMonth() + 1).padStart(2, "0");
     const yyyy = date.getFullYear();
-    return `${dd}.${mm}.${yyyy} (\u2068${weekdayClean}\u2069)`;
+    return `${dd}.${mm}.${yyyy} (${weekdayClean})`;
   };
 
   const calcNightsAndDays = () => {
