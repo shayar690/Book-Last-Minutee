@@ -16,6 +16,17 @@ const SCENES = [
   { Icon: Palmtree, color: "#5BA6A0", anim: { rotate: [-4, 4, -4] }, dur: 3 },
 ];
 
+// Detects if the destination string is a specific hotel name rather than a
+// city/region. Hotel labels from autocomplete have 3+ comma parts ("Hotel
+// Name, City, Country") or contain hotel-type keywords.
+function isHotelDestination(dest) {
+  if (!dest) return false;
+  const parts = dest.split(",").map((s) => s.trim()).filter(Boolean);
+  if (parts.length >= 3) return true;
+  const hotelKeywords = /\b(hotel|resort|suites|lodge|inn|motel|boutique|villa|hostel|guesthouse)\b/i;
+  return hotelKeywords.test(dest) || /מלון/.test(dest);
+}
+
 export default function SearchLoading({ destination, checkIn, checkOut }) {
   const { t, lang } = useI18n();
   const [sceneIdx, setSceneIdx] = useState(0);
@@ -96,7 +107,9 @@ export default function SearchLoading({ destination, checkIn, checkOut }) {
 
       {/* Text — Inter (font-body) to match the homepage search widget */}
       <div className="text-center font-body">
-        <p className="text-xl font-medium text-[#2D3035]">{t("results.searchingIn")}{destination}</p>
+        <p className="text-xl font-medium text-[#2D3035]">
+          {isHotelDestination(destination) ? destination : `${t("results.searchingIn")}${destination}`}
+        </p>
         <div className="text-base text-[#7D7D7D] mt-3 leading-relaxed">
           <div>{t("results.checkInLabel")} <DateDisplay dateStr={checkIn} /></div>
           <div>{t("results.checkOutLabel")} <DateDisplay dateStr={checkOut} /></div>

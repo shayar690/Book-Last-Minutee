@@ -21,13 +21,9 @@ export default function DateDisplay({ dateStr }) {
   return (
     <span
       dir="ltr"
-      style={{ unicodeBidi: "bidi-override", whiteSpace: "nowrap" }}
+      style={{ unicodeBidi: "isolate", whiteSpace: "nowrap" }}
     >
-      {datePart} (
-      <span dir="rtl" style={{ unicodeBidi: "bidi-override" }}>
-        {weekdayClean}
-      </span>
-      )
+      {`${datePart} (${weekdayClean})`}
     </span>
   );
 }
