@@ -133,6 +133,7 @@ export default function AdditionalParams({ onChange }) {
           onChange={setEarlyIn}
           options={earlyOptions}
           icon={Clock}
+          note={t("search.requestOnlyNote")}
         />
         <Dropdown
           label={t("search.lateCheckout")}
@@ -141,7 +142,6 @@ export default function AdditionalParams({ onChange }) {
           onChange={setLateOut}
           options={lateOptions}
           icon={Clock}
-          note={t("search.requestOnlyNote")}
         />
       </div>
     </div>
