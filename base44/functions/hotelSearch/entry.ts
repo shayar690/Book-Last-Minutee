@@ -116,7 +116,11 @@ For each hotel provide ONLY these fields:
 - distanceToCenter: Distance from city center in km (number, e.g. 0.5 = 500m, 2.5 = 2.5km)
 
 Return exactly ${hotelCount} hotels sorted by price (lowest first).
-Respond in ${languageName}. Hotel names and descriptions must be in ${languageName}.`;
+HOTEL NAMES — CRITICAL RULES:
+- For hotels OUTSIDE Israel: use the hotel's ORIGINAL ENGLISH name (e.g., "Taj Dubai", "Hilton Paris Opera", "Atlantis The Palm"). NEVER translate to Hebrew.
+- For hotels IN Israel: use the HEBREW name (e.g., "דן תל אביב", "ירושלים גולד", "מצפה נופית").
+- NEVER prefix or include the word "Hotel" or "מלון" in the name — just the proper hotel name itself (e.g., write "Taj Dubai" NOT "Hotel Taj Dubai", write "דן תל אביב" NOT "מלון דן תל אביב").
+Descriptions should be in ${languageName}.`;
 
     const result = await base44.asServiceRole.integrations.Core.InvokeLLM({
       prompt,
