@@ -244,7 +244,7 @@ export default function SearchWidget() {
   return (
     <div className="w-full">
       {/* Tab bar */}
-      <div className="grid grid-cols-2 gap-2 px-1.5 pb-1.5 pt-4 bg-white rounded-t-2xl shadow-horizon w-full max-w-full sm:flex sm:flex-nowrap">
+      <div className="grid grid-cols-2 gap-2 px-1.5 pb-1.5 pt-4 bg-white rounded-t-2xl shadow-horizon w-full max-w-full sm:flex sm:flex-wrap sm:justify-center">
         {TABS.map((tab) => {
           const Icon = tab.icon;
           const isActive = active === tab.id;
@@ -270,7 +270,7 @@ export default function SearchWidget() {
                   setActive(tab.id);
                 }
               }}
-              className={`flex items-center justify-center gap-2 px-2 sm:px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-500 whitespace-nowrap w-full sm:flex-1 sm:justify-center ${
+              className={`flex items-center justify-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-500 whitespace-nowrap w-full sm:w-auto sm:justify-start ${
                 tab.id === "vacationPackages" ? "col-span-2 sm:col-span-1" : ""
               } ${
                 showComingSoon
@@ -398,7 +398,7 @@ export default function SearchWidget() {
           <button
             type="submit"
             disabled={searching}
-            className="group inline-flex items-center justify-center gap-2 px-8 h-12 rounded-lg bg-[#F5D166] text-[#2D3035] font-bold text-sm hover:brightness-105 transition disabled:opacity-80 w-full sm:w-auto"
+            className="group inline-flex items-center justify-center gap-2 px-12 h-14 rounded-lg bg-[#F5D166] text-[#2D3035] font-bold text-base hover:brightness-105 transition disabled:opacity-80 w-full sm:w-auto"
           >
             {searching ? (
               <span className="w-4 h-4 border-2 border-[#2D3035]/30 border-t-[#2D3035] rounded-full animate-spin" />

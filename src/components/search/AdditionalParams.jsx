@@ -107,7 +107,7 @@ export default function AdditionalParams({ onChange }) {
   return (
     <div className="flex flex-col gap-3 pt-3">
       {/* Free cancellation + Meal plan + Star rating — one row */}
-      <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 items-stretch sm:items-start">
+      <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 items-stretch sm:items-end">
         {/* Meal plan */}
         <div className="flex flex-col gap-1.5 min-w-0 flex-1">
           <label className="text-[18px] font-medium text-[#5a5a5a]">{t("search.mealPlan")}</label>
@@ -127,7 +127,7 @@ export default function AdditionalParams({ onChange }) {
           </div>
         </div>
         {/* Free cancellation */}
-        <div className="flex flex-col gap-1.5 min-w-0 sm:mt-8 flex-[0.7]">
+        <div className="flex flex-col gap-1.5 min-w-0 flex-[0.7]">
           <button
             type="button"
             onClick={() => setFreeCancel((v) => !v)}
