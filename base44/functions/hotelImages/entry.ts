@@ -9,18 +9,25 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.49';
 
 const FETCH_TIMEOUT = 2500;
-const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
+const UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15';
 const MAX_IMAGES = 10;
+
+const HDR = {
+  'User-Agent': UA,
+  'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+  'Accept-Language': 'en-US,en;q=0.9',
+  'Accept-Encoding': 'gzip, deflate, br',
+  'Sec-Fetch-Dest': 'document',
+  'Sec-Fetch-Mode': 'navigate',
+  'Sec-Fetch-Site': 'none',
+  'Upgrade-Insecure-Requests': '1',
+};
 
 async function fetchPage(url: string): Promise<string> {
   try {
     const ctrl = new AbortController();
     const t = setTimeout(() => ctrl.abort(), FETCH_TIMEOUT);
-    const res = await fetch(url, {
-      headers: { 'User-Agent': UA, 'Accept': 'text/html,application/xhtml+xml', 'Accept-Language': 'en-US,en;q=0.9' },
-      redirect: 'follow',
-      signal: ctrl.signal,
-    });
+    const res = await fetch(url, { headers: HDR, redirect: 'follow', signal: ctrl.signal });
     clearTimeout(t);
     return res.ok ? await res.text() : '';
   } catch {
@@ -184,6 +191,38 @@ async function scrapeSite(url: string, hotelName: string): Promise<string[]> {
   return images;
 }
 
+// Wikipedia fallback — reliable real photos for notable hotels that block
+// direct scraping (Atlantis, JW Marriott Marquis, etc.). Uses the public
+// Wikipedia REST/search APIs (no auth, not bot-blocked) to find the article,
+// then pulls the lead image + infobox photos from upload.wikimedia.org.
+async function wikiImages(hotelName: string): Promise<string[]> {
+  const out: string[] = [];
+  let title = '';
+  try {
+    const s = await fetchPage(`https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(hotelName + ' hotel')}&srnamespace=0&srlimit=1&format=json`);
+    title = (JSON.parse(s).query?.search?.[0]?.title) || '';
+  } catch {}
+  if (!title) return out;
+  // Reject obviously unrelated articles (must share a distinctive name token).
+  const tokens = nameTokens(hotelName);
+  const tlow = title.toLowerCase();
+  if (tokens.length > 0 && !tokens.some((tk) => tlow.includes(tk)) && !tlow.includes('hotel') && !tlow.includes('resort')) return out;
+  const slug = encodeURIComponent(title.replace(/ /g, '_'));
+  try {
+    const sum = await fetchPage(`https://en.wikipedia.org/api/rest_v1/page/summary/${slug}`);
+    const j = JSON.parse(sum);
+    if (j.originalimage?.source) out.push(j.originalimage.source);
+    if (j.thumbnail?.source && j.thumbnail.source !== j.originalimage?.source) out.push(j.thumbnail.source);
+  } catch {}
+  const html = await fetchPage(`https://en.wikipedia.org/wiki/${slug}`);
+  if (html) {
+    const imgs = extractImages(html, 'https://en.wikipedia.org/wiki/' + slug)
+      .filter((u) => /upload\.wikimedia\.org\/wikipedia\//i.test(u) && !out.includes(u));
+    out.push(...imgs);
+  }
+  return out;
+}
+
 export default async function (req) {
   try {
     const base44 = createClientFromRequest(req);
@@ -217,7 +256,7 @@ export default async function (req) {
 
     const list = uncached.map((h: any, i: number) => `${i + 1}. "${h.name}" — hotel in ${h.destination || ''}`).join('\n');
     const llm = await base44.asServiceRole.integrations.Core.InvokeLLM({
-      prompt: `For each hotel find up to 3 web pages with real photos of that EXACT hotel: (1) its official website home page, (2) its official gallery/photos page, (3) its TripAdvisor Hotel_Review page. Never return other hotels, "best hotels in city" lists, or booking sites. If unsure, omit the URL.\n\n${list}\n\nReturn JSON {"hotels":[{"name":"exactly as given","urls":["..."]}]}.`,
+      prompt: `For each hotel find up to 4 web pages with real photos of that EXACT hotel: (1) its official website home page, (2) its official gallery/photos page, (3) its English Wikipedia article page (https://en.wikipedia.org/wiki/...) if the hotel is notable enough to have one, (4) its TripAdvisor Hotel_Review page. Never return other hotels, "best hotels in city" lists, or booking-aggregator sites (booking.com, expedia, hotels.com, agoda). If unsure about a URL, omit it.\n\n${list}\n\nReturn JSON {"hotels":[{"name":"exactly as given","urls":["..."]}]}.`,
       add_context_from_internet: true,
       model: 'gemini_3_flash',
       response_json_schema: {
@@ -240,8 +279,11 @@ export default async function (req) {
 
     const scraped = await Promise.all(uncached.map(async (hotel: any) => {
       const candidates = (urlMap[normalize(hotel.name)] || []).slice(0, 3);
-      const lists = await Promise.all(candidates.map((u) => scrapeSite(u, hotel.name)));
-      const images = diversify(dedupe(lists.flat())).slice(0, MAX_IMAGES);
+      const [siteLists, wiki] = await Promise.all([
+        Promise.all(candidates.map((u) => scrapeSite(u, hotel.name))),
+        wikiImages(hotel.name),
+      ]);
+      const images = diversify(dedupe([...siteLists.flat(), ...wiki])).slice(0, MAX_IMAGES);
       return { hotel, images };
     }));
 

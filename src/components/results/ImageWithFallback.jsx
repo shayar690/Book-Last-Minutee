@@ -1,30 +1,29 @@
 import React, { useState, useEffect } from "react";
-import { Bed } from "lucide-react";
 
-// Displays a hotel image, or a clean branded placeholder (Bed icon on a neutral
-// background) when the URL is missing or fails to load. No generic/illustration
-// fallback images — the user wants only real photos of the actual hotel.
+// Displays a hotel photo. While the real photo is still loading (or if a URL
+// fails), it shows an animated warm shimmer — a clear "loading" state rather
+// than a dead gray box. No generic/illustration fallback images: only real
+// photos of the actual hotel (sourced by the hotelImages function).
 export default function ImageWithFallback({ src, alt, className }) {
   const [error, setError] = useState(false);
-  useEffect(() => { setError(false); }, [src]);
-  const showPlaceholder = !src || error;
-
-  if (showPlaceholder) {
-    return (
-      <div className={`${className || ""} bg-[#F5F5F5] flex items-center justify-center`}>
-        <Bed className="w-8 h-8 text-[#C5C5C5]" strokeWidth={1.5} />
-      </div>
-    );
-  }
+  const [loaded, setLoaded] = useState(false);
+  useEffect(() => { setError(false); setLoaded(false); }, [src]);
+  const showShimmer = !src || error || !loaded;
 
   return (
-    <img
-      src={src}
-      alt={alt}
-      className={className}
-      onError={() => setError(true)}
-      referrerPolicy="no-referrer"
-      loading="lazy"
-    />
+    <div className={`${className || ""} relative overflow-hidden bg-[#F7F4EE]`}>
+      {showShimmer && <div className="absolute inset-0 atlas-shimmer" />}
+      {src && !error && (
+        <img
+          src={src}
+          alt={alt}
+          className={`relative w-full h-full object-cover transition-opacity duration-300 ${loaded ? "opacity-100" : "opacity-0"}`}
+          onError={() => setError(true)}
+          onLoad={() => setLoaded(true)}
+          referrerPolicy="no-referrer"
+          loading="lazy"
+        />
+      )}
+    </div>
   );
 }

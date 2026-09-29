@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Star, MapPin, ChevronLeft, ChevronRight, Bed } from "lucide-react";
+import { Star, MapPin, ChevronLeft, ChevronRight } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import ImageWithFallback from "@/components/results/ImageWithFallback";
 
@@ -56,9 +56,7 @@ export default function HotelCard({ hotel, searchContext }) {
             )}
           </>
         ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <Bed className="w-8 h-8 text-[#C5C5C5]" strokeWidth={1.5} />
-          </div>
+          <ImageWithFallback src="" alt={hotel.name} className="w-full h-full" />
         )}
       </div>
       <div className="flex-1 min-w-0">

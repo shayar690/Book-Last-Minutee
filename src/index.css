@@ -69,6 +69,15 @@ input, textarea, [contenteditable="true"] {
 
 @layer utilities {
   .font-display { font-family: var(--font-display); }
+  .atlas-shimmer {
+    background: linear-gradient(100deg, #F2EDE3 8%, #FBF6EC 38%, #F2EDE3 68%);
+    background-size: 220% 100%;
+    animation: atlas-shimmer 1.4s ease-in-out infinite;
+  }
+  @keyframes atlas-shimmer {
+    0% { background-position: 120% 0; }
+    100% { background-position: -120% 0; }
+  }
   .text-gold { color: hsl(var(--gold)); }
   .bg-ink { background-color: hsl(var(--ink)); }
   .bg-ether { background-color: hsl(var(--ether)); }

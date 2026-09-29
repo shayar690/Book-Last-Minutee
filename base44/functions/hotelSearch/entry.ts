@@ -127,8 +127,8 @@ Descriptions should be in ${languageName}.`;
     // fallback images — the hotelImages function fetches real photos as a
     // background enhancement. If no valid images remain, the card shows a
     // clean placeholder until the real photos arrive.
-    // LLM-provided image URLs are unreliable (often other hotels' photos), so
-    // they are discarded. The hotelImages function supplies verified photos.
+    // LLM-provided image URLs are unreliable (hallucinated), so they are
+    // discarded. The hotelImages function supplies verified real photos.
     const enrichedHotels = hotels.map((hotel) => ({ ...hotel, images: [] }));
 
     return Response.json({ hotels: enrichedHotels, totalFound, batch });
