@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Bed } from "lucide-react";
 
 // Displays a hotel image, or a clean branded placeholder (Bed icon on a neutral
@@ -6,6 +6,7 @@ import { Bed } from "lucide-react";
 // fallback images — the user wants only real photos of the actual hotel.
 export default function ImageWithFallback({ src, alt, className }) {
   const [error, setError] = useState(false);
+  useEffect(() => { setError(false); }, [src]);
   const showPlaceholder = !src || error;
 
   if (showPlaceholder) {
@@ -22,6 +23,7 @@ export default function ImageWithFallback({ src, alt, className }) {
       alt={alt}
       className={className}
       onError={() => setError(true)}
+      referrerPolicy="no-referrer"
       loading="lazy"
     />
   );

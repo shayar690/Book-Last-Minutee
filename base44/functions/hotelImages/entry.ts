@@ -87,7 +87,91 @@ function filterByBrand(images: string[], hotelName: string): string[] {
     return true;
   });
   // Keep filtered only if it has enough images; otherwise fall back to unfiltered.
-  return filtered.length >= 2 ? filtered : images;
+  return diversify(dedupeImages(filtered.length >= 2 ? filtered : images));
+}
+
+// Identity of a photo regardless of CDN size/format variants.
+function photoKey(url: string): string {
+  try {
+    const u = new URL(url);
+    const segs = decodeURIComponent(u.pathname).split('/').filter(Boolean)
+      .filter((s) => !/^(big|original\w*|thumb\w*|\d+x\d+w?|w_.*|c_.*|h_.*|max\d+(x\d+)?|square\d+|\d+:\d+)$/i.test(s));
+    return segs.join('/').toLowerCase().replace(/\.(jpe?g|png|webp)$/i, '');
+  } catch { return url; }
+}
+
+function dedupeImages(images: string[]): string[] {
+  const seen = new Set<string>();
+  return images.filter((u) => {
+    const k = photoKey(u);
+    if (seen.has(k)) return false;
+    seen.add(k);
+    return true;
+  });
+}
+
+const CATEGORIES: [string, RegExp][] = [
+  ['pool', /pool|swim|lagoon|aquapark|water-?park/i],
+  ['beach', /beach|sea-?view|ocean|shore|coast/i],
+  ['spa', /\bspa\b|wellness|massage|sauna|hammam|jacuzzi/i],
+  ['gym', /gym|fitness|sport|tennis|golf/i],
+  ['lobby', /lobby|reception|entrance|lounge|hall/i],
+  ['restaurant', /restaurant|dining|breakfast|bar\b|cafe|buffet|kitchen|food/i],
+  ['view', /view|skyline|panoram|terrace|balcony|garden|sunset/i],
+  ['exterior', /exterior|facade|building|aerial|outside|hotel-front/i],
+  ['room', /room|suite|bed|bath|guest|bedroom/i],
+];
+const altByUrl = new Map<string, string>();
+
+function categoryOf(url: string): string {
+  const text = decodeURIComponent(url) + ' ' + (altByUrl.get(url) || '');
+  for (const [name, re] of CATEGORIES) if (re.test(text)) return name;
+  return 'other';
+}
+
+// Interleave categories so the gallery mixes pool, beach, lobby, spa, rooms…
+// instead of showing 10 room photos in a row. Rooms are capped at 3.
+function diversify(images: string[]): string[] {
+  const buckets = new Map<string, string[]>();
+  images.forEach((u) => {
+    const c = categoryOf(u);
+    if (!buckets.has(c)) buckets.set(c, []);
+    buckets.get(c)!.push(u);
+  });
+  const order = ['exterior', 'pool', 'beach', 'lobby', 'view', 'spa', 'restaurant', 'gym', 'other', 'room'];
+  const out: string[] = [];
+  let round = 0;
+  while (out.length < images.length) {
+    let added = false;
+    for (const c of order) {
+      const b = buckets.get(c);
+      if (!b || b.length <= round) continue;
+      if (c === 'room' && round >= 3) continue;
+      out.push(b[round]);
+      added = true;
+    }
+    if (!added) break;
+    round++;
+  }
+  // Any leftovers (extra rooms) go last.
+  images.forEach((u) => { if (!out.includes(u)) out.push(u); });
+  return out;
+}
+
+// Booking.com hotel page — the gallery images are bstatic.com URLs in the HTML.
+async function scrapeBooking(url: string): Promise<string[]> {
+  if (!url || !/booking\.com\/hotel\//i.test(url)) return [];
+  const html = await fetchPage(url);
+  if (!html) return [];
+  const found: string[] = [];
+  const re = /https:\/\/cf\.bstatic\.com\/xdata\/images\/hotel\/(?:max\d+(?:x\d+)?|square\d+)\/(\d+)\.jpg(\?[^"'\s\\<>]*)?/g;
+  let m;
+  while ((m = re.exec(html)) !== null) {
+    found.push(`https://cf.bstatic.com/xdata/images/hotel/max1024x768/${m[1]}.jpg${m[2] || ''}`);
+  }
+  const unique = dedupeImages(found).slice(0, 16);
+  const ok = await mapWithConcurrency(unique, validateImageUrl, MAX_CONCURRENT_VALIDATE);
+  return unique.filter((_, i) => ok[i]);
 }
 
 function extractImagesFromHtml(html: string, baseUrl: string): string[] {
@@ -121,6 +205,9 @@ function extractImagesFromHtml(html: string, baseUrl: string): string[] {
     }
 
     matches.push(src);
+    try {
+      altByUrl.set(new URL(src, baseUrl).href, altMatch ? altMatch[1] : '');
+    } catch {}
   }
 
   // Extract from srcset — URLs in srcset can contain commas (e.g., Cloudinary
@@ -301,7 +388,8 @@ export default async function(req) {
     const llmResult = await base44.asServiceRole.integrations.Core.InvokeLLM({
       prompt: `For each hotel below, find 2 website URLs that contain real photos of the hotel:
 1. The hotel's OWN official website (e.g., www.hotelname.com)
-2. A third-party page with hotel photos (e.g., a tourism site, travel blog, or review site — NOT booking.com, expedia.com, hotels.com, or tripadvisor.com)
+2. The hotel's TripAdvisor page (https://www.tripadvisor.com/Hotel_Review-...) or another page with a varied photo gallery (pool, beach, lobby, spa, rooms) — NOT booking.com, expedia.com or hotels.com
+3. A photo-gallery page of the hotel's official website if it exists
 
 Hotels:
 ${hotelList}
@@ -330,7 +418,7 @@ Return a JSON object with a "hotels" array. Each element has "name" (exactly as 
 
     const llmHotels = (llmResult && Array.isArray(llmResult.hotels)) ? llmResult.hotels : [];
 
-    const BOOKING_DOMAINS = ["booking.com", "expedia.com", "hotels.com", "tripadvisor.com"];
+    const BOOKING_DOMAINS = ["booking.com", "expedia.com", "hotels.com"];
     function isBookingSite(url: string): boolean {
       try {
         const host = new URL(url).hostname.toLowerCase();
@@ -351,12 +439,14 @@ Return a JSON object with a "hotels" array. Each element has "name" (exactly as 
     // first URL blocks scraping (e.g., Marriott/Hilton return 403).
     const scraped = await Promise.all(uncached.map(async (hotel) => {
       const candidates = urlMap[normalize(hotel.name)] || [];
-      const scrapeResults = await Promise.all(candidates.slice(0, 2).map(url => scrapeImages(url)));
-      for (const images of scrapeResults) {
-        if (images.length >= 2) return { hotel, key: hotelKey(hotel), images: filterByBrand(images, hotel.name) };
-      }
-      const best = scrapeResults.reduce((a, b) => a.length >= b.length ? a : b, []);
-      return { hotel, key: hotelKey(hotel), images: filterByBrand(best, hotel.name) };
+      // Booking.com + official site + TripAdvisor/other pages, all in parallel;
+      // merge everything, then dedupe and mix photo categories.
+      const scrapeResults = await Promise.all([
+        scrapeBooking(hotel.url || ''),
+        ...candidates.slice(0, 3).map(url => scrapeImages(url)),
+      ]);
+      const merged = scrapeResults.flat();
+      return { hotel, key: hotelKey(hotel), images: filterByBrand(merged, hotel.name).slice(0, 10) };
     }));
 
     // Step 4: Cache successful scrapes and merge into results.
