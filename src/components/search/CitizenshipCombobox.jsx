@@ -39,7 +39,7 @@ export default function CitizenshipCombobox({ label, placeholder, value, onChang
 
   return (
     <div ref={boxRef} className="relative flex flex-col gap-1 min-w-0 flex-1">
-      <label className="text-[15px] font-medium text-[#5a5a5a]">{label}</label>
+      <label className="text-[18px] font-medium text-[#5a5a5a]">{label}</label>
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}

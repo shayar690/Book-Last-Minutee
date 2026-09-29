@@ -25,7 +25,7 @@ const TABS = [
 function Field({ icon: Icon, label, placeholder, type = "text", flex = false }) {
   return (
     <div className={`flex flex-col gap-1 min-w-0 ${flex ? "flex-[1.6]" : "flex-1"}`}>
-      <label className="text-[14px] font-medium text-[#5a5a5a]">{label}</label>
+      <label className="text-[18px] font-medium text-[#5a5a5a]">{label}</label>
       <div className="flex items-center gap-2 px-3 h-12 rounded-lg bg-white border border-[#C5C5C5] focus-within:border-[#2D3035] transition-colors">
         <Icon className="w-4 h-4 text-[#7D7D7D] shrink-0" strokeWidth={1.5} />
         <input
@@ -63,7 +63,7 @@ function GuestsField({ t, mode = "rooms", onChange }) {
     : `${rooms} ${t("search.rooms")} · ${adults} ${t("search.adults")}`;
   return (
     <div className="relative flex flex-col gap-1 min-w-0 flex-1">
-      <label className="text-[14px] font-medium text-[#5a5a5a]">{label}</label>
+      <label className="text-[18px] font-medium text-[#5a5a5a]">{label}</label>
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}

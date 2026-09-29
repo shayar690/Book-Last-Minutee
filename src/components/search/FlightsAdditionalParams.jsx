@@ -30,7 +30,7 @@ function CabinDropdown({ t, value, onChange }) {
   const options = CABINS.map((c) => ({ value: c, label: t(`search.${c}`) }));
   return (
     <div className="relative flex flex-col gap-1 min-w-0 flex-1">
-      <label className="text-[15px] font-medium text-[#5a5a5a]">{t("search.cabinClass")}</label>
+      <label className="text-[18px] font-medium text-[#5a5a5a]">{t("search.cabinClass")}</label>
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -77,7 +77,7 @@ export default function FlightsAdditionalParams() {
     <div className="flex flex-col gap-4 pt-3">
       {/* Trip type */}
       <div className="flex flex-col gap-2">
-        <label className="text-[15px] font-medium text-[#5a5a5a]">{t("search.tripType")}</label>
+        <label className="text-[18px] font-medium text-[#5a5a5a]">{t("search.tripType")}</label>
         <div className="flex flex-col gap-1">
           {TRIP_TYPES.map(({ id, icon: Icon }) => (
             <button
@@ -115,7 +115,7 @@ export default function FlightsAdditionalParams() {
 
       {/* Baggage — multi-select chips */}
       <div className="flex flex-col gap-2">
-        <label className="text-[15px] font-medium text-[#5a5a5a]">{t("search.baggage")}</label>
+        <label className="text-[18px] font-medium text-[#5a5a5a]">{t("search.baggage")}</label>
         <div className="flex flex-wrap gap-2">
           {BAGGAGE.map((b) => (
             <Chip key={b} label={t(`search.${b}`)} active={baggage.includes(b)} onClick={() => toggleBag(b)} />

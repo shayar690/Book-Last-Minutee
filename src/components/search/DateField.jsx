@@ -16,7 +16,7 @@ export default function DateField({ label, value, placeholder, active, onClick, 
   };
   return (
     <div className={`flex flex-col gap-1 min-w-0 ${flex ? "flex-[1.6]" : "flex-1"}`}>
-      <label className="text-[14px] font-medium text-[#5a5a5a]">{label}</label>
+      <label className="text-[18px] font-medium text-[#5a5a5a]">{label}</label>
       <button
         type="button"
         onClick={onClick}

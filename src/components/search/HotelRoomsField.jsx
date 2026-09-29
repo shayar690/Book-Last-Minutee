@@ -65,7 +65,7 @@ export default function HotelRoomsField({ onChange }) {
 
   return (
     <div ref={containerRef} className="relative flex flex-col gap-1 min-w-0 flex-1">
-      <label className="text-[14px] font-medium text-[#5a5a5a]">{t("search.guests")}</label>
+      <label className="text-[18px] font-medium text-[#5a5a5a]">{t("search.guests")}</label>
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
