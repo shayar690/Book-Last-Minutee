@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Outlet, Link, useLocation } from "react-router-dom";
+import { Outlet, Link } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/AuthContext";
@@ -11,16 +11,16 @@ const LOGO_URL = "https://media.base44.com/images/public/6ab46eccdb257d593195428
 function LanguageSwitcher() {
   const { lang, setLang } = useI18n();
   return (
-    <div dir="ltr" className="inline-flex items-center rounded-full border border-white/25 overflow-hidden">
+    <div dir="ltr" className="inline-flex items-center rounded-full border-2 border-ink/15 overflow-hidden">
       <button
         onClick={() => setLang("en")}
-        className={`px-3 py-1.5 text-xs font-medium transition-colors ${lang === "en" ? "bg-white text-ink" : "text-white/80 hover:text-white"}`}
+        className={`px-5 py-2.5 text-base font-semibold transition-colors ${lang === "en" ? "bg-ink text-white" : "text-ink/70 hover:text-ink"}`}
       >
         English
       </button>
       <button
         onClick={() => setLang("he")}
-        className={`px-3 py-1.5 text-xs font-medium transition-colors ${lang === "he" ? "bg-white text-ink" : "text-white/80 hover:text-white"}`}
+        className={`px-5 py-2.5 text-base font-semibold transition-colors ${lang === "he" ? "bg-ink text-white" : "text-ink/70 hover:text-ink"}`}
       >
         עברית
       </button>
@@ -28,22 +28,22 @@ function LanguageSwitcher() {
   );
 }
 
-function AuthLinks({ scrolled }) {
+function AuthLinks() {
   const { t } = useI18n();
   const { isAuthenticated, logout } = useAuth();
-  const linkClass = `text-sm font-medium transition-colors ${scrolled ? "text-ink/75 hover:text-gold" : "text-white/85 hover:text-white"}`;
+  const linkClass = "text-lg font-semibold text-ink/75 hover:text-gold transition-colors";
   if (isAuthenticated) {
     return (
-      <div className="hidden sm:flex items-center gap-4">
+      <div className="hidden sm:flex items-center gap-6">
         <Link to="/bookings" className={linkClass}>{t("nav.myBookings")}</Link>
         <button onClick={() => logout()} className={linkClass}>{t("nav.logout")}</button>
       </div>
     );
   }
   return (
-    <div className="hidden sm:flex items-center gap-4">
+    <div className="hidden sm:flex items-center gap-6">
       <Link to="/login" className={linkClass}>{t("nav.login")}</Link>
-      <Link to="/register" className="hidden md:inline-flex items-center h-9 px-4 rounded-full border border-white/30 text-white text-sm font-medium hover:bg-white/10 transition">{t("nav.signup")}</Link>
+      <Link to="/register" className="hidden md:inline-flex items-center h-11 px-6 rounded-full border-2 border-ink/20 text-ink text-base font-semibold hover:bg-ink hover:text-white transition">{t("nav.signup")}</Link>
     </div>
   );
 }
@@ -51,16 +51,7 @@ function AuthLinks({ scrolled }) {
 function Header() {
   const { t } = useI18n();
   const { isAuthenticated, logout } = useAuth();
-  const location = useLocation();
-  const isHome = location.pathname === "/";
-  const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40);
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
 
   // Auto-logout after 10 minutes of inactivity (security & privacy).
   useEffect(() => {
@@ -79,10 +70,6 @@ function Header() {
     };
   }, [isAuthenticated, logout]);
 
-  // On non-home pages the header is always solid (dark text on glass background)
-  // so the logo and nav stay visible against light page backgrounds.
-  const solid = scrolled || !isHome;
-
   const links = [
     { label: t("nav.flights"), href: "#search" },
     { label: t("nav.hotels"), href: "#search" },
@@ -93,47 +80,48 @@ function Header() {
   ];
 
   return (
-    <header className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${solid ? "glass shadow-horizon py-3" : "py-5 bg-transparent"}`}>
-      <div className="max-w-7xl mx-auto px-6 lg:px-10 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <LanguageSwitcher />
-          <Link to="/" className="flex items-center">
-            <Image src={LOGO_URL} alt={t("brand.name")} className="h-11 sm:h-12 w-11 sm:w-12 rounded-xl shadow-sm" fittingType="fill" />
+    <header className="fixed top-0 inset-x-0 z-50 bg-white shadow-horizon py-4">
+      <div className="max-w-7xl mx-auto px-6 lg:px-10 flex items-center justify-between gap-6">
+        {/* Logo at the start — left in English (LTR), right in Hebrew (RTL) */}
+        <div className="flex items-center gap-5">
+          <Link to="/" className="flex items-center shrink-0">
+            <Image src={LOGO_URL} alt={t("brand.name")} className="h-16 sm:h-20 w-16 sm:w-20 rounded-2xl shadow-sm" fittingType="fill" />
           </Link>
+          <LanguageSwitcher />
         </div>
 
-        <nav className="hidden lg:flex items-center gap-2">
+        <nav className="hidden lg:flex items-center gap-3">
           {links.map((l) => (
-            <a key={l.label} href={l.href} className="px-3 py-1.5 rounded-full bg-white/90 text-gold text-sm font-medium hover:bg-white transition-colors">
+            <a key={l.label} href={l.href} className="px-5 py-2.5 rounded-full bg-white border-2 border-gold/40 text-gold text-lg font-semibold hover:bg-gold hover:text-white transition-colors">
               {l.label}
             </a>
           ))}
         </nav>
 
-        <div className="flex items-center gap-3">
-          <AuthLinks scrolled={solid} />
-          <button onClick={() => setOpen((v) => !v)} className={`lg:hidden ${solid ? "text-ink" : "text-white"}`}>
-            {open ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+        <div className="flex items-center gap-4">
+          <AuthLinks />
+          <button onClick={() => setOpen((v) => !v)} className="lg:hidden text-ink">
+            {open ? <X className="w-8 h-8" /> : <Menu className="w-8 h-8" />}
           </button>
         </div>
       </div>
 
       {open && (
-        <div className="lg:hidden glass mt-3 mx-4 rounded-2xl p-5 border border-mist">
-          <nav className="flex flex-col gap-4">
+        <div className="lg:hidden bg-white mt-3 mx-4 rounded-2xl p-6 border-2 border-mist shadow-horizon">
+          <nav className="flex flex-col gap-5">
             {links.map((l) => (
-              <a key={l.label} href={l.href} onClick={() => setOpen(false)} className="text-ink/80 font-medium">{l.label}</a>
+              <a key={l.label} href={l.href} onClick={() => setOpen(false)} className="text-ink/80 text-lg font-semibold">{l.label}</a>
             ))}
             <div className="h-px bg-mist my-1" />
             {isAuthenticated ? (
               <>
-                <Link to="/bookings" onClick={() => setOpen(false)} className="text-ink/80 font-medium">{t("nav.myBookings")}</Link>
-                <button onClick={() => { logout(); setOpen(false); }} className="text-start text-ink/80 font-medium">{t("nav.logout")}</button>
+                <Link to="/bookings" onClick={() => setOpen(false)} className="text-ink/80 text-lg font-semibold">{t("nav.myBookings")}</Link>
+                <button onClick={() => { logout(); setOpen(false); }} className="text-start text-ink/80 text-lg font-semibold">{t("nav.logout")}</button>
               </>
             ) : (
               <>
-                <Link to="/login" onClick={() => setOpen(false)} className="text-ink/80 font-medium">{t("nav.login")}</Link>
-                <Link to="/register" onClick={() => setOpen(false)} className="text-ink/80 font-medium">{t("nav.signup")}</Link>
+                <Link to="/login" onClick={() => setOpen(false)} className="text-ink/80 text-lg font-semibold">{t("nav.login")}</Link>
+                <Link to="/register" onClick={() => setOpen(false)} className="text-ink/80 text-lg font-semibold">{t("nav.signup")}</Link>
               </>
             )}
           </nav>
