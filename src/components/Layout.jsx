@@ -69,7 +69,7 @@ function AuthLinks() {
 }
 
 function Header() {
-  const { t, localePath } = useI18n();
+  const { t, localePath, dir } = useI18n();
   const { isAuthenticated, logout } = useAuth();
   const [open, setOpen] = useState(false);
 
@@ -104,7 +104,7 @@ function Header() {
       {/* Mobile: language switcher (left) · hamburger (center) · logo (right) */}
       <div dir="ltr" className="lg:hidden max-w-7xl mx-auto px-6 flex items-center justify-between">
         <LanguageSwitcher />
-        <button onClick={() => setOpen((v) => !v)} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-ink text-white text-base font-semibold">
+        <button onClick={() => setOpen((v) => !v)} dir={dir} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-ink text-white text-base font-semibold">
           {open ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           <span>{t("nav.menu")}</span>
         </button>
