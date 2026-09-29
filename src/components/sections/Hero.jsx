@@ -31,15 +31,18 @@ export default function Hero() {
           transition={{ duration: 0.9, ease: "easeOut" }}
           className="flex flex-col items-start gap-2 max-w-4xl"
         >
-          <h1 className="flex flex-col items-start text-[#2D3035] font-display text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.1]">
-            <span>{t("hero.title1")}</span>
-            <span>{t("hero.title2")}</span>
+          <h1 className="flex flex-col items-start text-[#2D3035] font-display font-bold leading-[1.1]">
+            <span className="whitespace-nowrap text-2xl sm:text-5xl lg:text-6xl">{t("hero.title1")}</span>
+            <span className="whitespace-nowrap text-2xl sm:text-5xl lg:text-6xl">{t("hero.title2")}</span>
           </h1>
           <div className="flex flex-col items-start">
             <p className="text-[#2D3035] text-base sm:text-lg font-bold">{t("hero.line1")}</p>
             <p className="text-[#2D3035] text-base sm:text-lg font-bold">{t("hero.line2")}</p>
           </div>
-          <p className="bg-[#F5D166] rounded-lg px-4 py-2 text-[#2D3035] text-2xl sm:text-3xl font-extrabold">{t("hero.line3")}</p>
+          <div className="bg-[#F5D166] rounded-lg px-4 py-2 text-[#2D3035] text-2xl sm:text-3xl font-extrabold flex flex-col items-start">
+            <span>{t("hero.line3a")}</span>
+            <span>{t("hero.line3b")}</span>
+          </div>
         </motion.div>
       </div>
 

@@ -163,6 +163,8 @@ const translations = {
     "hero.line1": "Found the hotel at a lower price? Send us the offer",
     "hero.line2": "and we'll give you a lower offer than the price you found.",
     "hero.line3": "No fine print. Try us now!",
+    "hero.line3a": "No fine print.",
+    "hero.line3b": "Try us now!",
     "hero.subtitle": "Found the same hotel at a lower price? Send us the offer and we'll give you a price 5% lower than what you found. No fine print. Try us now!",
 
     "destinations.title": "Featured Destinations",
@@ -393,6 +395,8 @@ const translations = {
     "hero.line1": "מצאתם את המלון במחיר נמוך יותר? שלחו לנו את ההצעה",
     "hero.line2": "ותקבלו מאיתנו הצעה נמוכה יותר מהמחיר שמצאתם.",
     "hero.line3": "בלי אותיות קטנות. נסו אותנו עכשיו!",
+    "hero.line3a": "בלי אותיות קטנות.",
+    "hero.line3b": "נסו אותנו עכשיו!",
     "hero.subtitle": "מצאתם את אותו המלון במחיר נמוך יותר? שלחו לנו את ההצעה ותקבלו מאיתנו מחיר הנמוך ב־5% מהמחיר שמצאתם. בלי אותיות קטנות. נסו אותנו עכשיו!",
 
     "destinations.title": "יעדים מומלצים",
