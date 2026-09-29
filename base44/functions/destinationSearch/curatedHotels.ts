@@ -401,20 +401,11 @@ export function searchCuratedHotels(query: string, limit = 12, lang = "en") {
     .sort((a, b) => b.s - a.s)
     .map((x) => x.c);
 
-  // --- Merge: hotels first, then cities ---
+  // --- Merge: cities first, then hotels ---
+  // Cities must come first so they aren't cut off by the result limit when
+  // many hotels in the same city match (e.g. "דו" → Dubai city + 30 hotels).
   const results: { label: string; lat: number; lon: number; result_type: string }[] = [];
   const seenKeys = new Set<string>();
-
-  for (const h of hotelMatches) {
-    const useHe = lang === "he" && h.name_he;
-    const label = useHe
-      ? [h.name_he, h.city_he || h.city, h.country_he || h.country].join(", ")
-      : [h.name, h.city, h.country].join(", ");
-    const key = label.toLowerCase();
-    if (seenKeys.has(key)) continue;
-    seenKeys.add(key);
-    results.push({ label, lat: h.lat, lon: h.lon, result_type: "hotel" });
-  }
 
   for (const c of cityMatches) {
     const useHe = lang === "he" && c.city_he;
@@ -425,6 +416,17 @@ export function searchCuratedHotels(query: string, limit = 12, lang = "en") {
     if (seenKeys.has(key)) continue;
     seenKeys.add(key);
     results.push({ label, lat: c.lat, lon: c.lon, result_type: "city" });
+  }
+
+  for (const h of hotelMatches) {
+    const useHe = lang === "he" && h.name_he;
+    const label = useHe
+      ? [h.name_he, h.city_he || h.city, h.country_he || h.country].join(", ")
+      : [h.name, h.city, h.country].join(", ");
+    const key = label.toLowerCase();
+    if (seenKeys.has(key)) continue;
+    seenKeys.add(key);
+    results.push({ label, lat: h.lat, lon: h.lon, result_type: "hotel" });
   }
 
   return results.slice(0, limit);
