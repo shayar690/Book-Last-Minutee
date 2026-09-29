@@ -3,6 +3,8 @@
 // Full details (room types, guest reviews, policies) are fetched separately
 // by the hotelDetail function when the user opens a hotel page.
 // This split allows the search to return 20 hotels fast.
+// Real images are fetched by the hotelImages function (LLM web search) as a
+// background enhancement — no generic/illustration fallbacks here.
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.49';
 
 const MEAL_NAMES: Record<string, string> = {
@@ -12,44 +14,6 @@ const MEAL_NAMES: Record<string, string> = {
   fb: "full board (breakfast, lunch, and dinner)",
   ai: "all inclusive (all meals and drinks)",
 };
-
-// Fallback hotel images — high-quality travel/hotel photos from Unsplash.
-// Diverse set so different hotels get different images (indexed by hotel-name hash).
-const FALLBACK_IMAGES = [
-  "https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=800&q=80",
-  "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=800&q=80",
-  "https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=800&q=80",
-  "https://images.unsplash.com/photo-1549294413-26f195200c16?w=800&q=80",
-  "https://images.unsplash.com/photo-1629140727571-9b5c6f6267b4?w=800&q=80",
-  "https://images.unsplash.com/photo-1584132967334-10e028bd69f7?w=800&q=80",
-  "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800&q=80",
-  "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=800&q=80",
-  "https://images.unsplash.com/photo-1455587734955-081b22074882?w=800&q=80",
-  "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800&q=80",
-  "https://images.unsplash.com/photo-1496417263034-38ec4f0b665a?w=800&q=80",
-  "https://images.unsplash.com/photo-1571003123894-1f5884c9a3d0?w=800&q=80",
-  "https://images.unsplash.com/photo-1568084680786-a84f91d115c9?w=800&q=80",
-  "https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=800&q=80",
-  "https://images.unsplash.com/photo-1535827841776-24afc1e128ac?w=800&q=80",
-  "https://images.unsplash.com/photo-1566073761252-9b4c8f6f6267?w=800&q=80",
-  "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800&q=80",
-  "https://images.unsplash.com/photo-1551918120-9739cb380c18?w=800&q=80",
-  "https://images.unsplash.com/photo-1590490360182-c33d57733427?w=800&q=80",
-  "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&q=80",
-  "https://images.unsplash.com/photo-1551105378-78e609c9c5a4?w=800&q=80",
-  "https://images.unsplash.com/photo-1517840901100-8179e982acb7?w=800&q=80",
-  "https://images.unsplash.com/photo-144501998305998d9bcc6c3a6c5f5e30?w=800&q=80",
-];
-
-// Simple deterministic string hash — same hotel name always maps to the same images.
-function hashString(str: string): number {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    hash = ((hash << 5) - hash) + str.charCodeAt(i);
-    hash |= 0;
-  }
-  return Math.abs(hash);
-}
 
 export default async function(req) {
   try {
@@ -160,10 +124,11 @@ Descriptions should be in ${languageName}.`;
       ? result.totalFound
       : hotels.length;
 
-    // Use real images from the LLM if available; fall back to generic Unsplash
-    // images only when the LLM didn't return any image URLs for a hotel.
-    const enrichedHotels = hotels.map((hotel, idx) => {
-      // Filter out invalid image URLs — page URLs, non-http, etc.
+    // Filter out invalid image URLs (page URLs, non-http, etc.). No generic
+    // fallback images — the hotelImages function fetches real photos as a
+    // background enhancement. If no valid images remain, the card shows a
+    // clean placeholder until the real photos arrive.
+    const enrichedHotels = hotels.map((hotel) => {
       if (hotel.images && hotel.images.length > 0) {
         hotel.images = hotel.images.filter(u =>
           u && (u.startsWith("http://") || u.startsWith("https://")) &&
@@ -171,12 +136,6 @@ Descriptions should be in ${languageName}.`;
           !u.includes("hotels.com/") && !u.includes("tripadvisor.com/") &&
           !u.includes("booking.com/Hotel/")
         ).slice(0, 10);
-      }
-      // Assign a single unique fallback if no valid images remain — one per hotel
-      // prevents duplicate images across the results list.
-      if (!hotel.images || hotel.images.length === 0) {
-        const fallbackIdx = (hashString(hotel.name || `hotel-${idx}`) + idx * 7) % FALLBACK_IMAGES.length;
-        hotel.images = [FALLBACK_IMAGES[fallbackIdx]];
       }
       return hotel;
     });

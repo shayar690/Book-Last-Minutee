@@ -16,8 +16,8 @@ export default function HotelDetail() {
   const [details, setDetails] = useState(null);
   const [scrapedImages, setScrapedImages] = useState(null);
   const [loadingDetails, setLoadingDetails] = useState(true);
-  const baseImages = hotel?.images || (hotel?.image ? [hotel.image] : []);
-  const images = scrapedImages?.length ? scrapedImages : (details?.images?.length ? details.images : baseImages);
+  const baseImages = (hotel?.images || (hotel?.image ? [hotel.image] : [])).filter(Boolean);
+  const images = (scrapedImages?.length ? scrapedImages : (details?.images?.length ? details.images : baseImages)).filter(Boolean);
   const sym = hotel?.currency === "ILS" ? "₪" : "$";
 
   useEffect(() => {

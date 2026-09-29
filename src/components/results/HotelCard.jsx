@@ -9,7 +9,7 @@ export default function HotelCard({ hotel, searchContext }) {
   const navigate = useNavigate();
   const scrollRef = useRef(null);
   const [activeImg, setActiveImg] = useState(0);
-  const images = hotel.images || (hotel.image ? [hotel.image] : []);
+  const images = (hotel.images || (hotel.image ? [hotel.image] : [])).filter(Boolean);
   const sym = hotel.currency === "ILS" ? "₪" : "$";
 
   const scroll = (dir) => {

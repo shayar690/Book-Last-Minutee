@@ -42,9 +42,10 @@ export default function HotelResults() {
     return hotels.map((h) => {
       const key = h.url || h.name;
       const scraped = realImages[key];
+      // Use ONLY real scraped images when available — don't mix in potentially-
+      // wrong LLM images. If scraping returned nothing, keep the original images.
       if (scraped && scraped.length > 0) {
-        const merged = [...new Set([...scraped, ...(h.images || [])])].slice(0, 10);
-        return { ...h, images: merged };
+        return { ...h, images: scraped.slice(0, 10) };
       }
       return h;
     });
@@ -171,7 +172,20 @@ export default function HotelResults() {
     })
       .then((res) => {
         const results = res.data?.results || {};
-        if (Object.keys(results).length > 0) setRealImages((prev) => ({ ...prev, ...results }));
+        if (Object.keys(results).length > 0) {
+          setRealImages((prev) => ({ ...prev, ...results }));
+          // Update cache so back-navigation shows real images immediately
+          const cached = hotelCache.get(searchKey);
+          if (cached) {
+            const updatedHotels = cached.hotels.map((h) => {
+              const key = h.url || h.name;
+              const scraped = results[key];
+              if (scraped && scraped.length > 0) return { ...h, images: scraped.slice(0, 10) };
+              return h;
+            });
+            hotelCache.set(searchKey, { ...cached, hotels: updatedHotels });
+          }
+        }
       })
       .catch(() => {});
   }, [hotels, loading, destination]);
