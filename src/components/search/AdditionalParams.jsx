@@ -131,7 +131,7 @@ export default function AdditionalParams({ onChange }) {
           <button
             type="button"
             onClick={() => setFreeCancel((v) => !v)}
-            className="flex items-center gap-2 h-12 px-4 rounded-lg bg-white border border-[#C5C5C5] hover:border-[#2D3035] transition-colors w-auto sm:w-full"
+            className="flex items-center gap-2 h-10 px-4 rounded-lg bg-white border border-[#C5C5C5] hover:border-[#2D3035] transition-colors w-auto sm:w-full"
           >
             <span
               className="w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-colors"

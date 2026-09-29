@@ -320,7 +320,7 @@ const translations = {
     "search.lateCheckout": "צ'ק-אאוט מאוחר",
     "search.selectTime": "בחר שעה",
     "search.freeCancellation": "ביטול ללא עלות",
-    "search.requestOnlyNote": "בקשות לצ'ק-אין מוקדם או צ'ק אאוט- מאוחר נתונות לשיקול דעתו של המלון וכפופות לזמינות.",
+    "search.requestOnlyNote": "בקשות לצ'ק-אין מוקדם או צ'ק-אאוט מאוחר נתונות לשיקול דעתו של המלון וכפופות לזמינות.",
     "search.addDate": "הוסף תאריך",
     "search.departureDate": "תאריך יציאה",
     "search.returnDate": "תאריך חזרה",
