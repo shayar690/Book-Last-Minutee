@@ -115,13 +115,15 @@ export default function DatePickerModal({ open, mode, checkIn, checkOut, active,
                       <div className="grid grid-cols-7 gap-y-1">
                         {cells.map((c, ci) => {
                           if (!c) return <div key={ci} />;
-                          const isPast = c < minDate;
+                          const isTooOld = c < minDate;
+                          const isPast = c < today;
                           const isFuture = c > maxDate;
                           const disabled = isPast || isFuture;
                           const isStart = sameDay(c, pickIn);
                           const isEnd = sameDay(c, pickOut);
                           const inRange = between(c, pickIn, pickOut);
                           const selected = isStart || isEnd;
+                          if (isTooOld) return <div key={ci} className="aspect-square" />;
                           return (
                             <div key={ci} className="relative flex justify-center">
                               {inRange && <div className="absolute inset-y-1 inset-x-0 bg-[#F5D166]/30 rounded-full" />}
