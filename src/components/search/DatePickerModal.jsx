@@ -107,7 +107,7 @@ export default function DatePickerModal({ open, mode, checkIn, checkOut, active,
                   return (
                     <div key={mi} className="pt-2 min-w-0">
                       <div className="font-semibold text-[#2D3035] text-base mb-2 capitalize text-center">{name}</div>
-                      <div className="grid grid-cols-7 mb-1">
+                      <div className="grid grid-cols-7 mb-1 sticky top-0 bg-white z-10 py-1">
                         {DAY_LABELS[lang].map((d, i) => (
                           <div key={i} className="text-center text-[11px] font-medium text-[#9a9a9a]">{d}</div>
                         ))}
