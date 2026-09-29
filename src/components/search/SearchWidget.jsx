@@ -278,7 +278,17 @@ export default function SearchWidget() {
               }`}
             >
               <Icon className="w-4 h-4" strokeWidth={1.5} />
-              {showComingSoon ? t("tab.comingSoon") : t(`tab.${tab.id}`)}
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.span
+                  key={showComingSoon ? "comingSoon" : tab.id}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.35, ease: "easeInOut" }}
+                >
+                  {showComingSoon ? t("tab.comingSoon") : t(`tab.${tab.id}`)}
+                </motion.span>
+              </AnimatePresence>
             </button>
           );
         })}

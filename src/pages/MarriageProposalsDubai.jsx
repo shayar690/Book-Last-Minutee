@@ -83,7 +83,7 @@ const STEPS = [
 ];
 
 export default function MarriageProposalsDubai() {
-  const { lang, dir } = useI18n();
+  const { lang, dir, localePath } = useI18n();
   const he = lang === "he";
 
   const c = (key) => (he ? {
@@ -138,7 +138,7 @@ export default function MarriageProposalsDubai() {
                 {c("cta")}
                 <ArrowRight className="w-4 h-4 rtl:rotate-180" strokeWidth={2} />
               </a>
-              <Link to="/" className="inline-flex items-center px-6 h-12 rounded-lg border border-white/20 text-white/80 text-sm hover:bg-white/10 transition">
+              <Link to={localePath("/")} className="inline-flex items-center px-6 h-12 rounded-lg border border-white/20 text-white/80 text-sm hover:bg-white/10 transition">
                 {c("back")}
               </Link>
             </div>
