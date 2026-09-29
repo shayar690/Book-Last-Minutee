@@ -157,9 +157,9 @@ const translations = {
     "hotel.loadingDetails": "Loading hotel details...",
 
     "hero.badge": "Live guaranteed pricing",
-    "hero.title": "We guarantee the best price!",
+    "hero.title": "We guarantee the lowest price!",
     "hero.title1": "We guarantee",
-    "hero.title2": "the best price!",
+    "hero.title2": "the lowest price!",
     "hero.line1": "Found the hotel at a lower price? Send us the offer",
     "hero.line2": "and we'll give you a lower offer than the price you found.",
     "hero.line3": "No fine print. Try us now!",
@@ -389,9 +389,9 @@ const translations = {
     "hotel.loadingDetails": "טוען פרטי מלון...",
 
     "hero.badge": "מחיר חי ומובטח",
-    "hero.title": "מתחייבים למחיר הטוב ביותר!",
+    "hero.title": "מתחייבים למחיר הנמוך ביותר!",
     "hero.title1": "מתחייבים למחיר",
-    "hero.title2": "הטוב ביותר!",
+    "hero.title2": "הנמוך ביותר!",
     "hero.line1": "מצאתם את המלון במחיר נמוך יותר? שלחו לנו את ההצעה",
     "hero.line2": "ותקבלו מאיתנו הצעה נמוכה יותר מהמחיר שמצאתם.",
     "hero.line3": "בלי אותיות קטנות. נסו אותנו עכשיו!",

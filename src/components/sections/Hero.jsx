@@ -31,9 +31,8 @@ export default function Hero() {
           transition={{ duration: 0.9, ease: "easeOut" }}
           className="flex flex-col items-start gap-2 max-w-4xl"
         >
-          <h1 className="flex flex-col items-start text-[#2D3035] font-display font-bold leading-[1.1]">
-            <span className="whitespace-nowrap text-2xl sm:text-5xl lg:text-6xl">{t("hero.title1")}</span>
-            <span className="whitespace-nowrap text-2xl sm:text-5xl lg:text-6xl">{t("hero.title2")}</span>
+          <h1 className="text-[#2D3035] font-display font-bold leading-[1.1] whitespace-nowrap text-xl sm:text-5xl lg:text-6xl">
+            {t("hero.title1")} {t("hero.title2")}
           </h1>
           <div className="flex flex-col items-start">
             <p className="text-[#2D3035] text-base sm:text-lg font-bold">{t("hero.line1")}</p>
