@@ -25,7 +25,7 @@ function Chip({ label, active, onClick }) {
     <button
       type="button"
       onClick={onClick}
-      className={`px-3.5 h-10 rounded-lg text-base font-medium border transition-colors whitespace-nowrap ${
+      className={`px-3 h-9 rounded-lg text-sm font-medium border transition-colors whitespace-nowrap ${
         active ? "bg-[#2D3035] text-white border-[#2D3035]" : "bg-white text-[#2D3035] border-[#C5C5C5] hover:border-[#2D3035]"
       }`}
     >
@@ -49,7 +49,7 @@ function Dropdown({ label, placeholder, value, onChange, options, icon: Icon, no
 
   return (
     <div className="flex flex-col gap-1 min-w-0 flex-1">
-      <label className="text-[15px] font-medium text-[#5a5a5a]">{label}</label>
+      <label className="text-[13px] font-medium text-[#5a5a5a]">{label}</label>
       <div className="relative">
         <button
           ref={btnRef}
@@ -105,55 +105,37 @@ export default function AdditionalParams({ onChange }) {
   const lateOptions = LATE_TIMES.map((tm) => ({ value: tm, label: tm }));
 
   return (
-    <div className="flex flex-col gap-4 pt-3">
-      {/* Free cancellation — top, full width, green check aligned with text */}
-      <button
-        type="button"
-        onClick={() => setFreeCancel((v) => !v)}
-        className="flex items-center gap-2 h-12 px-4 rounded-lg bg-white border border-[#C5C5C5] hover:border-[#2D3035] transition-colors w-full sm:w-fit"
-      >
-        <span
-          className="w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-colors"
-          style={{ backgroundColor: freeCancel ? GREEN : "transparent", borderColor: freeCancel ? GREEN : "#C5C5C5" }}
-        >
-          {freeCancel && <Check className="w-3.5 h-3.5 text-white" strokeWidth={3.5} />}
-        </span>
-        <span className="text-base font-medium text-[#2D3035] leading-5 translate-y-[1px]">{t("search.freeCancellation")}</span>
-      </button>
-
-      {/* Star rating */}
-      <div className="flex flex-col gap-2">
-        <label className="text-[15px] font-medium text-[#5a5a5a]">{t("search.starRating")}</label>
-        <div className="flex flex-wrap gap-2">
-          {STARS.map((s) => (
-            <Chip key={s} label={t(`search.stars.${s}`)} active={stars === s} onClick={() => setStars(stars === s ? "" : s)} />
-          ))}
+    <div className="flex flex-col gap-3 pt-3">
+      {/* Row 1: Star rating + Meal plan — compact, side by side */}
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-5">
+        <div className="flex flex-col gap-1.5 min-w-0">
+          <label className="text-[13px] font-medium text-[#5a5a5a]">{t("search.starRating")}</label>
+          <div className="flex flex-wrap gap-1.5">
+            {STARS.map((s) => (
+              <Chip key={s} label={t(`search.stars.${s}`)} active={stars === s} onClick={() => setStars(stars === s ? "" : s)} />
+            ))}
+          </div>
+        </div>
+        <div className="flex flex-col gap-1.5 min-w-0">
+          <label className="text-[13px] font-medium text-[#5a5a5a]">{t("search.mealPlan")}</label>
+          <div className="flex flex-wrap gap-1.5">
+            {MEALS.map((m) => (
+              <Chip key={m} label={t(`search.meal.${m}`)} active={meal === m} onClick={() => setMeal(meal === m ? "" : m)} />
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Meal plan / pension basis */}
-      <div className="flex flex-col gap-2">
-        <label className="text-[15px] font-medium text-[#5a5a5a]">{t("search.mealPlan")}</label>
-        <div className="flex flex-wrap gap-2">
-          {MEALS.map((m) => (
-            <Chip key={m} label={t(`search.meal.${m}`)} active={meal === m} onClick={() => setMeal(meal === m ? "" : m)} />
-          ))}
-        </div>
-      </div>
-
-      {/* Early check-in + Late check-out */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="flex flex-col gap-1 min-w-0 flex-1">
-          <Dropdown
-            label={t("search.earlyCheckin")}
-            placeholder={t("search.selectTime")}
-            value={earlyIn}
-            onChange={setEarlyIn}
-            options={earlyOptions}
-            icon={Clock}
-          />
-          <p className="hidden sm:block text-[14px] leading-relaxed text-[#5a5a5a] mt-1 font-medium whitespace-pre-line">{t("search.requestOnlyNote")}</p>
-        </div>
+      {/* Row 2: Early check-in + Late check-out + Free cancellation — one row */}
+      <div className="flex flex-col sm:flex-row gap-3 sm:items-end">
+        <Dropdown
+          label={t("search.earlyCheckin")}
+          placeholder={t("search.selectTime")}
+          value={earlyIn}
+          onChange={setEarlyIn}
+          options={earlyOptions}
+          icon={Clock}
+        />
         <Dropdown
           label={t("search.lateCheckout")}
           placeholder={t("search.selectTime")}
@@ -162,8 +144,22 @@ export default function AdditionalParams({ onChange }) {
           options={lateOptions}
           icon={Clock}
         />
+        <button
+          type="button"
+          onClick={() => setFreeCancel((v) => !v)}
+          className="flex items-center gap-2 h-12 px-4 rounded-lg bg-white border border-[#C5C5C5] hover:border-[#2D3035] transition-colors w-full sm:w-fit shrink-0"
+        >
+          <span
+            className="w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-colors"
+            style={{ backgroundColor: freeCancel ? GREEN : "transparent", borderColor: freeCancel ? GREEN : "#C5C5C5" }}
+          >
+            {freeCancel && <Check className="w-3.5 h-3.5 text-white" strokeWidth={3.5} />}
+          </span>
+          <span className="text-base font-medium text-[#2D3035] leading-5 translate-y-[1px]">{t("search.freeCancellation")}</span>
+        </button>
       </div>
-      <p className="sm:hidden text-[14px] leading-relaxed text-[#5a5a5a] -mt-1 font-medium whitespace-pre-line">{t("search.requestOnlyNote")}</p>
+
+      <p className="text-[13px] leading-relaxed text-[#5a5a5a] font-medium whitespace-pre-line">{t("search.requestOnlyNote")}</p>
     </div>
   );
 }

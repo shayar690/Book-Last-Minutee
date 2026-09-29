@@ -156,7 +156,7 @@ export default function SearchWidget() {
   const { toast } = useToast();
   const [active, setActive] = useState("hotels");
   const [searching, setSearching] = useState(false);
-  const [showParams, setShowParams] = useState(false);
+  const [showParams, setShowParams] = useState(true);
   const [comingSoonClicked, setComingSoonClicked] = useState(new Set());
   // Tracks the previous "coming soon" set so we can fade ONLY when a tab
   // reverts back to its original label (not when it first turns red).
