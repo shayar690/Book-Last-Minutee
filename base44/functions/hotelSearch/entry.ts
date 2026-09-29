@@ -69,8 +69,12 @@ export default async function(req) {
     const currencyName = lang === "he" ? "Israeli Shekels (ILS)" : "USD";
 
     const filters: string[] = [];
-    if (stars && stars !== "none") filters.push(`Only ${stars}-star hotels`);
-    if (meal && MEAL_NAMES[meal]) filters.push(`Include ${MEAL_NAMES[meal]} meal plan in the rate`);
+    const starList = String(stars || "").split(",").map((s) => s.trim()).filter((s) => s && s !== "none");
+    if (starList.length === 1) filters.push(`Only ${starList[0]}-star hotels`);
+    else if (starList.length > 1) filters.push(`Only hotels with ${starList.join(", ")} stars`);
+    const mealList = String(meal || "").split(",").map((m) => m.trim()).filter((m) => m && MEAL_NAMES[m]);
+    if (mealList.length === 1) filters.push(`Include ${MEAL_NAMES[mealList[0]]} meal plan in the rate`);
+    else if (mealList.length > 1) filters.push(`Include one of these meal plans in the rate: ${mealList.map((m) => MEAL_NAMES[m]).join(", ")}`);
     if (earlyIn) filters.push(`Early check-in requested at ${earlyIn}`);
     if (lateOut) filters.push(`Late check-out requested at ${lateOut}`);
     if (freeCancel) filters.push(`Only hotels with free cancellation`);

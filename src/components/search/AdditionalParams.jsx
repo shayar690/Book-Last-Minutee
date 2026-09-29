@@ -91,8 +91,8 @@ function Dropdown({ label, placeholder, value, onChange, options, icon: Icon, no
 
 export default function AdditionalParams({ onChange }) {
   const { t } = useI18n();
-  const [stars, setStars] = useState("");
-  const [meal, setMeal] = useState("");
+  const [stars, setStars] = useState([]);
+  const [meal, setMeal] = useState([]);
   const [earlyIn, setEarlyIn] = useState("");
   const [lateOut, setLateOut] = useState("");
   const [freeCancel, setFreeCancel] = useState(false);
@@ -129,7 +129,7 @@ export default function AdditionalParams({ onChange }) {
           <label className="text-[18px] font-medium text-[#5a5a5a]">{t("search.mealPlan")}</label>
           <div className="flex flex-nowrap justify-start gap-0.5 sm:gap-1.5">
             {MEALS.map((m) => (
-              <Chip key={m} label={t(`search.meal.${m}`)} active={meal === m} onClick={() => setMeal(meal === m ? "" : m)} />
+              <Chip key={m} label={t(`search.meal.${m}`)} active={meal.includes(m)} onClick={() => setMeal(meal.includes(m) ? meal.filter((x) => x !== m) : [...meal, m])} />
             ))}
           </div>
         </div>
@@ -138,7 +138,7 @@ export default function AdditionalParams({ onChange }) {
           <label className="text-[18px] font-medium text-[#5a5a5a]">{t("search.starRating")}</label>
           <div className="flex flex-nowrap justify-start gap-0.5 sm:gap-1.5">
             {STARS.map((s) => (
-              <Chip key={s} label={t(`search.stars.${s}`)} active={stars === s} onClick={() => setStars(stars === s ? "" : s)} />
+              <Chip key={s} label={t(`search.stars.${s}`)} active={stars.includes(s)} onClick={() => setStars(stars.includes(s) ? stars.filter((x) => x !== s) : [...stars, s])} />
             ))}
           </div>
         </div>
