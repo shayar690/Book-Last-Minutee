@@ -95,9 +95,9 @@ export default function AutocompleteField({ label, placeholder, flex = false, fi
                 type="button"
                 onMouseEnter={() => setActive(i)}
                 onClick={() => pick(r)}
-                className={`w-full text-start px-3 py-2.5 flex items-start gap-2 transition-colors ${active === i ? "bg-[#FFFAD9]" : "hover:bg-[#FFFAD9]"}`}
+                className={`w-full text-start px-3 py-2.5 flex items-center gap-2 transition-colors ${active === i ? "bg-[#FFFAD9]" : "hover:bg-[#FFFAD9]"}`}
               >
-                <Icon className="w-4 h-4 text-[#7D7D7D] shrink-0 mt-0.5" strokeWidth={1.5} />
+                <Icon className="w-4 h-4 text-[#7D7D7D] shrink-0" strokeWidth={1.5} />
                 <span className="min-w-0">
                   <span className="block text-base text-[#2D3035] truncate">{primary}</span>
                   {secondary && <span className="block text-[13px] text-[#7D7D7D] truncate">{secondary}</span>}
