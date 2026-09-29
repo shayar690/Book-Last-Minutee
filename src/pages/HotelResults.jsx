@@ -22,6 +22,9 @@ export default function HotelResults() {
   const [hasMore, setHasMore] = useState(true);
   const [batchNum, setBatchNum] = useState(1);
   const [filterQuery, setFilterQuery] = useState("");
+  // Bumped whenever we want to force a fresh search (e.g. auto-retry after the
+  // mobile browser killed the in-flight request while the tab was backgrounded).
+  const [retryCount, setRetryCount] = useState(0);
 
   const sortedHotels = useMemo(() => {
     const arr = [...hotels];
@@ -102,7 +105,22 @@ export default function HotelResults() {
       })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
-  }, [searchKey]);
+  }, [searchKey, retryCount]);
+
+  // Mobile browsers suspend backgrounded tabs and can abort the in-flight
+  // search request, leaving a dead "Network Error". When the user returns to
+  // the app, automatically re-run the search if it died with no results.
+  useEffect(() => {
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") {
+        if (error && hotels.length === 0 && !loading) {
+          setRetryCount((c) => c + 1);
+        }
+      }
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => document.removeEventListener("visibilitychange", onVisibility);
+  }, [error, hotels.length, loading]);
 
   // Load more — user-triggered batch 2+.
   const loadMore = () => {
