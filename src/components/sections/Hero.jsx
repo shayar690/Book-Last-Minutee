@@ -29,12 +29,14 @@ export default function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, ease: "easeOut" }}
-          className="w-fit max-w-2xl bg-white rounded-xl px-4 py-3 shadow-horizon"
+          className="flex flex-col items-start gap-2 max-w-4xl"
         >
-          <h1 className="text-[#F5D166] font-display text-5xl sm:text-6xl lg:text-7xl font-bold leading-[1.05]">
+          <h1 className="bg-white rounded-lg px-4 py-2 shadow-horizon text-[#F5D166] font-display text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.1]">
             {t("hero.title")}
           </h1>
-          <p className="mt-3 text-[#2D3035] text-lg max-w-xl font-bold">{t("hero.subtitle")}</p>
+          <p className="bg-white rounded-lg px-4 py-1.5 shadow-horizon text-[#2D3035] text-base sm:text-lg font-bold">{t("hero.line1")}</p>
+          <p className="bg-white rounded-lg px-4 py-1.5 shadow-horizon text-[#2D3035] text-base sm:text-lg font-bold">{t("hero.line2")}</p>
+          <p className="bg-white rounded-lg px-4 py-2 shadow-horizon text-[#2D3035] text-2xl sm:text-3xl font-extrabold">{t("hero.line3")}</p>
         </motion.div>
       </div>
 
