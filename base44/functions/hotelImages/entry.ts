@@ -229,7 +229,57 @@ async function scrapeSite(url: string, hotelName: string): Promise<string[]> {
 // direct scraping (Atlantis, JW Marriott Marquis, etc.). Uses the public
 // Wikipedia REST/search APIs (no auth, not bot-blocked) to find the article,
 // then pulls the lead image + infobox photos from upload.wikimedia.org.
-async function wikiImages(hotelName: string): Promise<string[]> {
+// Bing image search — returns real photos (Booking.com / TripAdvisor / hotel
+// sites CDNs) for the hotel. Several queries run in parallel for variety.
+async function bingImages(hotelName: string, destination: string): Promise<string[]> {
+  // Bing is very sensitive to phrasing, so several variants run in parallel and
+  // their results are merged ("Citymax Hotel Bur Dubai" works where
+  // "Citymax Bur Dubai hotel" returns anime art).
+  const words = hotelName.trim().split(/\s+/);
+  const hasHotel = /hotel|resort|inn|suites/i.test(hotelName);
+  const withDest = destination && !hotelName.toLowerCase().includes(destination.toLowerCase()) ? `${hotelName} ${destination}` : hotelName;
+  const queries = [...new Set([
+    hasHotel ? hotelName : [words[0], 'Hotel', ...words.slice(1)].join(' '),
+    hasHotel ? withDest : `Hotel ${hotelName}`,
+    withDest,
+    hasHotel ? `${withDest} photos` : `${[words[0], 'Hotel', ...words.slice(1)].join(' ')} ${destination}`.trim(),
+  ])];
+  const trusted = /bstatic\.com|tripadvisor\.com|travelapi\.com|agoda\.net|mmtcdn\.com|hotelimages|cdn-zen/i;
+  const destWords = new Set(destination.toLowerCase().split(/[^\p{L}\p{N}]+/u).filter(Boolean));
+  const tokens = nameTokens(hotelName).filter((tk) => !destWords.has(tk) && tk.length > 2);
+  // Keep only photos from Booking/TripAdvisor-type CDNs, or whose URL mentions the hotel's name.
+  const relevant = (list: string[]) => list.filter((u) => {
+    if (!/^https?:/i.test(u) || !/\.(?:jpe?g|png|webp)/i.test(u) || NON_PHOTO_RE.test(u) || BORING_RE.test(u)) return false;
+    if (trusted.test(u)) return true;
+    const low = u.toLowerCase();
+    return tokens.length > 0 && tokens.every((tk) => low.includes(tk));
+  });
+  const parse = (html: string) => [...html.matchAll(/murl&quot;:&quot;(.*?)&quot;/g)].map((m) => m[1].replace(/&amp;/g, '&'));
+  const lists = await Promise.all(queries.map(async (q) => {
+    let best: string[] = [];
+    // Bing results vary from request to request (sometimes unrelated art, or a
+    // stripped page); retry until the query yields enough relevant photos.
+    for (let attempt = 0; attempt < 5; attempt++) {
+      try {
+        const ctrl = new AbortController();
+        const t = setTimeout(() => ctrl.abort(), 4000);
+        const res = await fetch(`https://www.bing.com/images/search?q=${encodeURIComponent(q)}&first=1`, { headers: { 'User-Agent': UA, 'Accept-Language': 'en-US,en;q=0.9' }, signal: ctrl.signal });
+        clearTimeout(t);
+        const got = relevant(res.ok ? parse(await res.text()) : []);
+        if (got.length > best.length) best = got;
+        if (best.length >= 8) break;
+      } catch {}
+      await new Promise((r) => setTimeout(r, 300));
+    }
+    return best;
+  }));
+  // Interleave the result lists so the pool mixes exterior/pool/room shots.
+  const merged: string[] = [];
+  for (let i = 0; i < 60; i++) lists.forEach((l) => { if (l[i]) merged.push(l[i]); });
+  return dedupe([...merged.filter((u) => trusted.test(u)), ...merged.filter((u) => !trusted.test(u))]);
+}
+
+async function wikiImages(hotelName: string, destination = ''): Promise<string[]> {
   const out: string[] = [];
   let title = '';
   try {
@@ -238,9 +288,13 @@ async function wikiImages(hotelName: string): Promise<string[]> {
   } catch {}
   if (!title) return out;
   // Reject obviously unrelated articles (must share a distinctive name token).
-  const tokens = nameTokens(hotelName);
-  const tlow = title.toLowerCase();
-  if (tokens.length > 0 && !tokens.some((tk) => tlow.includes(tk)) && !tlow.includes('hotel') && !tlow.includes('resort')) return out;
+  // Strict: every distinctive word of the hotel name (excluding the city) must
+  // appear as a whole word in the article title — "Citymax Bur Dubai" must NOT
+  // match "Burj Al Arab".
+  const destWords = new Set(destination.toLowerCase().split(/[^\p{L}\p{N}]+/u).filter(Boolean));
+  const tokens = nameTokens(hotelName).filter((tk) => !destWords.has(tk));
+  const twords = new Set(title.toLowerCase().split(/[^\p{L}\p{N}]+/u).filter(Boolean));
+  if (tokens.length === 0 || !tokens.every((tk) => twords.has(tk))) return out;
   const slug = encodeURIComponent(title.replace(/ /g, '_'));
   try {
     const sum = await fetchPage(`https://en.wikipedia.org/api/rest_v1/page/summary/${slug}`);
@@ -271,7 +325,9 @@ async function visionFilter(base44: any, hotelName: string, destination: string,
   try {
     const labeled = pool.map((u, i) => `${i + 1}. ${u}`).join('\n');
     const res = await base44.asServiceRole.integrations.Core.InvokeLLM({
-      prompt: `You are curating the photo gallery for a luxury hotel booking website. The hotel is "${hotelName}" in ${destination || 'the city'}.\n\nBelow are ${pool.length} candidate image URLs. Look at EACH image and decide whether it is an ATTRACTIVE, PROMOTIONAL photograph of THIS hotel that would make a guest want to book — for example: exterior/building, pool, beach, lobby, restaurant, spa, gym, room/suite, or a scenic view/landscape of the property.\n\nEXCLUDE any image that:\n- contains people (guests, staff, models, crowds) — even partially\n- shows a boring workspace, co-working area, meeting room, or lounge with beanbags/poufs/low tables\n- shows construction, renovation, scaffolding, or unfinished interiors\n- is a document, newspaper, tabloid, map, logo, screenshot, or anything that is NOT a real photo of this hotel\n- is blurry, dark, or low quality\n\nReturn JSON with a "keep" array of the 1-based INDICES of the best images, ordered from most attractive to least, maximum 10. Only include images you are confident show the actual hotel. If fewer than 10 are good, return fewer.\n\nCandidate images (index → URL):\n${labeled}`,
+      prompt: `You are curating the photo gallery for a luxury hotel booking website. The hotel is "${hotelName}" in ${destination || 'the city'}.\n\nBelow are ${pool.length} candidate image URLs. Look at EACH image and decide whether it is an ATTRACTIVE, PROMOTIONAL photograph of THIS hotel that would make a guest want to book — for example: exterior/building, pool, beach, lobby, restaurant, spa, gym, room/suite, or a scenic view/landscape of the property.\n\nEXCLUDE any image that:\n- contains people (guests, staff, models, crowds) — even partially\n- shows a boring workspace, co-working area, meeting room, or lounge with beanbags/poufs/low tables\n- shows construction, renovation, scaffolding, or unfinished interiors\n- is a document, newspaper, tabloid, map, logo, screenshot, or anything that is NOT a real photo of this hotel\n- is blurry, dark, or low quality
+- clearly shows a DIFFERENT, famous property or landmark (e.g. Burj Al Arab, Burj Khalifa, Atlantis) rather than this hotel
+- is a floor plan, ad banner, or has large text overlays\n\nReturn JSON with a "keep" array of the 1-based INDICES of the best images, ordered from most attractive to least, maximum 10. Only include images you are confident show the actual hotel. If fewer than 10 are good, return fewer.\n\nCandidate images (index → URL):\n${labeled}`,
       file_urls: pool,
       model: 'gemini_3_flash',
       response_json_schema: {
@@ -306,7 +362,7 @@ export default async function (req) {
     if (!hotels || hotels.length === 0) return Response.json({ results: {} });
 
     const normalize = (s: string) => (s || '').toLowerCase().trim();
-    const hotelKey = (h: any) => `v7|${normalize(h.name)}|${normalize(h.destination || '')}`;
+    const hotelKey = (h: any) => `v8|${normalize(h.name)}|${normalize(h.destination || '')}`;
 
     const batch = hotels.slice(0, 10);
     const results: Record<string, string[]> = {};
@@ -332,51 +388,24 @@ export default async function (req) {
     // Start Wikipedia fetches immediately — they don't depend on the LLM, so
     // running them concurrently with the web-search call makes images for
     // blocked hotels (sourced from Wikipedia) arrive much sooner.
-    const wikiPromise = Promise.all(uncached.map((h: any) => wikiImages(h.name)));
-
-    const list = uncached.map((h: any, i: number) => `${i + 1}. "${h.name}" — hotel in ${h.destination || ''}`).join('\n');
-    const llm = await base44.asServiceRole.integrations.Core.InvokeLLM({
-      prompt: `For each hotel find up to 4 web pages with real photos of that EXACT hotel: (1) its official website home page, (2) its official gallery/photos page, (3) its English Wikipedia article page (https://en.wikipedia.org/wiki/...) if the hotel is notable enough to have one, (4) its TripAdvisor Hotel_Review page. Never return other hotels, "best hotels in city" lists, or booking-aggregator sites (booking.com, expedia, hotels.com, agoda). If unsure about a URL, omit it.\n\n${list}\n\nReturn JSON {"hotels":[{"name":"exactly as given","urls":["..."]}]}.`,
-      add_context_from_internet: true,
-      model: 'gemini_3_flash',
-      response_json_schema: {
-        type: 'object',
-        additionalProperties: true,
-        properties: {
-          hotels: { type: 'array', items: { type: 'object', additionalProperties: true, properties: { name: { type: 'string' }, urls: { type: 'array', items: { type: 'string' } } } } },
-        },
-      },
-    });
-
-    const BOOKING = ['booking.com', 'expedia.com', 'hotels.com', 'agoda.com', 'kayak.com', 'trivago.com'];
-    const urlMap: Record<string, string[]> = {};
-    ((llm && llm.hotels) || []).forEach((h: any) => {
-      if (!h.name || !Array.isArray(h.urls)) return;
-      urlMap[normalize(h.name)] = h.urls.filter((u: string) => {
-        try { const host = new URL(u).hostname; return !BOOKING.some((d) => host === d || host.endsWith('.' + d)); } catch { return false; }
-      });
-    });
+    const wikiPromise = Promise.all(uncached.map((h: any) => wikiImages(h.name, h.destination || '')));
+    const bingPromise = Promise.all(uncached.map((h: any) => bingImages(h.name, h.destination || '')));
 
     const wikiResults = await wikiPromise;
+    const bingResults = await bingPromise;
     const wikiByHotel = new Map<string, string[]>();
     uncached.forEach((h: any, i: number) => wikiByHotel.set(normalize(h.name), wikiResults[i]));
 
-    const scraped = await Promise.all(uncached.map(async (hotel: any) => {
-      const candidates = (urlMap[normalize(hotel.name)] || []).slice(0, 5);
-      const siteLists = await Promise.all(candidates.map((u) => scrapeSite(u, hotel.name)));
-      const wiki = wikiByHotel.get(normalize(hotel.name)) || [];
-      const pool = dedupe([...siteLists.flat(), ...wiki]);
-      // The vision model can fetch official-site images but NOT Wikipedia images,
-      // so only vision-filter the official-site ones (removes people, boring
-      // lounges/workspaces). Wikipedia images are kept as-is — they're already
-      // keyword-filtered (tabloids, construction, etc.) and are real article
-      // photos of the hotel. No boring fallback: if vision rejects all site
-      // images, we show only the Wikipedia photos (or a clean placeholder).
-      const isWiki = (u: string) => /wikimedia\.org|wikipedia\.org/i.test(u);
-      const siteUrls = pool.filter((u) => !isWiki(u));
-      const wikiUrls = pool.filter(isWiki);
-      const visionSelected = await visionFilter(base44, hotel.name, hotel.destination || '', siteUrls);
-      const images = dedupe([...visionSelected, ...wikiUrls]).slice(0, MAX_IMAGES);
+    const scraped = await Promise.all(uncached.map(async (hotel: any, idx: number) => {
+      const wikiUrls = (wikiByHotel.get(normalize(hotel.name)) || []).map(upgradeWikiThumb);
+      // Bing candidates (Booking.com / TripAdvisor / hotel-site photos) are
+      // checked by a vision model in two parallel batches: it removes people,
+      // boring rooms, and photos that clearly belong to another property.
+      const cands = bingResults[idx].slice(0, 30);
+      const batches = [cands.slice(0, 15), cands.slice(15, 30)].filter((b) => b.length > 0);
+      const picked = (await Promise.all(batches.map((b) => visionFilter(base44, hotel.name, hotel.destination || '', b)))).flat();
+      const images = dedupe([...picked, ...wikiUrls]).slice(0, MAX_IMAGES);
+      console.log('DBG', cands.length, picked.length, JSON.stringify(cands.slice(0, 4)));
       return { hotel, images };
     }));
 
