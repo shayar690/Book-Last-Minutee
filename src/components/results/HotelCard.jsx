@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Star, MapPin, ChevronLeft, ChevronRight } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
@@ -7,45 +7,90 @@ import ImageWithFallback from "@/components/results/ImageWithFallback";
 export default function HotelCard({ hotel, searchContext }) {
   const { t, localePath } = useI18n();
   const navigate = useNavigate();
-  const scrollRef = useRef(null);
-  const [activeImg, setActiveImg] = useState(0);
   const images = (hotel.images || (hotel.image ? [hotel.image] : [])).filter(Boolean);
   const sym = hotel.currency === "ILS" ? "₪" : "$";
+  const n = images.length;
+  const [activeImg, setActiveImg] = useState(0);
+  const [noAnim, setNoAnim] = useState(false);
+  const touchStartX = useRef(null);
+  const touchStartY = useRef(null);
+  const moved = useRef(false);
 
-  const scroll = (dir) => {
-    if (!scrollRef.current) return;
-    const w = scrollRef.current.clientWidth;
-    scrollRef.current.scrollBy({ left: dir * w, behavior: "smooth" });
+  // Reset to the first image whenever the hotel changes.
+  const hotelId = hotel.url || hotel.name;
+  useEffect(() => { setActiveImg(0); }, [hotelId]);
+
+  // Looping navigation: swiping/pressing past the last image wraps to the first,
+  // and vice versa. Wraps jump instantly (no slide-through animation).
+  const goTo = (raw) => {
+    if (n <= 1) return;
+    const target = ((raw % n) + n) % n;
+    const wrap = (raw < 0 && activeImg === 0) || (raw >= n && activeImg === n - 1);
+    if (wrap) {
+      setNoAnim(true);
+      setActiveImg(target);
+      requestAnimationFrame(() => requestAnimationFrame(() => setNoAnim(false)));
+    } else {
+      setActiveImg(target);
+    }
   };
 
-  const onScroll = () => {
-    if (!scrollRef.current) return;
-    // In RTL, scrollLeft is negative — use the absolute value so the index is correct in both directions.
-    const idx = Math.round(Math.abs(scrollRef.current.scrollLeft) / scrollRef.current.clientWidth);
-    setActiveImg(Math.min(Math.max(idx, 0), images.length - 1));
+  const onTouchStart = (e) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+    moved.current = false;
+  };
+  const onTouchMove = (e) => {
+    if (touchStartX.current == null) return;
+    const dx = e.touches[0].clientX - touchStartX.current;
+    const dy = e.touches[0].clientY - touchStartY.current;
+    if (Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy)) moved.current = true;
+  };
+  const onTouchEnd = (e) => {
+    if (touchStartX.current == null) return;
+    const dx = e.changedTouches[0].clientX - touchStartX.current;
+    if (Math.abs(dx) > 40) {
+      // Carousel is LTR: swipe left (dx<0) → next, swipe right (dx>0) → prev.
+      goTo(activeImg + (dx < 0 ? 1 : -1));
+    }
+    touchStartX.current = null;
+    touchStartY.current = null;
+  };
+
+  // Don't navigate to the hotel page when the touch was a swipe, not a tap.
+  const onClickCard = () => {
+    if (moved.current) { moved.current = false; return; }
+    navigate(localePath("/hotel"), { state: { hotel, searchContext } });
   };
 
   return (
     <div
-      onClick={() => navigate(localePath("/hotel"), { state: { hotel, searchContext } })}
+      onClick={onClickCard}
       className="flex flex-col sm:flex-row gap-4 p-4 bg-white rounded-xl border border-[#E5E5E5] shadow-sm hover:shadow-md transition-shadow cursor-pointer"
     >
       <div className="w-full sm:w-48 h-40 sm:h-32 rounded-lg overflow-hidden shrink-0 bg-[#F5F5F5] relative">
-        {images.length > 0 ? (
+        {n > 0 ? (
           <>
-            <div ref={scrollRef} onScroll={onScroll} className="flex overflow-x-auto snap-x snap-mandatory h-full scrollbar-hide touch-pan-x overscroll-x-contain">
+            <div
+              dir="ltr"
+              className={`flex h-full ${noAnim ? "" : "transition-transform duration-300 ease-out"}`}
+              style={{ transform: `translateX(-${activeImg * 100}%)` }}
+              onTouchStart={onTouchStart}
+              onTouchMove={onTouchMove}
+              onTouchEnd={onTouchEnd}
+            >
               {images.map((img, i) => (
-                <div key={i} className="w-full h-full shrink-0 snap-center">
+                <div key={i} className="w-full h-full shrink-0">
                   <ImageWithFallback src={img} alt={`${hotel.name} ${i + 1}`} className="w-full h-full object-cover" />
                 </div>
               ))}
             </div>
-            {images.length > 1 && (
+            {n > 1 && (
               <>
-                <button onClick={(e) => { e.stopPropagation(); scroll(-1); }} className="absolute left-1 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white/80 flex items-center justify-center shadow-sm">
+                <button onClick={(e) => { e.stopPropagation(); goTo(activeImg - 1); }} className="absolute left-1 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white/80 flex items-center justify-center shadow-sm">
                   <ChevronLeft className="w-4 h-4" strokeWidth={1.5} />
                 </button>
-                <button onClick={(e) => { e.stopPropagation(); scroll(1); }} className="absolute right-1 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white/80 flex items-center justify-center shadow-sm">
+                <button onClick={(e) => { e.stopPropagation(); goTo(activeImg + 1); }} className="absolute right-1 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white/80 flex items-center justify-center shadow-sm">
                   <ChevronRight className="w-4 h-4" strokeWidth={1.5} />
                 </button>
                 <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1 items-center">

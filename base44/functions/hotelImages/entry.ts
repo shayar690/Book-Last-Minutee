@@ -146,7 +146,6 @@ function diversify(images: string[]): string[] {
     for (const c of order) {
       const b = buckets.get(c);
       if (!b || b.length <= round) continue;
-      if (c === 'room' && round >= 2) continue;
       out.push(b[round]);
     }
   }
@@ -196,7 +195,7 @@ function galleryLinks(html: string, baseUrl: string): string[] {
       if (r.hostname === base.hostname && r.pathname !== base.pathname) out.push(r.href);
     } catch {}
   }
-  return [...new Set(out)].slice(0, 3);
+  return [...new Set(out)].slice(0, 5);
 }
 
 // Scrape one candidate site: home page (verified) + up to 3 gallery pages.
@@ -204,7 +203,7 @@ async function scrapeSite(url: string, hotelName: string): Promise<string[]> {
   const home = await fetchPage(url);
   if (!home || !pageIsForHotel(home, hotelName)) return [];
   let images = extractImages(home, url);
-  if (images.length < 14) {
+  if (images.length < 20) {
     const links = galleryLinks(home, url);
     const pages = await Promise.all(links.map((l) => fetchPage(l)));
     pages.forEach((p, i) => { if (p) images = images.concat(extractImages(p, links[i])); });
@@ -253,7 +252,7 @@ export default async function (req) {
     if (!hotels || hotels.length === 0) return Response.json({ results: {} });
 
     const normalize = (s: string) => (s || '').toLowerCase().trim();
-    const hotelKey = (h: any) => `v3|${normalize(h.name)}|${normalize(h.destination || '')}`;
+    const hotelKey = (h: any) => `v4|${normalize(h.name)}|${normalize(h.destination || '')}`;
 
     const batch = hotels.slice(0, 10);
     const results: Record<string, string[]> = {};
@@ -309,7 +308,7 @@ export default async function (req) {
     uncached.forEach((h: any, i: number) => wikiByHotel.set(normalize(h.name), wikiResults[i]));
 
     const scraped = await Promise.all(uncached.map(async (hotel: any) => {
-      const candidates = (urlMap[normalize(hotel.name)] || []).slice(0, 3);
+      const candidates = (urlMap[normalize(hotel.name)] || []).slice(0, 5);
       const siteLists = await Promise.all(candidates.map((u) => scrapeSite(u, hotel.name)));
       const wiki = wikiByHotel.get(normalize(hotel.name)) || [];
       const images = diversify(dedupe([...siteLists.flat(), ...wiki])).slice(0, MAX_IMAGES);
