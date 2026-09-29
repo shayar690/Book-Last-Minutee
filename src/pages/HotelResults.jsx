@@ -186,24 +186,21 @@ export default function HotelResults() {
     // First batch — just 2 hotels (the ones visible on screen). A tiny batch
     // returns from the LLM + scraper in ~2-3 s instead of 4-5 s for a larger
     // batch, so the first real photos appear much faster.
-    const firstBatch = toEnhance.slice(0, 2);
-    const rest = toEnhance.slice(2);
-    base44.functions.invoke("hotelImages", {
-      hotels: firstBatch.map((h) => ({ name: h.name, url: h.url || "", destination })),
-    })
-      .then((res) => mergeResults(res.data?.results || {}))
-      .catch(() => {});
-
-    // Remaining hotels — larger batches, all in parallel.
-    const BATCH = 6;
-    for (let i = 0; i < rest.length; i += BATCH) {
-      const chunk = rest.slice(i, i + BATCH);
-      base44.functions.invoke("hotelImages", {
-        hotels: chunk.map((h) => ({ name: h.name, url: h.url || "", destination })),
-      })
-        .then((res) => mergeResults(res.data?.results || {}))
-        .catch(() => {});
-    }
+    // One request per hotel, top of the list first, several in parallel — each
+    // card fills in as soon as ITS photos are ready instead of waiting for all.
+    const queue = [...toEnhance];
+    const worker = async () => {
+      while (queue.length > 0) {
+        const h = queue.shift();
+        try {
+          const res = await base44.functions.invoke("hotelImages", {
+            hotels: [{ name: h.name, url: h.url || "", destination }],
+          });
+          mergeResults(res.data?.results || {});
+        } catch { /* card keeps its placeholder */ }
+      }
+    };
+    Array.from({ length: Math.min(8, queue.length) }, worker);
   }, [hotels, loading, destination]);
 
   // Load more — user-triggered batch 2+.
