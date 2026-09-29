@@ -81,7 +81,7 @@ export default async function(req) {
     if (citizenship) filters.push(`Guests' citizenship: ${citizenship}`);
     const filterText = filters.length > 0
       ? `\n\nApply these filters:\n${filters.map((f) => `- ${f}`).join("\n")}`
-      : "";
+      : `\n\nNo additional filters were selected — return ALL available hotels matching only the destination, dates and guest count. Do NOT restrict by star rating, meal plan, cancellation policy, check-in/out time, citizenship or any other parameter.`;
 
     const excludeText = exclude.length > 0
       ? `\n\nIMPORTANT: Do NOT include any of these hotels (already shown to the user):\n${exclude.map((n) => `- ${n}`).join("\n")}\nReturn DIFFERENT hotels only.`
