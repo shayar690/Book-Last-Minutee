@@ -111,7 +111,7 @@ For each hotel provide ONLY these fields:
 - description: Short description (1-2 sentences)
 - location: Area or neighborhood within the city
 - distanceToCenter: Distance from city center in km (number, e.g. 0.5 = 500m, 2.5 = 2.5km)
-- images: Array of 3-5 REAL direct image URLs of this specific hotel. Find actual photos from Booking.com (image URLs start with https://cf.bstatic.com/ or https://q-xx.bstatic.com/) or the hotel's official website. Return ONLY direct image file URLs (ending in .jpg, .jpeg, .png, or .webp) that can be loaded in an <img> tag. Do NOT return Booking.com hotel page URLs (like https://www.booking.com/hotel/...) — only direct image file URLs. If you cannot find real direct image URLs, return an empty array [].
+- images: Array of up to 10 REAL direct image URLs of this specific hotel. Find actual photos from Booking.com (image URLs start with https://cf.bstatic.com/ or https://q-xx.bstatic.com/) or the hotel's official website. Return ONLY direct image file URLs (ending in .jpg, .jpeg, .png, or .webp) that can be loaded in an <img> tag. Do NOT return Booking.com hotel page URLs (like https://www.booking.com/hotel/...) — only direct image file URLs. If you cannot find real direct image URLs, return an empty array [].
 
 Return exactly ${hotelCount} hotels sorted by price (lowest first).
 Also provide "totalFound": your best estimate of the TOTAL number of real hotels available in "${destination}" matching the dates and filters (not just the ${hotelCount} returned here). For major cities this should be in the hundreds; for small towns it may be only a few dozen.
@@ -170,7 +170,7 @@ Descriptions should be in ${languageName}.`;
           !u.includes("booking.com/hotel/") && !u.includes("expedia.com/") &&
           !u.includes("hotels.com/") && !u.includes("tripadvisor.com/") &&
           !u.includes("booking.com/Hotel/")
-        ).slice(0, 5);
+        ).slice(0, 10);
       }
       // Assign a single unique fallback if no valid images remain — one per hotel
       // prevents duplicate images across the results list.

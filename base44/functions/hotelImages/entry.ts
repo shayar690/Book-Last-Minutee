@@ -1,13 +1,15 @@
-// Hotel images — fetches real image URLs for hotels.
-// Strategy: Use InvokeLLM with web search to find each hotel's official website,
-// then scrape that website for real image URLs. Hotel official websites rarely
-// block scrapers, unlike Booking.com which has aggressive anti-bot protection.
+// Hotel images — fetches REAL image URLs for hotels by scraping each hotel's
+// official website. The LLM image URLs returned by hotelSearch are often wrong
+// or hallucinated, so this function is the source of truth for real photos.
+// It runs as a background enhancement on the results list and on the detail page.
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.49';
 
-async function scrapeImages(url: string): Promise<string[]> {
+const FETCH_TIMEOUT_MS = 8000;
+
+async function fetchPage(url: string): Promise<string> {
   try {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 8000);
+    const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
     const response = await fetch(url, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
@@ -18,29 +20,78 @@ async function scrapeImages(url: string): Promise<string[]> {
       signal: controller.signal,
     });
     clearTimeout(timeout);
-    if (!response.ok) return [];
-    const html = await response.text();
-
-    // Extract all image URLs from HTML — <img src>, data-src, and og:image meta
-    const imgSrcRegex = /<img[^>]+(?:src|data-src|data-lazy-src)=["']([^"']+\.(?:jpg|jpeg|png|webp))["']/gi;
-    const ogRegex = /<meta\s+property="og:image"\s+content="([^"]+)"/i;
-    const matches: string[] = [];
-    let m;
-    while ((m = imgSrcRegex.exec(html)) !== null) matches.push(m[1]);
-    const ogMatch = html.match(ogRegex);
-    if (ogMatch) matches.unshift(ogMatch[1]);
-
-    // Filter out tiny icons/logos and deduplicate
-    const filtered = matches.filter(u =>
-      !u.includes('logo') && !u.includes('icon') && !u.includes('favicon') &&
-      !u.includes('sprite') && !u.includes('1x1') && !u.includes('pixel') &&
-      !u.includes('button') && !u.includes('arrow') && !u.includes('banner-tiny')
-    );
-    const unique = [...new Set(filtered)].map(u => u.replace(/&amp;/g, '&')).slice(0, 8);
-    return unique;
+    if (!response.ok) return "";
+    return response.text();
   } catch {
-    return [];
+    return "";
   }
+}
+
+// Extract direct image URLs from HTML — handles src, data-src, data-lazy-src,
+// data-original, srcset/data-srcset, and og:image. Resolves relative URLs.
+function extractImagesFromHtml(html: string, baseUrl: string): string[] {
+  const matches: string[] = [];
+  let m;
+
+  // <img src="…"> / data-src / data-lazy-src / data-original
+  const imgSrcRegex = /<img[^>]+(?:src|data-src|data-lazy-src|data-original)=["']([^"']+\.(?:jpg|jpeg|png|webp))["']/gi;
+  while ((m = imgSrcRegex.exec(html)) !== null) matches.push(m[1]);
+
+  // srcset / data-srcset — "url1 1x, url2 2x" → take the first URL of each part
+  const srcsetRegex = /(?:srcset|data-srcset)=["']([^"']+)["']/gi;
+  while ((m = srcsetRegex.exec(html)) !== null) {
+    m[1].split(",").forEach((part: string) => {
+      const u = part.trim().split(/\s+/)[0];
+      if (u && /\.(?:jpg|jpeg|png|webp)$/i.test(u)) matches.push(u);
+    });
+  }
+
+  // og:image meta
+  const ogMatch = html.match(/<meta\s+property="og:image"\s+content="([^"]+)"/i);
+  if (ogMatch) matches.unshift(ogMatch[1]);
+
+  // Filter out icons/logos/UI sprites
+  const filtered = matches.filter((u) =>
+    !/logo|icon|favicon|sprite|1x1|pixel|button|arrow|banner-tiny|avatar|social-|flag|blank|placeholder/i.test(u)
+  );
+
+  // Resolve relative URLs against the page base
+  let base: URL;
+  try { base = new URL(baseUrl); } catch { return []; }
+  const resolved = filtered
+    .map((u) => { try { return new URL(u, base).href; } catch { return null; } })
+    .filter((x): x is string => Boolean(x));
+  return [...new Set(resolved)];
+}
+
+// Find links to gallery/rooms/photos pages so we can scrape more images.
+function findGalleryLinks(html: string, baseUrl: string): string[] {
+  const links: string[] = [];
+  const linkRegex = /<a[^>]+href=["']([^"']+)["'][^>]*>([^<]*)<\/a>/gi;
+  let m;
+  while ((m = linkRegex.exec(html)) !== null) {
+    const href = m[1];
+    const text = (m[2] || "").toLowerCase();
+    if (/gallery|photo|rooms|suite|accommodation|image|bilder|foto|galler/i.test(href + " " + text)) {
+      try { links.push(new URL(href, baseUrl).href); } catch {}
+    }
+  }
+  return [...new Set(links)].slice(0, 2);
+}
+
+async function scrapeImages(url: string): Promise<string[]> {
+  const homeHtml = await fetchPage(url);
+  if (!homeHtml) return [];
+  let images = extractImagesFromHtml(homeHtml, url);
+  // If the homepage doesn't expose enough photos, follow a gallery/rooms link.
+  if (images.length < 10) {
+    for (const link of findGalleryLinks(homeHtml, url).slice(0, 1)) {
+      if (images.length >= 10) break;
+      const pageHtml = await fetchPage(link);
+      if (pageHtml) images = [...new Set([...images, ...extractImagesFromHtml(pageHtml, link)])];
+    }
+  }
+  return images.slice(0, 10);
 }
 
 export default async function(req) {
@@ -52,7 +103,7 @@ export default async function(req) {
 
     if (!hotels || hotels.length === 0) return Response.json({ results: {} });
 
-    // Step 1: Use LLM to find official website URLs for all hotels in one call
+    // Step 1: Use LLM with web search to find official website URLs for all hotels
     const hotelList = hotels.map((h, i) =>
       `${i + 1}. "${h.name}" in ${h.destination || ''}`
     ).join("\n");
@@ -91,7 +142,8 @@ Return an array of objects, each with the hotel "name" (exactly as given above) 
       if (w.name) websiteMap[w.name] = w.url || "";
     });
 
-    // Step 2: Scrape each hotel's official website for images in parallel
+    // Step 2: Scrape each hotel's official website for real images in parallel.
+    // Falls back to the Booking.com URL passed in if no official site was found.
     const batch = hotels.slice(0, 20);
     const scraped = await Promise.all(batch.map(async (hotel) => {
       const officialUrl = websiteMap[hotel.name] || "";
@@ -104,7 +156,7 @@ Return an array of objects, each with the hotel "name" (exactly as given above) 
     }));
 
     const results: Record<string, string[]> = {};
-    scraped.forEach(s => { results[s.key] = s.images; });
+    scraped.forEach((s) => { results[s.key] = s.images; });
 
     return Response.json({ results });
   } catch (error) {

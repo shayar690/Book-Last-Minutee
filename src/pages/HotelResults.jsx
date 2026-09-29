@@ -30,9 +30,28 @@ export default function HotelResults() {
   // user returns we re-run the search instead of leaving a dead "Network Error".
   const MAX_AUTO_RETRIES = 3;
   const retryAttemptsRef = useRef(0);
+  // Real images scraped from each hotel's official website (background enhancement).
+  // Keys are the hotel's Booking.com URL (or name) → array of real image URLs.
+  const [realImages, setRealImages] = useState({});
+  const enhancedNamesRef = useRef(new Set());
+
+  // Merge real scraped images into the hotel list for display. Real images take
+  // priority; any valid LLM images fill the rest up to 10.
+  const displayHotels = useMemo(() => {
+    if (Object.keys(realImages).length === 0) return hotels;
+    return hotels.map((h) => {
+      const key = h.url || h.name;
+      const scraped = realImages[key];
+      if (scraped && scraped.length > 0) {
+        const merged = [...new Set([...scraped, ...(h.images || [])])].slice(0, 10);
+        return { ...h, images: merged };
+      }
+      return h;
+    });
+  }, [hotels, realImages]);
 
   const sortedHotels = useMemo(() => {
-    const arr = [...hotels];
+    const arr = [...displayHotels];
     switch (sortBy) {
       case "price_low_high": return arr.sort((a, b) => (a.pricePerNight || 0) - (b.pricePerNight || 0));
       case "price_high_low": return arr.sort((a, b) => (b.pricePerNight || 0) - (a.pricePerNight || 0));
@@ -40,7 +59,7 @@ export default function HotelResults() {
       case "rating_high_low": return arr.sort((a, b) => (b.rating || 0) - (a.rating || 0));
       default: return arr.sort((a, b) => (b.reviews || 0) - (a.reviews || 0) || (b.rating || 0) - (a.rating || 0));
     }
-  }, [hotels, sortBy]);
+  }, [displayHotels, sortBy]);
 
   const filteredHotels = useMemo(() => {
     if (!filterQuery.trim()) return sortedHotels;
@@ -138,6 +157,24 @@ export default function HotelResults() {
     document.addEventListener("visibilitychange", onVisibility);
     return () => document.removeEventListener("visibilitychange", onVisibility);
   }, [error, hotels.length, loading]);
+
+  // Background enhancement — scrape real images from each hotel's official
+  // website and replace the (often wrong) LLM/fallback images. Fires for the
+  // initial batch and again for any hotels loaded via "show more".
+  useEffect(() => {
+    if (loading) return;
+    const toEnhance = hotels.filter((h) => !enhancedNamesRef.current.has(h.name));
+    if (toEnhance.length === 0) return;
+    toEnhance.forEach((h) => enhancedNamesRef.current.add(h.name));
+    base44.functions.invoke("hotelImages", {
+      hotels: toEnhance.map((h) => ({ name: h.name, url: h.url || "", destination })),
+    })
+      .then((res) => {
+        const results = res.data?.results || {};
+        if (Object.keys(results).length > 0) setRealImages((prev) => ({ ...prev, ...results }));
+      })
+      .catch(() => {});
+  }, [hotels, loading, destination]);
 
   // Load more — user-triggered batch 2+.
   const loadMore = () => {
