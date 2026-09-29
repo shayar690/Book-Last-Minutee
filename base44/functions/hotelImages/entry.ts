@@ -39,7 +39,8 @@ const NON_PHOTO_RE = new RegExp(
   'logo|icon|favicon|sprite|1x1|pixel|button|arrow|avatar|social|flag|blank|placeholder|tracking|loader|spinner|' +
   'award|rating|badge|certificate|seal|stamp|ribbon|_next\\/|\\/static\\/|whatsapp|facebook|twitter|instagram|' +
   'linkedin|youtube|ytimg|tiktok|share|newsletter|signup|promo|flyer|coupon|voucher|credit-?card|bonvoy|' +
-  'mastercard|amex|loyalty|qr|barcode|map-|amenity-|service-|facility-|chevron|star-icon|hqdefault|default-thumb|\\.svg|\\.gif',
+  'mastercard|amex|loyalty|qr|barcode|map-|amenity-|service-|facility-|chevron|star-icon|hqdefault|default-thumb|' +
+  'maps\\.wikimedia|osm-intl|250x200|\\.svg|\\.gif',
   'i'
 );
 const AD_ALT_RE = /credit\s*card|bonvoy|visa|mastercard|amex|loyalty|reward|apply\s*now|sign\s*up|join\s*now|sponsor|advertisement|limited\s*time|exclusive\s*offer/i;
@@ -63,6 +64,25 @@ function pageIsForHotel(html: string, hotelName: string): boolean {
   return hits >= Math.min(tokens.length, 2) || hits / tokens.length >= 0.6;
 }
 
+// Wikipedia thumbnail URLs are served at a small default size (often 120px or
+// 320px), which looks blurry on screen. Upgrade them to the largest standard
+// render (1280px) so displayed photos are crisp. Only applies to upload/thumb
+// wikimedia URLs; other URLs pass through unchanged.
+function upgradeWikiThumb(url: string): string {
+  try {
+    const u = new URL(url);
+    if (!/upload\.wikimedia\.org|thumb\.wikimedia\.org/i.test(u.hostname)) return url;
+    if (!/\/thumb\//i.test(u.pathname)) return url;
+    // Replace the leading "<digits>px-" size in the final path segment.
+    u.pathname = u.pathname.replace(/\/\d+px-([^/]+)$/, '/1280px-$1');
+    // Drop tracking query so the browser caches the canonical URL.
+    u.search = '';
+    return u.href;
+  } catch {
+    return url;
+  }
+}
+
 // Identity of a photo regardless of CDN size/format variants.
 function photoKey(url: string): string {
   try {
@@ -70,6 +90,7 @@ function photoKey(url: string): string {
     const segs = decodeURIComponent(u.pathname).split('/').filter(Boolean);
     const file = (segs.pop() || '').toLowerCase()
       .replace(/(\.(jpe?g|png|webp))+$/i, '')
+      .replace(/^\d+px-/, '')
       .replace(/[-_@]?\d{2,4}x\d{2,4}/g, '')
       .replace(/[-_](scaled|copy|small|medium|large|thumb\w*|original|big|\d{1,3})$/g, '');
     const dir = segs.filter((s) => !/^(big|original\w*|thumb\w*|\d+x\d+w?|w_.*|c_.*|h_.*|f_.*|q_.*|max\d+(x\d+)?|square\d+|\d+:\d+|v\d+)$/i.test(s)).join('/').toLowerCase();
@@ -158,8 +179,8 @@ function extractImages(html: string, baseUrl: string): string[] {
     if (urls.length) found.push(urls[urls.length - 1].replace(/[,;]$/, ''));
   }
   const og = html.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i);
-  if (og) { try { found.unshift(new URL(og[1], baseUrl).href); } catch {} }
-  return found.filter((u) => /^https?:/i.test(u) && !NON_PHOTO_RE.test(u));
+  if (og && /\.(?:jpe?g|png|webp)/i.test(og[1])) { try { found.unshift(new URL(og[1], baseUrl).href); } catch {} }
+  return found.filter((u) => /^https?:/i.test(u) && /\.(?:jpe?g|png|webp)/i.test(u) && !NON_PHOTO_RE.test(u));
 }
 
 function galleryLinks(html: string, baseUrl: string): string[] {
@@ -211,13 +232,14 @@ async function wikiImages(hotelName: string): Promise<string[]> {
   try {
     const sum = await fetchPage(`https://en.wikipedia.org/api/rest_v1/page/summary/${slug}`);
     const j = JSON.parse(sum);
+    // Prefer the original (full-resolution) image; skip the low-res thumbnail.
     if (j.originalimage?.source) out.push(j.originalimage.source);
-    if (j.thumbnail?.source && j.thumbnail.source !== j.originalimage?.source) out.push(j.thumbnail.source);
   } catch {}
   const html = await fetchPage(`https://en.wikipedia.org/wiki/${slug}`);
   if (html) {
     const imgs = extractImages(html, 'https://en.wikipedia.org/wiki/' + slug)
-      .filter((u) => /upload\.wikimedia\.org\/wikipedia\//i.test(u) && !out.includes(u));
+      .filter((u) => /upload\.wikimedia\.org\/wikipedia\//i.test(u) && !out.includes(u))
+      .map(upgradeWikiThumb);
     out.push(...imgs);
   }
   return out;
@@ -246,13 +268,18 @@ export default async function (req) {
       uncached = [];
       batch.forEach((h: any) => {
         const imgs = map.get(hotelKey(h));
-        if (imgs) results[h.url || h.name] = imgs;
+        if (imgs) results[h.url || h.name] = imgs.map(upgradeWikiThumb);
         else uncached.push(h);
       });
     } catch {
       uncached = batch;
     }
     if (uncached.length === 0) return Response.json({ results });
+
+    // Start Wikipedia fetches immediately — they don't depend on the LLM, so
+    // running them concurrently with the web-search call makes images for
+    // blocked hotels (sourced from Wikipedia) arrive much sooner.
+    const wikiPromise = Promise.all(uncached.map((h: any) => wikiImages(h.name)));
 
     const list = uncached.map((h: any, i: number) => `${i + 1}. "${h.name}" — hotel in ${h.destination || ''}`).join('\n');
     const llm = await base44.asServiceRole.integrations.Core.InvokeLLM({
@@ -277,19 +304,21 @@ export default async function (req) {
       });
     });
 
+    const wikiResults = await wikiPromise;
+    const wikiByHotel = new Map<string, string[]>();
+    uncached.forEach((h: any, i: number) => wikiByHotel.set(normalize(h.name), wikiResults[i]));
+
     const scraped = await Promise.all(uncached.map(async (hotel: any) => {
       const candidates = (urlMap[normalize(hotel.name)] || []).slice(0, 3);
-      const [siteLists, wiki] = await Promise.all([
-        Promise.all(candidates.map((u) => scrapeSite(u, hotel.name))),
-        wikiImages(hotel.name),
-      ]);
+      const siteLists = await Promise.all(candidates.map((u) => scrapeSite(u, hotel.name)));
+      const wiki = wikiByHotel.get(normalize(hotel.name)) || [];
       const images = diversify(dedupe([...siteLists.flat(), ...wiki])).slice(0, MAX_IMAGES);
       return { hotel, images };
     }));
 
     const toCache: any[] = [];
     scraped.forEach((s) => {
-      results[s.hotel.url || s.hotel.name] = s.images;
+      results[s.hotel.url || s.hotel.name] = s.images.map(upgradeWikiThumb);
       if (s.images.length >= 3) {
         toCache.push({
           hotel_key: hotelKey(s.hotel),
