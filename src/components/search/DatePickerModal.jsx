@@ -53,6 +53,9 @@ export default function DatePickerModal({ open, mode, checkIn, checkOut, active,
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
+  // Allow selecting dates up to two weeks in the past.
+  const minDate = new Date(today);
+  minDate.setDate(minDate.getDate() - 14);
 
   return (
     <AnimatePresence>
@@ -112,7 +115,7 @@ export default function DatePickerModal({ open, mode, checkIn, checkOut, active,
                       <div className="grid grid-cols-7 gap-y-1">
                         {cells.map((c, ci) => {
                           if (!c) return <div key={ci} />;
-                          const isPast = c < today;
+                          const isPast = c < minDate;
                           const isFuture = c > maxDate;
                           const disabled = isPast || isFuture;
                           const isStart = sameDay(c, pickIn);
