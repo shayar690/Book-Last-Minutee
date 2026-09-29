@@ -15,6 +15,7 @@ const translations = {
     "nav.login": "Log in",
     "nav.signup": "Sign up",
     "nav.logout": "Log out",
+    "nav.menu": "Menu",
     "brand.name": "Travely Time",
     "brand.slogan": "Traveling around the world",
 
@@ -246,6 +247,7 @@ const translations = {
     "nav.login": "התחברות",
     "nav.signup": "הרשמה",
     "nav.logout": "התנתקות",
+    "nav.menu": "תפריט",
     "brand.name": "טרוולי טיים",
     "brand.slogan": "מטיילים מסביב לעולם",
 

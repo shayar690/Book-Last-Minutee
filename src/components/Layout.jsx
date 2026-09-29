@@ -34,13 +34,13 @@ function LanguageSwitcher() {
     <div dir="ltr" className="inline-flex items-center rounded-full border-2 border-ink/15 overflow-hidden">
       <button
         onClick={() => switchTo("en")}
-        className={`px-5 py-2.5 text-base font-semibold transition-colors ${lang === "en" ? "bg-ink text-white" : "text-ink/70 hover:text-ink"}`}
+        className={`px-3 py-1.5 text-sm font-semibold transition-colors ${lang === "en" ? "bg-ink text-white" : "text-ink/70 hover:text-ink"}`}
       >
         English
       </button>
       <button
         onClick={() => switchTo("he")}
-        className={`px-5 py-2.5 text-base font-semibold transition-colors ${lang === "he" ? "bg-ink text-white" : "text-ink/70 hover:text-ink"}`}
+        className={`px-3 py-1.5 text-sm font-semibold transition-colors ${lang === "he" ? "bg-ink text-white" : "text-ink/70 hover:text-ink"}`}
       >
         עברית
       </button>
@@ -104,8 +104,9 @@ function Header() {
       {/* Mobile: language switcher (left) · hamburger (center) · logo (right) */}
       <div dir="ltr" className="lg:hidden max-w-7xl mx-auto px-6 flex items-center justify-between">
         <LanguageSwitcher />
-        <button onClick={() => setOpen((v) => !v)} className="text-ink">
-          {open ? <X className="w-8 h-8" /> : <Menu className="w-8 h-8" />}
+        <button onClick={() => setOpen((v) => !v)} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-ink text-white text-base font-semibold">
+          {open ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          <span>{t("nav.menu")}</span>
         </button>
         <Link to={localePath("/")} className="flex items-center shrink-0">
           <Image src={LOGO_URL} alt={t("brand.name")} className="h-16 w-16 rounded-2xl shadow-sm" fittingType="fill" />
