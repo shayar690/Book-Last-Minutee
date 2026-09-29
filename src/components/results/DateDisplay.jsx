@@ -17,7 +17,7 @@ export default function DateDisplay({ dateStr }) {
 
   return (
     <span dir={lang === "he" ? "rtl" : "ltr"} style={{ whiteSpace: "nowrap" }}>
-      {weekdayClean} | {datePart}
+      {weekdayClean}, {datePart}
     </span>
   );
 }
