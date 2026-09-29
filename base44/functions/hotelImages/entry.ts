@@ -50,7 +50,9 @@ const AD_ALT_RE = /credit\s*card|bonvoy|visa|mastercard|amex|loyalty|reward|appl
 // (poufs, beanbags, TV nooks), and kids' areas. We only want attractive,
 // promotional photography — pool, facilities, lobby, building exterior, views,
 // rooms. Matched against both the image URL/filename and its alt text.
-const BORING_RE = /\b(people|person|persons|crowd|portrait|selfie|lifestyle|staff|team|group|guests|event|events|party|parties|wedding|weddings|meeting|meetings|conference|conferences|seminar|boardroom|gala|banquet|celebration|workspace|coworking|co-working|office|startup|lounge|livingroom|living-room|sitting|commonroom|common-room|beanbag|pouf|kids|child|children|baby|toddler)s?\b/i;
+// Lookarounds (not \b) treat "_" and "-" as boundaries, so "under_construction"
+// and "British_tabloids" match the "construction" / "tabloids" terms.
+const BORING_RE = /(?<![a-z0-9])(people|person|persons|crowd|crowds|portrait|selfie|lifestyle|staff|team|teams|group|groups|guests|event|events|party|parties|wedding|weddings|meeting|meetings|conference|conferences|seminar|seminars|boardroom|gala|galas|banquet|banquets|celebration|workspace|workspaces|coworking|co-working|office|offices|startup|startups|lounge|lounges|livingroom|living-room|sitting|commonroom|common-room|beanbag|beanbags|pouf|poufs|kids|child|children|baby|babies|toddler|toddlers|tabloid|tabloids|newspaper|newspapers|construction|scaffolding|renovation|renovations|blueprint|diagram|cartoon|drawing|painting|illustration)(?![a-z0-9])/i;
 
 const GENERIC = new Set(['the', 'hotel', 'hotels', 'resort', 'resorts', 'spa', 'and', 'by', 'at', 'of', 'in', 'suites', 'suite', 'inn', 'palace', 'grand', 'royal', 'residence', 'residences', 'collection', 'city', 'center', 'centre', 'downtown', 'beach', 'club', 'boutique', 'luxury', 'international', 'plaza', 'tower', 'towers']);
 
@@ -256,6 +258,46 @@ async function wikiImages(hotelName: string): Promise<string[]> {
   return out;
 }
 
+// Vision-based curation: a multimodal LLM looks at each candidate photo and
+// keeps only attractive, promotional shots of THIS hotel — exterior, pool,
+// beach, lobby, restaurant, spa, gym, room, view. People, boring workspace/
+// lounge areas, construction, documents/maps and anything that isn't a real
+// photo of the hotel are rejected. This is the only reliable way to detect
+// people and boring content, since most hotel image filenames are generic
+// (e.g. "DOW-5.jpg") and carry no keyword signal.
+async function visionFilter(base44: any, hotelName: string, destination: string, candidates: string[]): Promise<string[]> {
+  if (!candidates || candidates.length === 0) return [];
+  const pool = candidates.slice(0, 16);
+  try {
+    const labeled = pool.map((u, i) => `${i + 1}. ${u}`).join('\n');
+    const res = await base44.asServiceRole.integrations.Core.InvokeLLM({
+      prompt: `You are curating the photo gallery for a luxury hotel booking website. The hotel is "${hotelName}" in ${destination || 'the city'}.\n\nBelow are ${pool.length} candidate image URLs. Look at EACH image and decide whether it is an ATTRACTIVE, PROMOTIONAL photograph of THIS hotel that would make a guest want to book — for example: exterior/building, pool, beach, lobby, restaurant, spa, gym, room/suite, or a scenic view/landscape of the property.\n\nEXCLUDE any image that:\n- contains people (guests, staff, models, crowds) — even partially\n- shows a boring workspace, co-working area, meeting room, or lounge with beanbags/poufs/low tables\n- shows construction, renovation, scaffolding, or unfinished interiors\n- is a document, newspaper, tabloid, map, logo, screenshot, or anything that is NOT a real photo of this hotel\n- is blurry, dark, or low quality\n\nReturn JSON with a "keep" array of the 1-based INDICES of the best images, ordered from most attractive to least, maximum 10. Only include images you are confident show the actual hotel. If fewer than 10 are good, return fewer.\n\nCandidate images (index → URL):\n${labeled}`,
+      file_urls: pool,
+      model: 'gemini_3_flash',
+      response_json_schema: {
+        type: 'object',
+        additionalProperties: true,
+        properties: {
+          keep: { type: 'array', items: { type: 'number' } },
+        },
+      },
+    });
+    const keep: number[] = (res && Array.isArray(res.keep)) ? res.keep.map((n: any) => Number(n)).filter((n: number) => !Number.isNaN(n)) : [];
+    const selected: string[] = [];
+    const seen = new Set<number>();
+    for (const idx of keep) {
+      const i = idx - 1;
+      if (i >= 0 && i < pool.length && !seen.has(i)) {
+        seen.add(i);
+        selected.push(pool[i]);
+      }
+    }
+    return selected;
+  } catch {
+    return [];
+  }
+}
+
 export default async function (req) {
   try {
     const base44 = createClientFromRequest(req);
@@ -264,7 +306,7 @@ export default async function (req) {
     if (!hotels || hotels.length === 0) return Response.json({ results: {} });
 
     const normalize = (s: string) => (s || '').toLowerCase().trim();
-    const hotelKey = (h: any) => `v5|${normalize(h.name)}|${normalize(h.destination || '')}`;
+    const hotelKey = (h: any) => `v7|${normalize(h.name)}|${normalize(h.destination || '')}`;
 
     const batch = hotels.slice(0, 10);
     const results: Record<string, string[]> = {};
@@ -323,7 +365,18 @@ export default async function (req) {
       const candidates = (urlMap[normalize(hotel.name)] || []).slice(0, 5);
       const siteLists = await Promise.all(candidates.map((u) => scrapeSite(u, hotel.name)));
       const wiki = wikiByHotel.get(normalize(hotel.name)) || [];
-      const images = diversify(dedupe([...siteLists.flat(), ...wiki])).slice(0, MAX_IMAGES);
+      const pool = dedupe([...siteLists.flat(), ...wiki]);
+      // The vision model can fetch official-site images but NOT Wikipedia images,
+      // so only vision-filter the official-site ones (removes people, boring
+      // lounges/workspaces). Wikipedia images are kept as-is — they're already
+      // keyword-filtered (tabloids, construction, etc.) and are real article
+      // photos of the hotel. No boring fallback: if vision rejects all site
+      // images, we show only the Wikipedia photos (or a clean placeholder).
+      const isWiki = (u: string) => /wikimedia\.org|wikipedia\.org/i.test(u);
+      const siteUrls = pool.filter((u) => !isWiki(u));
+      const wikiUrls = pool.filter(isWiki);
+      const visionSelected = await visionFilter(base44, hotel.name, hotel.destination || '', siteUrls);
+      const images = dedupe([...visionSelected, ...wikiUrls]).slice(0, MAX_IMAGES);
       return { hotel, images };
     }));
 
