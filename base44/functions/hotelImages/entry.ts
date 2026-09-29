@@ -8,10 +8,10 @@
 // Step 5: Cache the results for future searches.
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.49';
 
-const FETCH_TIMEOUT = 8000;
-const VALIDATE_TIMEOUT = 5000;
+const FETCH_TIMEOUT = 6000;
+const VALIDATE_TIMEOUT = 3500;
 const MAX_CONCURRENT_VALIDATE = 40;
-const MIN_IMAGE_BYTES = 15000; // Skip icons/logos (< 15 KB)
+const MIN_IMAGE_BYTES = 12000; // Skip icons/logos (< 12 KB)
 
 async function fetchPage(url: string): Promise<string> {
   try {
@@ -125,7 +125,7 @@ function findGalleryLinks(html: string, baseUrl: string): string[] {
       } catch {}
     }
   }
-  return [...new Set(links)].slice(0, 3);
+  return [...new Set(links)].slice(0, 2);
 }
 
 // Validate that a URL resolves to a real photo (not an icon or broken link).
@@ -181,14 +181,14 @@ async function scrapeImages(url: string): Promise<string[]> {
   const homeHtml = await fetchPage(url);
   if (!homeHtml) return [];
   let images = extractImagesFromHtml(homeHtml, url);
-  if (images.length < 12) {
+  if (images.length < 8) {
     for (const link of findGalleryLinks(homeHtml, url)) {
-      if (images.length >= 15) break;
+      if (images.length >= 12) break;
       const pageHtml = await fetchPage(link);
       if (pageHtml) images = [...new Set([...images, ...extractImagesFromHtml(pageHtml, link)])];
     }
   }
-  const toValidate = images.slice(0, 15);
+  const toValidate = images.slice(0, 12);
   const validated = await mapWithConcurrency(toValidate, validateImageUrl, MAX_CONCURRENT_VALIDATE);
   return images.filter((_, i) => validated[i]).slice(0, 10);
 }

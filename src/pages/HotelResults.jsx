@@ -160,34 +160,38 @@ export default function HotelResults() {
   }, [error, hotels.length, loading]);
 
   // Background enhancement — scrape real images from each hotel's official
-  // website and replace the (often wrong) LLM/fallback images. Fires for the
-  // initial batch and again for any hotels loaded via "show more".
+  // website. Hotels are split into small parallel batches so the first visible
+  // cards get their images in ~2-3 s instead of waiting 5-7 s for all 20.
   useEffect(() => {
     if (loading) return;
     const toEnhance = hotels.filter((h) => !enhancedNamesRef.current.has(h.name));
     if (toEnhance.length === 0) return;
     toEnhance.forEach((h) => enhancedNamesRef.current.add(h.name));
-    base44.functions.invoke("hotelImages", {
-      hotels: toEnhance.map((h) => ({ name: h.name, url: h.url || "", destination })),
-    })
-      .then((res) => {
-        const results = res.data?.results || {};
-        if (Object.keys(results).length > 0) {
-          setRealImages((prev) => ({ ...prev, ...results }));
-          // Update cache so back-navigation shows real images immediately
-          const cached = hotelCache.get(searchKey);
-          if (cached) {
-            const updatedHotels = cached.hotels.map((h) => {
-              const key = h.url || h.name;
-              const scraped = results[key];
-              if (scraped && scraped.length > 0) return { ...h, images: scraped.slice(0, 10) };
-              return h;
-            });
-            hotelCache.set(searchKey, { ...cached, hotels: updatedHotels });
-          }
-        }
+
+    const mergeResults = (results) => {
+      if (Object.keys(results).length === 0) return;
+      setRealImages((prev) => ({ ...prev, ...results }));
+      const cached = hotelCache.get(searchKey);
+      if (cached) {
+        const updatedHotels = cached.hotels.map((h) => {
+          const key = h.url || h.name;
+          const scraped = results[key];
+          if (scraped && scraped.length > 0) return { ...h, images: scraped.slice(0, 10) };
+          return h;
+        });
+        hotelCache.set(searchKey, { ...cached, hotels: updatedHotels });
+      }
+    };
+
+    const BATCH = 4;
+    for (let i = 0; i < toEnhance.length; i += BATCH) {
+      const chunk = toEnhance.slice(i, i + BATCH);
+      base44.functions.invoke("hotelImages", {
+        hotels: chunk.map((h) => ({ name: h.name, url: h.url || "", destination })),
       })
-      .catch(() => {});
+        .then((res) => mergeResults(res.data?.results || {}))
+        .catch(() => {});
+    }
   }, [hotels, loading, destination]);
 
   // Load more — user-triggered batch 2+.
