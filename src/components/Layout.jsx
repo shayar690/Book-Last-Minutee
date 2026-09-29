@@ -101,16 +101,27 @@ function Header() {
 
   return (
     <header className="fixed top-0 inset-x-0 z-50 bg-white shadow-horizon py-4">
-      <div className="max-w-7xl mx-auto px-6 lg:px-10 flex items-center justify-between gap-6">
-        {/* Logo at the start — left in English (LTR), right in Hebrew (RTL) */}
+      {/* Mobile: language switcher (left) · hamburger (center) · logo (right) */}
+      <div dir="ltr" className="lg:hidden max-w-7xl mx-auto px-6 flex items-center justify-between">
+        <LanguageSwitcher />
+        <button onClick={() => setOpen((v) => !v)} className="text-ink">
+          {open ? <X className="w-8 h-8" /> : <Menu className="w-8 h-8" />}
+        </button>
+        <Link to={localePath("/")} className="flex items-center shrink-0">
+          <Image src={LOGO_URL} alt={t("brand.name")} className="h-16 w-16 rounded-2xl shadow-sm" fittingType="fill" />
+        </Link>
+      </div>
+
+      {/* Desktop: logo + language switcher (left) · nav (center) · auth (right) */}
+      <div className="hidden lg:flex max-w-7xl mx-auto px-6 lg:px-10 items-center justify-between gap-6">
         <div className="flex items-center gap-5">
           <Link to={localePath("/")} className="flex items-center shrink-0">
-            <Image src={LOGO_URL} alt={t("brand.name")} className="h-16 sm:h-20 w-16 sm:w-20 rounded-2xl shadow-sm" fittingType="fill" />
+            <Image src={LOGO_URL} alt={t("brand.name")} className="h-20 w-20 rounded-2xl shadow-sm" fittingType="fill" />
           </Link>
           <LanguageSwitcher />
         </div>
 
-        <nav className="hidden lg:flex items-center gap-3">
+        <nav className="flex items-center gap-3">
           {links.map((l) => (
             <a key={l.label} href={l.href} className="px-5 py-2.5 rounded-full bg-white border-2 border-gold/40 text-gold text-lg font-semibold hover:bg-gold hover:text-white transition-colors">
               {l.label}
@@ -120,9 +131,6 @@ function Header() {
 
         <div className="flex items-center gap-4">
           <AuthLinks />
-          <button onClick={() => setOpen((v) => !v)} className="lg:hidden text-ink">
-            {open ? <X className="w-8 h-8" /> : <Menu className="w-8 h-8" />}
-          </button>
         </div>
       </div>
 

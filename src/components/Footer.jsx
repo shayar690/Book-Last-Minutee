@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Globe2, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
+import { Image } from "@/components/ui/image";
+
+const FOOTER_LOGO_URL = "https://media.base44.com/images/public/6ab46eccdb257d5931954287/30d67a185_IMG_1740.jpeg";
 
 const CITIES = [
   { label: "New York", tz: "America/New_York" },
@@ -44,10 +47,7 @@ export default function Footer() {
         <div className="grid lg:grid-cols-4 gap-10 lg:gap-12 pb-14 border-b border-white/10">
           {/* brand + newsletter */}
           <div>
-            <div className="flex items-center gap-2.5">
-              <Globe2 className="w-6 h-6 text-gold" strokeWidth={1.25} />
-              <span className="font-display text-lg sm:text-2xl text-white tracking-wide">{t("brand.name")}</span>
-            </div>
+            <Image src={FOOTER_LOGO_URL} alt={t("brand.name")} className="h-28 w-28 sm:h-32 sm:w-32 rounded-2xl" fittingType="fit" />
             <p className="mt-4 text-white/60 text-sm leading-relaxed max-w-xs">{t("footer.tagline")}</p>
             <div className="mt-6">
               <p className="text-white font-medium text-sm">{t("footer.newsletter")}</p>
