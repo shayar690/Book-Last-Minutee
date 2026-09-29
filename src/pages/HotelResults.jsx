@@ -41,13 +41,12 @@ export default function HotelResults() {
     if (Object.keys(realImages).length === 0) return hotels;
     return hotels.map((h) => {
       const key = h.url || h.name;
+      // Not yet enhanced — keep loading shimmer.
+      if (!(key in realImages)) return h;
       const scraped = realImages[key];
-      // Use ONLY real scraped images when available — don't mix in potentially-
-      // wrong LLM images. If scraping returned nothing, keep the original images.
-      if (scraped && scraped.length > 0) {
-        return { ...h, images: scraped.slice(0, 10) };
-      }
-      return h;
+      if (scraped.length > 0) return { ...h, images: scraped.slice(0, 10) };
+      // Enhancement finished with no images — show a clean static placeholder.
+      return { ...h, images: [], noImages: true };
     });
   }, [hotels, realImages]);
 
