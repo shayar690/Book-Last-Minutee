@@ -19,7 +19,9 @@ const TABS = [
   { id: "attractions", icon: Ticket, comingSoon: true },
   { id: "transfers", icon: Bus, comingSoon: true },
   { id: "cars", icon: Car, comingSoon: true },
-  { id: "marriageProposals", icon: Gem },
+  // Gem renders smaller than the other glyphs at the same box size, so it
+  // gets a larger box to visually match Bed/Plane/Car in the yellow tabs.
+  { id: "marriageProposals", icon: Gem, iconClass: "w-5 h-5" },
 ];
 
 function Field({ icon: Icon, label, placeholder, type = "text", flex = false }) {
@@ -280,7 +282,7 @@ export default function SearchWidget() {
                   : "bg-[#F5D166] text-[#2D3035] hover:bg-[#ECC45A]"
               }`}
             >
-              <Icon className="w-4 h-4" strokeWidth={1.5} />
+              <Icon className={tab.iconClass || "w-4 h-4"} strokeWidth={1.5} />
               {(() => {
                 const justReverted = prevComingSoonRef.current.has(tab.id) && !showComingSoon;
                 return (
