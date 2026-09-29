@@ -20,8 +20,9 @@ export default function HotelCard({ hotel, searchContext }) {
 
   const onScroll = () => {
     if (!scrollRef.current) return;
-    const idx = Math.round(scrollRef.current.scrollLeft / scrollRef.current.clientWidth);
-    setActiveImg(idx);
+    // In RTL, scrollLeft is negative — use the absolute value so the index is correct in both directions.
+    const idx = Math.round(Math.abs(scrollRef.current.scrollLeft) / scrollRef.current.clientWidth);
+    setActiveImg(Math.min(Math.max(idx, 0), images.length - 1));
   };
 
   return (
@@ -32,7 +33,7 @@ export default function HotelCard({ hotel, searchContext }) {
       <div className="w-full sm:w-48 h-40 sm:h-32 rounded-lg overflow-hidden shrink-0 bg-[#F5F5F5] relative">
         {images.length > 0 ? (
           <>
-            <div ref={scrollRef} onScroll={onScroll} className="flex overflow-x-auto snap-x snap-mandatory h-full scrollbar-hide">
+            <div ref={scrollRef} onScroll={onScroll} className="flex overflow-x-auto snap-x snap-mandatory h-full scrollbar-hide touch-pan-x overscroll-x-contain">
               {images.map((img, i) => (
                 <div key={i} className="w-full h-full shrink-0 snap-center">
                   <ImageWithFallback src={img} alt={`${hotel.name} ${i + 1}`} className="w-full h-full object-cover" />
