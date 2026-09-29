@@ -25,7 +25,7 @@ function Chip({ label, active, onClick }) {
     <button
       type="button"
       onClick={onClick}
-      className={`px-4 h-10 rounded-lg text-base font-medium border transition-colors whitespace-nowrap ${
+      className={`flex-1 text-center px-2.5 h-10 rounded-lg text-[15px] font-medium border transition-colors whitespace-nowrap ${
         active ? "bg-[#2D3035] text-white border-[#2D3035]" : "bg-white text-[#2D3035] border-[#C5C5C5] hover:border-[#2D3035]"
       }`}
     >
@@ -125,7 +125,7 @@ export default function AdditionalParams({ onChange }) {
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="flex flex-col gap-1.5 min-w-0 flex-1">
           <label className="text-[18px] font-medium text-[#5a5a5a]">{t("search.starRating")}</label>
-          <div className="flex flex-wrap justify-center gap-1.5">
+          <div className="flex flex-nowrap justify-start gap-1.5">
             {STARS.map((s) => (
               <Chip key={s} label={t(`search.stars.${s}`)} active={stars === s} onClick={() => setStars(stars === s ? "" : s)} />
             ))}
@@ -133,7 +133,7 @@ export default function AdditionalParams({ onChange }) {
         </div>
         <div className="flex flex-col gap-1.5 min-w-0 flex-1">
           <label className="text-[18px] font-medium text-[#5a5a5a]">{t("search.mealPlan")}</label>
-          <div className="flex flex-wrap justify-center gap-1.5">
+          <div className="flex flex-nowrap justify-start gap-1.5">
             {MEALS.map((m) => (
               <Chip key={m} label={t(`search.meal.${m}`)} active={meal === m} onClick={() => setMeal(meal === m ? "" : m)} />
             ))}
@@ -161,7 +161,7 @@ export default function AdditionalParams({ onChange }) {
         />
       </div>
 
-      <p className="text-[18px] leading-relaxed text-[#5a5a5a] font-medium whitespace-pre-line">{t("search.requestOnlyNote")}</p>
+      <p className="text-[16px] leading-relaxed text-[#5a5a5a] font-medium whitespace-pre-line">{t("search.requestOnlyNote")}</p>
     </div>
   );
 }
