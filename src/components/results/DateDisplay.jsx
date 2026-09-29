@@ -1,10 +1,7 @@
 import React from "react";
 import { useI18n } from "@/lib/i18n";
 
-// Renders a date as "DD.MM.YYYY (Weekday)" with forced LTR layout.
-// Uses bidi-override to guarantee the date appears before the weekday
-// even inside an RTL parent — the weekday is wrapped in its own RTL
-// override so Hebrew characters still render correctly.
+// Renders a date as "Weekday | DD.MM.YYYY" with language-appropriate direction.
 export default function DateDisplay({ dateStr }) {
   const { lang } = useI18n();
   if (!dateStr) return null;
@@ -20,7 +17,7 @@ export default function DateDisplay({ dateStr }) {
 
   return (
     <span dir={lang === "he" ? "rtl" : "ltr"} style={{ whiteSpace: "nowrap" }}>
-      {datePart}, {weekdayClean}
+      {weekdayClean} | {datePart}
     </span>
   );
 }

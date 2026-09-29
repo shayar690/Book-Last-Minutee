@@ -30,7 +30,7 @@ export default function HotelResults() {
       case "price_high_low": return arr.sort((a, b) => (b.pricePerNight || 0) - (a.pricePerNight || 0));
       case "distance_center": return arr.sort((a, b) => (a.distanceToCenter || 999) - (b.distanceToCenter || 999));
       case "rating_high_low": return arr.sort((a, b) => (b.rating || 0) - (a.rating || 0));
-      default: return arr;
+      default: return arr.sort((a, b) => (b.reviews || 0) - (a.reviews || 0) || (b.rating || 0) - (a.rating || 0));
     }
   }, [hotels, sortBy]);
 
@@ -220,7 +220,7 @@ export default function HotelResults() {
             )}
           </>
         )}
-        {hasMore && !loading && hotels.length > 0 && (
+        {hasMore && !loading && hotels.length > 0 && filteredHotels.length > 0 && (
           <div className="flex justify-center mt-6">
             <button
               onClick={loadMore}

@@ -8,7 +8,7 @@ import Footer from "@/components/Footer";
 function LanguageSwitcher() {
   const { lang, setLang } = useI18n();
   return (
-    <div className="inline-flex items-center rounded-full border border-white/25 overflow-hidden">
+    <div dir="ltr" className="inline-flex items-center rounded-full border border-white/25 overflow-hidden">
       <button
         onClick={() => setLang("en")}
         className={`px-3 py-1.5 text-xs font-medium transition-colors ${lang === "en" ? "bg-white text-ink" : "text-white/80 hover:text-white"}`}
@@ -59,6 +59,23 @@ function Header() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // Auto-logout after 10 minutes of inactivity (security & privacy).
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    let timer;
+    const reset = () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => logout(), 10 * 60 * 1000);
+    };
+    const events = ["mousedown", "keydown", "touchstart", "scroll"];
+    events.forEach((e) => window.addEventListener(e, reset));
+    reset();
+    return () => {
+      clearTimeout(timer);
+      events.forEach((e) => window.removeEventListener(e, reset));
+    };
+  }, [isAuthenticated, logout]);
+
   // On non-home pages the header is always solid (dark text on glass background)
   // so the logo and nav stay visible against light page backgrounds.
   const solid = scrolled || !isHome;
@@ -75,27 +92,24 @@ function Header() {
   return (
     <header className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${solid ? "glass shadow-horizon py-3" : "py-5 bg-transparent"}`}>
       <div className="max-w-7xl mx-auto px-6 lg:px-10 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2.5">
-          <Globe2 className={`w-6 h-6 ${solid ? "text-gold" : "text-white"}`} strokeWidth={1.25} />
-          <span className={`font-display text-lg sm:text-2xl tracking-wide ${solid ? "text-ink" : "text-white"}`}>{t("brand.name")}</span>
-        </Link>
+        <div className="flex items-center gap-4">
+          <LanguageSwitcher />
+          <Link to="/" className="flex items-center gap-2.5">
+            <Globe2 className={`w-6 h-6 ${solid ? "text-gold" : "text-white"}`} strokeWidth={1.25} />
+            <span className={`font-display text-lg sm:text-2xl tracking-wide ${solid ? "text-ink" : "text-white"}`}>{t("brand.name")}</span>
+          </Link>
+        </div>
 
-        <nav className="hidden lg:flex items-center gap-8">
+        <nav className="hidden lg:flex items-center gap-2">
           {links.map((l) => (
-            <a key={l.label} href={l.href} className={`text-sm font-medium transition-colors ${solid ? "text-ink/75 hover:text-gold" : "text-white/85 hover:text-white"}`}>
+            <a key={l.label} href={l.href} className="px-3 py-1.5 rounded-full bg-white/90 text-gold text-sm font-medium hover:bg-white transition-colors">
               {l.label}
             </a>
           ))}
         </nav>
 
         <div className="flex items-center gap-3">
-          <div>
-            <LanguageSwitcher />
-          </div>
           <AuthLinks scrolled={solid} />
-          <a href="#search" className="hidden sm:inline-flex items-center h-10 px-5 rounded-full gold-foil text-ink text-sm font-semibold hover:brightness-105 transition">
-            {t("nav.book")}
-          </a>
           <button onClick={() => setOpen((v) => !v)} className={`lg:hidden ${solid ? "text-ink" : "text-white"}`}>
             {open ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>

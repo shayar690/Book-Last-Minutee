@@ -145,6 +145,11 @@ function Stepper({ label, hint, value, setValue, min, max, onMaxAttempt, canIncr
   );
 }
 
+// In the Base44 builder (Edit Preview) the app runs inside an iframe — there the
+// "coming soon" tabs behave normally so the builder can design them. On the
+// published site (top-level window) they show the red "coming soon" state.
+const isEditor = typeof window !== "undefined" && window.self !== window.top;
+
 export default function SearchWidget() {
   const { t, dir, lang } = useI18n();
   const navigate = useNavigate();
@@ -179,6 +184,8 @@ export default function SearchWidget() {
     setCheckOut(null);
     setShowParams(false);
     setDateModal({ open: false, mode: "range", active: "in" });
+    setFlightOrigin(lang === "he" ? { name: "תל אביב (TLV)", code: "TLV" } : { name: "", code: "" });
+    setFlightDest({ name: "", code: "" });
   }, [lang]);
 
   // Collapse additional params when switching tabs.
@@ -240,22 +247,30 @@ export default function SearchWidget() {
           const isActive = active === tab.id;
           const isComingSoon = tab.comingSoon;
           const wasClicked = comingSoonClicked.has(tab.id);
+          const showComingSoon = isComingSoon && !isEditor && wasClicked;
           return (
             <button
               key={tab.id}
               onClick={() => {
                 if (tab.id === "marriageProposals") {
                   navigate("/marriage-proposals-dubai");
-                } else if (isComingSoon) {
+                } else if (isComingSoon && !isEditor) {
                   setComingSoonClicked((prev) => new Set(prev).add(tab.id));
+                  setTimeout(() => {
+                    setComingSoonClicked((prev) => {
+                      const n = new Set(prev);
+                      n.delete(tab.id);
+                      return n;
+                    });
+                  }, 2500);
                 } else {
                   setActive(tab.id);
                 }
               }}
-              className={`flex items-center justify-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-xl text-sm font-medium transition-colors whitespace-nowrap w-full sm:w-auto sm:justify-start ${
+              className={`flex items-center justify-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-500 whitespace-nowrap w-full sm:w-auto sm:justify-start ${
                 tab.id === "vacationPackages" ? "col-span-2 sm:col-span-1" : ""
               } ${
-                isComingSoon && wasClicked
+                showComingSoon
                   ? "bg-red-600 text-white"
                   : isActive
                   ? "bg-[#2D3035] text-white"
@@ -263,7 +278,7 @@ export default function SearchWidget() {
               }`}
             >
               <Icon className="w-4 h-4" strokeWidth={1.5} />
-              {isComingSoon && wasClicked ? t("tab.comingSoon") : t(`tab.${tab.id}`)}
+              {showComingSoon ? t("tab.comingSoon") : t(`tab.${tab.id}`)}
             </button>
           );
         })}
