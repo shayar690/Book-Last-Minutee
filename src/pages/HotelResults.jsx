@@ -10,7 +10,7 @@ import DateDisplay from "@/components/results/DateDisplay";
 const hotelCache = new Map();
 
 export default function HotelResults() {
-  const { t, lang } = useI18n();
+  const { t, lang, localePath } = useI18n();
   const [searchParams] = useSearchParams();
   const [hotels, setHotels] = useState([]);
   const [totalFound, setTotalFound] = useState(null);
@@ -140,7 +140,7 @@ export default function HotelResults() {
     <div className="min-h-screen bg-[#F9F9F9] pt-20">
       <div className="max-w-5xl mx-auto px-4 py-6">
         {!loading && (
-          <Link to="/" className="inline-flex items-center gap-1.5 px-3 h-10 rounded-lg bg-white border border-[#E5E5E5] text-sm text-[#2D3035] hover:border-[#2D3035] transition-colors mb-4 shadow-sm">
+          <Link to={localePath("/")} className="inline-flex items-center gap-1.5 px-3 h-10 rounded-lg bg-white border border-[#E5E5E5] text-sm text-[#2D3035] hover:border-[#2D3035] transition-colors mb-4 shadow-sm">
             <ArrowLeft className="w-4 h-4 rtl:rotate-180" strokeWidth={1.5} />
             {t("results.backToSearch")}
           </Link>

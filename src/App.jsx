@@ -19,6 +19,7 @@ import HotelResults from '@/pages/HotelResults';
 import HotelDetail from '@/pages/HotelDetail';
 import FlightResults from '@/pages/FlightResults';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import LocaleLayout, { LocaleRedirect } from '@/components/LocaleLayout';
 import { Navigate } from 'react-router-dom';
 // Add page imports here
 
@@ -48,20 +49,29 @@ const AuthenticatedApp = () => {
   // Render the main app
   return (
     <Routes>
+      {/* Auth pages stay at the root (SDK-controlled redirects target them) */}
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
-      <Route element={<Layout />}>
-        <Route path="/" element={<Home />} />
-        <Route path="/marriage-proposals-dubai" element={<MarriageProposalsDubai />} />
-        <Route path="/hotels" element={<HotelResults />} />
-        <Route path="/hotel" element={<HotelDetail />} />
-        <Route path="/flights" element={<FlightResults />} />
-        <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
-          <Route path="/bookings" element={<MyBookings />} />
+
+      {/* Bare root redirects to the active-locale home */}
+      <Route path="/" element={<LocaleRedirect />} />
+
+      {/* Locale-prefixed content routes */}
+      <Route path="/:locale" element={<LocaleLayout />}>
+        <Route element={<Layout />}>
+          <Route index element={<Home />} />
+          <Route path="marriage-proposals-dubai" element={<MarriageProposalsDubai />} />
+          <Route path="hotels" element={<HotelResults />} />
+          <Route path="hotel" element={<HotelDetail />} />
+          <Route path="flights" element={<FlightResults />} />
+          <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
+            <Route path="bookings" element={<MyBookings />} />
+          </Route>
         </Route>
       </Route>
+
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

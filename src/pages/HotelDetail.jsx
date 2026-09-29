@@ -6,7 +6,7 @@ import { useI18n } from "@/lib/i18n";
 import ImageWithFallback from "@/components/results/ImageWithFallback";
 
 export default function HotelDetail() {
-  const { t, lang } = useI18n();
+  const { t, lang, localePath } = useI18n();
   const location = useLocation();
   const navigate = useNavigate();
   const hotel = location.state?.hotel;
@@ -54,7 +54,7 @@ export default function HotelDetail() {
       <div className="min-h-screen bg-[#F9F9F9] flex items-center justify-center">
         <div className="text-center">
           <p className="text-sm text-[#7D7D7D] mb-4">{t("hotel.notFound")}</p>
-          <button onClick={() => navigate("/")} className="inline-flex items-center gap-1.5 px-4 h-10 rounded-lg bg-[#F5D166] text-[#2D3035] font-bold text-sm">
+          <button onClick={() => navigate(localePath("/"))} className="inline-flex items-center gap-1.5 px-4 h-10 rounded-lg bg-[#F5D166] text-[#2D3035] font-bold text-sm">
             {t("hotel.searchAgain")}
           </button>
         </div>

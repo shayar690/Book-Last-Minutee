@@ -457,6 +457,7 @@ const I18nContext = createContext({
   setLang: () => {},
   dir: "ltr",
   t: (key) => (translations.en[key] || key),
+  localePath: (path) => path,
 });
 
 const LANG_STORAGE_KEY = "atlas_lang_pref";
@@ -493,9 +494,10 @@ export function I18nProvider({ children }) {
   }, []);
 
   const t = useCallback((key) => translations[lang][key] || key, [lang]);
+  const localePath = useCallback((path) => `/${lang}${path}`, [lang]);
 
   return (
-    <I18nContext.Provider value={{ lang, setLang: changeLang, dir, t }}>
+    <I18nContext.Provider value={{ lang, setLang: changeLang, dir, t, localePath }}>
       {children}
     </I18nContext.Provider>
   );

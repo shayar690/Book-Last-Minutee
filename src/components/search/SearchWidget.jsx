@@ -151,7 +151,7 @@ function Stepper({ label, hint, value, setValue, min, max, onMaxAttempt, canIncr
 const isEditor = typeof window !== "undefined" && window.self !== window.top;
 
 export default function SearchWidget() {
-  const { t, dir, lang } = useI18n();
+  const { t, dir, lang, localePath } = useI18n();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [active, setActive] = useState("hotels");
@@ -223,7 +223,7 @@ export default function SearchWidget() {
         lateOut: hotelParams.lateOut || "",
         freeCancel: hotelParams.freeCancel ? "1" : "",
       });
-      navigate(`/hotels?${params.toString()}`);
+      navigate(`${localePath("/hotels")}?${params.toString()}`);
     } else if (active === "flights" && flightOrigin.name && flightDest.name) {
       const params = new URLSearchParams({
         origin: flightOrigin.name || "",
@@ -234,7 +234,7 @@ export default function SearchWidget() {
         returnDate: fmtDate(checkOut),
         adults: paxInfo.adults,
       });
-      navigate(`/flights?${params.toString()}`);
+      navigate(`${localePath("/flights")}?${params.toString()}`);
     }
   };
 
@@ -253,7 +253,7 @@ export default function SearchWidget() {
               key={tab.id}
               onClick={() => {
                 if (tab.id === "marriageProposals") {
-                  navigate("/marriage-proposals-dubai");
+                  navigate(localePath("/marriage-proposals-dubai"));
                 } else if (isComingSoon && !isEditor) {
                   setComingSoonClicked((prev) => new Set(prev).add(tab.id));
                   setTimeout(() => {

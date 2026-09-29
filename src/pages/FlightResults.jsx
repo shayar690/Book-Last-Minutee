@@ -6,7 +6,7 @@ import { useI18n } from "@/lib/i18n";
 import FlightCard from "@/components/results/FlightCard";
 
 export default function FlightResults() {
-  const { t, lang } = useI18n();
+  const { t, lang, localePath } = useI18n();
   const [searchParams] = useSearchParams();
   const [flights, setFlights] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -35,7 +35,7 @@ export default function FlightResults() {
   return (
     <div className="min-h-screen bg-[#F9F9F9]">
       <div className="max-w-5xl mx-auto px-4 py-6">
-        <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-[#7D7D7D] hover:text-[#2D3035] transition-colors mb-4">
+        <Link to={localePath("/")} className="inline-flex items-center gap-1.5 text-sm text-[#7D7D7D] hover:text-[#2D3035] transition-colors mb-4">
           <ArrowLeft className="w-4 h-4 rtl:rotate-180" strokeWidth={1.5} />
           {t("results.backToSearch")}
         </Link>

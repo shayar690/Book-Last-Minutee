@@ -13,7 +13,7 @@ const STATUS_STYLE = {
 };
 
 export default function MyBookings() {
-  const { t, lang } = useI18n();
+  const { t, lang, localePath } = useI18n();
   const [bookings, setBookings] = useState(null);
   const [error, setError] = useState("");
 
@@ -45,7 +45,7 @@ export default function MyBookings() {
               <Search className="w-6 h-6 text-gold" strokeWidth={1.25} />
             </div>
             <p className="text-muted-foreground">{t("bookings.empty")}</p>
-            <Link to="/" className="mt-6 inline-flex items-center gap-2 px-6 h-11 rounded-xl gold-foil text-ink font-semibold text-sm">
+            <Link to={localePath("/")} className="mt-6 inline-flex items-center gap-2 px-6 h-11 rounded-xl gold-foil text-ink font-semibold text-sm">
               {t("bookings.emptyCta")}
               <ArrowRight className="w-4 h-4 rtl:rotate-180" />
             </Link>
