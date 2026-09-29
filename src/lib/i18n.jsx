@@ -160,8 +160,8 @@ const translations = {
     "hero.title": "We guarantee the best price!",
     "hero.title1": "We guarantee",
     "hero.title2": "the best price!",
-    "hero.line1": "Found the same hotel at a lower price? Send us the offer,",
-    "hero.line2": "and we'll give you a price 5% lower than what you found.",
+    "hero.line1": "Found the hotel at a lower price? Send us the offer",
+    "hero.line2": "and we'll give you a lower offer than the price you found.",
     "hero.line3": "No fine print. Try us now!",
     "hero.subtitle": "Found the same hotel at a lower price? Send us the offer and we'll give you a price 5% lower than what you found. No fine print. Try us now!",
 
@@ -390,8 +390,8 @@ const translations = {
     "hero.title": "מתחייבים למחיר הטוב ביותר!",
     "hero.title1": "מתחייבים למחיר",
     "hero.title2": "הטוב ביותר!",
-    "hero.line1": "מצאתם את אותו המלון במחיר נמוך יותר? שלחו לנו את ההצעה,",
-    "hero.line2": "ותקבלו מאיתנו מחיר הנמוך ב־5% מהמחיר שמצאתם.",
+    "hero.line1": "מצאתם את המלון במחיר נמוך יותר? שלחו לנו את ההצעה",
+    "hero.line2": "ותקבלו מאיתנו הצעה נמוכה יותר מהמחיר שמצאתם.",
     "hero.line3": "בלי אותיות קטנות. נסו אותנו עכשיו!",
     "hero.subtitle": "מצאתם את אותו המלון במחיר נמוך יותר? שלחו לנו את ההצעה ותקבלו מאיתנו מחיר הנמוך ב־5% מהמחיר שמצאתם. בלי אותיות קטנות. נסו אותנו עכשיו!",
 
