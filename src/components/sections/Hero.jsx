@@ -31,10 +31,7 @@ export default function Hero() {
           transition={{ duration: 0.9, ease: "easeOut" }}
           className="max-w-2xl"
         >
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full glass-dark text-white/90 text-xs tracking-luxe uppercase">
-            {t("brand.slogan")}
-          </div>
-          <h1 className="mt-5 text-white font-display text-5xl sm:text-6xl lg:text-7xl font-light leading-[1.05]">
+          <h1 className="text-white font-display text-5xl sm:text-6xl lg:text-7xl font-bold leading-[1.05]">
             {t("hero.title")}
           </h1>
           <p className="mt-5 text-white/85 text-lg max-w-xl font-light">{t("hero.subtitle")}</p>

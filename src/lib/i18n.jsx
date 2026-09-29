@@ -157,8 +157,8 @@ const translations = {
     "hotel.loadingDetails": "Loading hotel details...",
 
     "hero.badge": "Live guaranteed pricing",
-    "hero.title": "Your journey begins in serenity",
-    "hero.subtitle": "Search, compare and book flights, hotels, car rentals and transfers — all on one calm, considered platform.",
+    "hero.title": "We guarantee the best price!",
+    "hero.subtitle": "Found the same hotel at a lower price? Send us the offer and we'll give you a price 5% lower than what you found. No fine print. Try us now!",
 
     "destinations.title": "Featured Destinations",
     "destinations.subtitle": "Hand-picked corners of the world, framed for the traveler who lingers.",
@@ -382,8 +382,8 @@ const translations = {
     "hotel.loadingDetails": "טוען פרטי מלון...",
 
     "hero.badge": "מחיר חי ומובטח",
-    "hero.title": "המסע שלך מתחיל בשלווה",
-    "hero.subtitle": "חפשו, השוו והזמינו טיסות, מלונות, השכרת רכב והסעות — הכל בפלטפורמה אחת שלווה ומתחשבת.",
+    "hero.title": "מתחייבים למחיר הטוב ביותר!",
+    "hero.subtitle": "מצאתם את אותו המלון במחיר נמוך יותר? שלחו לנו את ההצעה ותקבלו מאיתנו מחיר הנמוך ב־5% מהמחיר שמצאתם. בלי אותיות קטנות. נסו אותנו עכשיו!",
 
     "destinations.title": "יעדים מומלצים",
     "destinations.subtitle": "פינות נבחרות בעולם, מותאמות למטייל שיודע להתעכב.",
