@@ -99,11 +99,18 @@ export default function DatePickerModal({ open, mode, checkIn, checkOut, active,
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 sm:gap-x-8 gap-y-4">
                 {months.map((m, mi) => {
                   const name = m.toLocaleDateString(lang === "he" ? "he-IL" : "en-US", { month: "long", year: "numeric" });
-                  const firstDay = new Date(m.getFullYear(), m.getMonth(), 1).getDay();
                   const daysInMonth = new Date(m.getFullYear(), m.getMonth() + 1, 0).getDate();
+                  // Skip days older than the two-week lookback so the grid starts
+                  // at the first visible date (no empty gap rows), while keeping
+                  // correct weekday alignment via the first visible day's offset.
+                  let startDay = 1;
+                  if (minDate.getFullYear() === m.getFullYear() && minDate.getMonth() === m.getMonth()) {
+                    startDay = minDate.getDate();
+                  }
+                  const firstVisibleWeekday = new Date(m.getFullYear(), m.getMonth(), startDay).getDay();
                   const cells = [];
-                  for (let i = 0; i < firstDay; i++) cells.push(null);
-                  for (let d = 1; d <= daysInMonth; d++) cells.push(new Date(m.getFullYear(), m.getMonth(), d));
+                  for (let i = 0; i < firstVisibleWeekday; i++) cells.push(null);
+                  for (let d = startDay; d <= daysInMonth; d++) cells.push(new Date(m.getFullYear(), m.getMonth(), d));
                   return (
                     <div key={mi} className="pt-2 min-w-0">
                       <div className="font-semibold text-[#2D3035] text-base mb-2 capitalize text-center">{name}</div>
@@ -115,7 +122,6 @@ export default function DatePickerModal({ open, mode, checkIn, checkOut, active,
                       <div className="grid grid-cols-7 gap-y-1">
                         {cells.map((c, ci) => {
                           if (!c) return <div key={ci} />;
-                          const isTooOld = c < minDate;
                           const isPast = c < today;
                           const isFuture = c > maxDate;
                           const disabled = isPast || isFuture;
@@ -123,7 +129,6 @@ export default function DatePickerModal({ open, mode, checkIn, checkOut, active,
                           const isEnd = sameDay(c, pickOut);
                           const inRange = between(c, pickIn, pickOut);
                           const selected = isStart || isEnd;
-                          if (isTooOld) return <div key={ci} className="aspect-square" />;
                           return (
                             <div key={ci} className="relative flex justify-center">
                               {inRange && <div className="absolute inset-y-1 inset-x-0 bg-[#F5D166]/30 rounded-full" />}
