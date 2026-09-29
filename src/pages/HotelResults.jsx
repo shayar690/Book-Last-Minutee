@@ -25,6 +25,11 @@ export default function HotelResults() {
   // Bumped whenever we want to force a fresh search (e.g. auto-retry after the
   // mobile browser killed the in-flight request while the tab was backgrounded).
   const [retryCount, setRetryCount] = useState(0);
+  // Counts auto-retries for the current search query. Mobile browsers suspend
+  // backgrounded tabs and can abort the in-flight hotel search request; when the
+  // user returns we re-run the search instead of leaving a dead "Network Error".
+  const MAX_AUTO_RETRIES = 3;
+  const retryAttemptsRef = useRef(0);
 
   const sortedHotels = useMemo(() => {
     const arr = [...hotels];
@@ -70,6 +75,9 @@ export default function HotelResults() {
     return `${dd}.${mm}.${yyyy} (${weekdayClean})`;
   };
 
+  // Reset the auto-retry counter whenever the search query itself changes.
+  useEffect(() => { retryAttemptsRef.current = 0; }, [searchKey]);
+
   // Batch 1 — fast initial results (with cache for back-navigation).
   useEffect(() => {
     if (!destination) { setLoading(false); return; }
@@ -85,6 +93,7 @@ export default function HotelResults() {
       return;
     }
     setLoading(true);
+    setError(null);
     setHotels([]);
     setTotalFound(null);
     setHasMore(true);
@@ -103,7 +112,16 @@ export default function HotelResults() {
         setError(res.data?.error || null);
         hotelCache.set(searchKey, { hotels: batchHotels, totalFound: res.data?.totalFound ?? batchHotels.length, error: res.data?.error, batchNum: 1, hasMore: true });
       })
-      .catch((err) => setError(err.message))
+      .catch((err) => {
+        setError(err.message);
+        // Auto-retry network errors that happen when a mobile browser kills the
+        // request while the tab is backgrounded. Only retry while the page is
+        // actually visible so we don't burn through attempts in the background.
+        if (document.visibilityState === "visible" && retryAttemptsRef.current < MAX_AUTO_RETRIES) {
+          retryAttemptsRef.current += 1;
+          setTimeout(() => setRetryCount((c) => c + 1), 1200);
+        }
+      })
       .finally(() => setLoading(false));
   }, [searchKey, retryCount]);
 
@@ -112,10 +130,9 @@ export default function HotelResults() {
   // the app, automatically re-run the search if it died with no results.
   useEffect(() => {
     const onVisibility = () => {
-      if (document.visibilityState === "visible") {
-        if (error && hotels.length === 0 && !loading) {
-          setRetryCount((c) => c + 1);
-        }
+      if (document.visibilityState === "visible" && error && hotels.length === 0 && !loading && retryAttemptsRef.current < MAX_AUTO_RETRIES) {
+        retryAttemptsRef.current += 1;
+        setRetryCount((c) => c + 1);
       }
     };
     document.addEventListener("visibilitychange", onVisibility);
@@ -217,7 +234,13 @@ export default function HotelResults() {
         ) : hotels.length === 0 ? (
           <div className="text-center py-20">
             {error && <p className="text-sm text-red-500 mb-2">{error}</p>}
-            <p className="text-sm text-[#7D7D7D]">{t("results.noHotels")}</p>
+            <p className="text-sm text-[#7D7D7D] mb-4">{t("results.noHotels")}</p>
+            <button
+              onClick={() => { retryAttemptsRef.current = 0; setRetryCount((c) => c + 1); }}
+              className="px-5 h-10 rounded-lg bg-[#2D3035] text-white text-sm font-medium hover:bg-[#1a1d20] transition"
+            >
+              {lang === "he" ? "נסה שוב" : "Try again"}
+            </button>
           </div>
         ) : filteredHotels.length === 0 ? (
           <div className="text-center py-20">
