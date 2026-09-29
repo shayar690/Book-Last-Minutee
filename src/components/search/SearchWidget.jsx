@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Bed, Plane, Bus, Car, Ticket, Search, Calendar, Users, ChevronDown, Clock, ArrowRight, Package, Gem } from "lucide-react";
@@ -158,6 +158,12 @@ export default function SearchWidget() {
   const [searching, setSearching] = useState(false);
   const [showParams, setShowParams] = useState(false);
   const [comingSoonClicked, setComingSoonClicked] = useState(new Set());
+  // Tracks the previous "coming soon" set so we can fade ONLY when a tab
+  // reverts back to its original label (not when it first turns red).
+  const prevComingSoonRef = useRef(new Set());
+  useEffect(() => {
+    prevComingSoonRef.current = new Set(comingSoonClicked);
+  }, [comingSoonClicked]);
 
   const [checkIn, setCheckIn] = useState(null);
   const [checkOut, setCheckOut] = useState(null);
@@ -278,17 +284,19 @@ export default function SearchWidget() {
               }`}
             >
               <Icon className="w-4 h-4" strokeWidth={1.5} />
-              <AnimatePresence mode="wait" initial={false}>
-                <motion.span
-                  key={showComingSoon ? "comingSoon" : tab.id}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.35, ease: "easeInOut" }}
-                >
-                  {showComingSoon ? t("tab.comingSoon") : t(`tab.${tab.id}`)}
-                </motion.span>
-              </AnimatePresence>
+              {(() => {
+                const justReverted = prevComingSoonRef.current.has(tab.id) && !showComingSoon;
+                return (
+                  <motion.span
+                    key={showComingSoon ? "comingSoon" : tab.id}
+                    initial={justReverted ? { opacity: 0 } : false}
+                    animate={{ opacity: 1 }}
+                    transition={justReverted ? { duration: 0.4, ease: "easeInOut" } : { duration: 0 }}
+                  >
+                    {showComingSoon ? t("tab.comingSoon") : t(`tab.${tab.id}`)}
+                  </motion.span>
+                );
+              })()}
             </button>
           );
         })}
