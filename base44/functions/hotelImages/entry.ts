@@ -8,8 +8,8 @@
 // Step 5: Cache the results for future searches.
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.49';
 
-const FETCH_TIMEOUT = 6000;
-const VALIDATE_TIMEOUT = 3500;
+const FETCH_TIMEOUT = 4500;
+const VALIDATE_TIMEOUT = 3000;
 const MAX_CONCURRENT_VALIDATE = 40;
 const MIN_IMAGE_BYTES = 12000; // Skip icons/logos (< 12 KB)
 
@@ -42,9 +42,10 @@ const NON_PHOTO_RE = new RegExp(
   // Social media
   'whatsapp|facebook|twitter|instagram|linkedin|youtube|tiktok|' +
   'social|share|follow|subscribe|messenger|telegram|wechat|' +
-  // Ads / promos
+  // Ads / promos / credit cards / loyalty programs
   'promo|flyer|advertisement|ad-banner|ad_|coupon|deal|offer|discount|' +
-  'sale|voucher|gift-card|' +
+  'sale|voucher|gift-card|credit-card|creditcard|bonvoy|boundless|' +
+  'mastercard|amex|loyalty|reward|earn-points|' +
   // App / download
   'app-store|google-play|download-app|qr|barcode|' +
   // Newsletter / signup
@@ -57,12 +58,70 @@ const NON_PHOTO_RE = new RegExp(
   'i'
 );
 
+// Ad-related alt text — catches credit card promos, loyalty banners, etc.
+// that slip past URL filtering (e.g., a Marriott Bonvoy Visa card image).
+const AD_ALT_RE = /credit\s*card|bonvoy|visa|mastercard|amex|loyalty|reward|earn\s*points|apply\s*now|sign\s*up|join\s*now|sponsor|advertisement|partnership|co-branded|limited\s*time|exclusive\s*offer/i;
+
+// Major hotel brands and well-known properties — used to filter out images
+// from third-party pages (e.g., a "Best Hotels in Dubai" article) that include
+// photos of OTHER hotels. If an image URL contains a brand NOT in the current
+// hotel's name, the image is almost certainly of a different hotel.
+const HOTEL_BRANDS = [
+  'marriott', 'hilton', 'hyatt', 'intercontinental', 'holiday-inn', 'novotel',
+  'ibis', 'accor', 'four-seasons', 'ritz-carlton', 'st-regis', 'westin',
+  'sheraton', 'jumeirah', 'mandarin-oriental', 'peninsula', 'shangri-la',
+  'fairmont', 'radisson', 'crowne-plaza', 'le-meridien', 'renaissance',
+  'moxy', 'aloft', 'sofitel', 'pullman', 'movenpick', 'steigenberger',
+  'kempinski', 'langham', 'rosewood', 'aman', 'six-senses', 'banyan-tree',
+  'anantara', 'oberoi', 'burj-al-arab', 'bvlgari', 'bulgari', 'caesar',
+  'mgm', 'venetian', 'palazzo', 'w-hotel', 'grand-hyatt', 'park-hyatt',
+];
+
+function filterByBrand(images: string[], hotelName: string): string[] {
+  const normalized = hotelName.toLowerCase().replace(/[^a-z0-9]/g, '-');
+  const filtered = images.filter(url => {
+    const u = url.toLowerCase();
+    for (const brand of HOTEL_BRANDS) {
+      if (u.includes(brand) && !normalized.includes(brand)) return false;
+    }
+    return true;
+  });
+  // Keep filtered only if it has enough images; otherwise fall back to unfiltered.
+  return filtered.length >= 2 ? filtered : images;
+}
+
 function extractImagesFromHtml(html: string, baseUrl: string): string[] {
   const matches: string[] = [];
   let m;
 
-  const imgSrcRegex = /<img[^>]+(?:src|data-src|data-lazy-src|data-original)=["']([^"']+\.(?:jpg|jpeg|png|webp))["']/gi;
-  while ((m = imgSrcRegex.exec(html)) !== null) matches.push(m[1]);
+  // Match full <img> tags to extract src + alt + dimensions together, so we
+  // can filter out ad images (credit card promos, loyalty banners) by their
+  // alt text and skip unusual aspect ratios (wide banner ads, tiny buttons).
+  const imgTagRegex = /<img\b[^>]*>/gi;
+  while ((m = imgTagRegex.exec(html)) !== null) {
+    const tag = m[0];
+    const srcMatch = tag.match(/(?:src|data-src|data-lazy-src|data-original)=["']([^"']+\.(?:jpg|jpeg|png|webp))["']/i);
+    if (!srcMatch) continue;
+    const src = srcMatch[1];
+
+    // Filter by alt text — skip ad/promo images (credit cards, loyalty banners)
+    const altMatch = tag.match(/\balt=["']([^"']*)["']/i);
+    if (altMatch && AD_ALT_RE.test(altMatch[1])) continue;
+
+    // Filter by aspect ratio — skip very wide banners (ads) and very tall images
+    const wMatch = tag.match(/\bwidth=["']?(\d+)["']?/i);
+    const hMatch = tag.match(/\bheight=["']?(\d+)["']?/i);
+    if (wMatch && hMatch) {
+      const w = parseInt(wMatch[1], 10);
+      const h = parseInt(hMatch[1], 10);
+      if (w > 0 && h > 0) {
+        const ratio = w / h;
+        if (ratio > 3.5 || ratio < 0.25) continue;
+      }
+    }
+
+    matches.push(src);
+  }
 
   // Extract from srcset — URLs in srcset can contain commas (e.g., Cloudinary
   // transformation params like f_auto,c_auto,w_640), so we extract by URL pattern
@@ -240,17 +299,14 @@ export default async function(req) {
     ).join("\n");
 
     const llmResult = await base44.asServiceRole.integrations.Core.InvokeLLM({
-      prompt: `Search the web for each of these hotels and find website URLs that contain real photos of the hotel. For each hotel, return up to 3 candidate URLs in priority order:
-1. The hotel's OWN official website (e.g., www.hotelname.com) — this is best
-2. A local tourism or directory site with hotel photos
-3. Any other non-booking-site page with real photos of this specific hotel
-
-Do NOT include URLs from booking.com, expedia.com, hotels.com, or tripadvisor.com — those sites block scraping.
+      prompt: `For each hotel below, find 2 website URLs that contain real photos of the hotel:
+1. The hotel's OWN official website (e.g., www.hotelname.com)
+2. A third-party page with hotel photos (e.g., a tourism site, travel blog, or review site — NOT booking.com, expedia.com, hotels.com, or tripadvisor.com)
 
 Hotels:
 ${hotelList}
 
-Return a JSON object with a "hotels" array. Each element has "name" (exactly as given above) and "urls" (array of up to 3 website URLs, best first). If you cannot find any suitable URL for a hotel, return an empty array.`,
+Return a JSON object with a "hotels" array. Each element has "name" (exactly as given above) and "urls" (array of up to 2 website URLs, best first). If you cannot find any suitable URL, return an empty array.`,
       add_context_from_internet: true,
       model: "gemini_3_flash",
       response_json_schema: {
@@ -290,14 +346,17 @@ Return a JSON object with a "hotels" array. Each element has "name" (exactly as 
       }
     });
 
-    // Step 3: Scrape each uncached hotel's candidate URLs.
+    // Step 3: Scrape each uncached hotel's candidate URLs in parallel.
+    // Trying both URLs at once (instead of sequentially) saves 2-4 s when the
+    // first URL blocks scraping (e.g., Marriott/Hilton return 403).
     const scraped = await Promise.all(uncached.map(async (hotel) => {
       const candidates = urlMap[normalize(hotel.name)] || [];
-      for (const candidateUrl of candidates.slice(0, 3)) {
-        const images = await scrapeImages(candidateUrl);
-        if (images.length >= 2) return { hotel, key: hotelKey(hotel), images };
+      const scrapeResults = await Promise.all(candidates.slice(0, 2).map(url => scrapeImages(url)));
+      for (const images of scrapeResults) {
+        if (images.length >= 2) return { hotel, key: hotelKey(hotel), images: filterByBrand(images, hotel.name) };
       }
-      return { hotel, key: hotelKey(hotel), images: [] };
+      const best = scrapeResults.reduce((a, b) => a.length >= b.length ? a : b, []);
+      return { hotel, key: hotelKey(hotel), images: filterByBrand(best, hotel.name) };
     }));
 
     // Step 4: Cache successful scrapes and merge into results.

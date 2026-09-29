@@ -183,9 +183,21 @@ export default function HotelResults() {
       }
     };
 
-    const BATCH = 4;
-    for (let i = 0; i < toEnhance.length; i += BATCH) {
-      const chunk = toEnhance.slice(i, i + BATCH);
+    // First batch — just 2 hotels (the ones visible on screen). A tiny batch
+    // returns from the LLM + scraper in ~2-3 s instead of 4-5 s for a larger
+    // batch, so the first real photos appear much faster.
+    const firstBatch = toEnhance.slice(0, 2);
+    const rest = toEnhance.slice(2);
+    base44.functions.invoke("hotelImages", {
+      hotels: firstBatch.map((h) => ({ name: h.name, url: h.url || "", destination })),
+    })
+      .then((res) => mergeResults(res.data?.results || {}))
+      .catch(() => {});
+
+    // Remaining hotels — larger batches, all in parallel.
+    const BATCH = 6;
+    for (let i = 0; i < rest.length; i += BATCH) {
+      const chunk = rest.slice(i, i + BATCH);
       base44.functions.invoke("hotelImages", {
         hotels: chunk.map((h) => ({ name: h.name, url: h.url || "", destination })),
       })
