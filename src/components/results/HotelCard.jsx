@@ -49,7 +49,7 @@ export default function HotelCard({ hotel, searchContext }) {
                 </button>
                 <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1 items-center">
                   {images.map((_, i) => (
-                    <span key={i} className={`rounded-full transition-all duration-200 ${i === activeImg ? "w-5 h-1.5 bg-white shadow-[0_0_0_1px_rgba(0,0,0,0.15)]" : "w-1.5 h-1.5 bg-white/40"}`} />
+                    <span key={i} className={`rounded-full transition-all duration-200 ${i === activeImg ? "w-5 h-1.5 bg-white" : "w-1.5 h-1.5 bg-white/40"}`} />
                   ))}
                 </div>
               </>
