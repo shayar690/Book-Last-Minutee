@@ -45,6 +45,13 @@ const NON_PHOTO_RE = new RegExp(
 );
 const AD_ALT_RE = /credit\s*card|bonvoy|visa|mastercard|amex|loyalty|reward|apply\s*now|sign\s*up|join\s*now|sponsor|advertisement|limited\s*time|exclusive\s*offer/i;
 
+// "Boring" imagery that doesn't sell a hotel: people/lifestyle shots, event/
+// meeting photos, co-working / office spaces, casual lounge / sitting areas
+// (poufs, beanbags, TV nooks), and kids' areas. We only want attractive,
+// promotional photography — pool, facilities, lobby, building exterior, views,
+// rooms. Matched against both the image URL/filename and its alt text.
+const BORING_RE = /\b(people|person|persons|crowd|portrait|selfie|lifestyle|staff|team|group|guests|event|events|party|parties|wedding|weddings|meeting|meetings|conference|conferences|seminar|boardroom|gala|banquet|celebration|workspace|coworking|co-working|office|startup|lounge|livingroom|living-room|sitting|commonroom|common-room|beanbag|pouf|kids|child|children|baby|toddler)s?\b/i;
+
 const GENERIC = new Set(['the', 'hotel', 'hotels', 'resort', 'resorts', 'spa', 'and', 'by', 'at', 'of', 'in', 'suites', 'suite', 'inn', 'palace', 'grand', 'royal', 'residence', 'residences', 'collection', 'city', 'center', 'centre', 'downtown', 'beach', 'club', 'boutique', 'luxury', 'international', 'plaza', 'tower', 'towers']);
 
 function nameTokens(name: string): string[] {
@@ -114,7 +121,7 @@ const CATEGORIES: [string, RegExp][] = [
   ['exterior', /exterior|facade|building|aerial|outside|front|skyline/i],
   ['pool', /pool|swim|lagoon|aquapark|water-?park/i],
   ['beach', /beach|ocean|shore|coast|sea/i],
-  ['lobby', /lobby|reception|entrance|lounge|hall/i],
+  ['lobby', /lobby|reception|entrance|hall/i],
   ['spa', /\bspa\b|wellness|massage|sauna|hammam|jacuzzi|treatment/i],
   ['gym', /gym|fitness|sport|tennis|golf/i],
   ['restaurant', /restaurant|dining|breakfast|\bbar\b|cafe|buffet|kitchen|food|cuisine/i],
@@ -179,7 +186,12 @@ function extractImages(html: string, baseUrl: string): string[] {
   }
   const og = html.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i);
   if (og && /\.(?:jpe?g|png|webp)/i.test(og[1])) { try { found.unshift(new URL(og[1], baseUrl).href); } catch {} }
-  return found.filter((u) => /^https?:/i.test(u) && /\.(?:jpe?g|png|webp)/i.test(u) && !NON_PHOTO_RE.test(u));
+  return found.filter((u) => {
+    if (!/^https?:/i.test(u) || !/\.(?:jpe?g|png|webp)/i.test(u) || NON_PHOTO_RE.test(u)) return false;
+    const alt = altByUrl.get(u) || '';
+    if (BORING_RE.test(u) || BORING_RE.test(alt)) return false;
+    return true;
+  });
 }
 
 function galleryLinks(html: string, baseUrl: string): string[] {
@@ -252,7 +264,7 @@ export default async function (req) {
     if (!hotels || hotels.length === 0) return Response.json({ results: {} });
 
     const normalize = (s: string) => (s || '').toLowerCase().trim();
-    const hotelKey = (h: any) => `v4|${normalize(h.name)}|${normalize(h.destination || '')}`;
+    const hotelKey = (h: any) => `v5|${normalize(h.name)}|${normalize(h.destination || '')}`;
 
     const batch = hotels.slice(0, 10);
     const results: Record<string, string[]> = {};
