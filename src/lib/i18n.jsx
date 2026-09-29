@@ -312,7 +312,7 @@ const translations = {
     "search.stars.5": "5 כוכבים",
     "search.mealPlan": "בסיס פנסיון",
     "search.meal.ro": "לינה בלבד",
-    "search.meal.bb": "לינה וארוחת בוקר",
+    "search.meal.bb": "ארוחת בוקר",
     "search.meal.hb": "חצי פנסיון",
     "search.meal.fb": "פנסיון מלא",
     "search.meal.ai": "הכל כלול",
