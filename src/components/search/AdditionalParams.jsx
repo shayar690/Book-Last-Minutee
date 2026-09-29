@@ -106,9 +106,24 @@ export default function AdditionalParams({ onChange }) {
 
   return (
     <div className="flex flex-col gap-3 pt-3">
-      {/* Row 1: Star rating + Meal plan — compact, side by side */}
-      <div className="flex flex-col sm:flex-row gap-3 sm:gap-5">
-        <div className="flex flex-col gap-1.5 min-w-0">
+      {/* Free cancellation — top, first */}
+      <button
+        type="button"
+        onClick={() => setFreeCancel((v) => !v)}
+        className="flex items-center gap-2 h-12 px-4 rounded-lg bg-white border border-[#C5C5C5] hover:border-[#2D3035] transition-colors w-full sm:w-fit"
+      >
+        <span
+          className="w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-colors"
+          style={{ backgroundColor: freeCancel ? GREEN : "transparent", borderColor: freeCancel ? GREEN : "#C5C5C5" }}
+        >
+          {freeCancel && <Check className="w-3.5 h-3.5 text-white" strokeWidth={3.5} />}
+        </span>
+        <span className="text-base font-medium text-[#2D3035] leading-5 translate-y-[1px]">{t("search.freeCancellation")}</span>
+      </button>
+
+      {/* Star rating + Meal plan — equal width, spanning full search width */}
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="flex flex-col gap-1.5 min-w-0 flex-1">
           <label className="text-[13px] font-medium text-[#5a5a5a]">{t("search.starRating")}</label>
           <div className="flex flex-wrap gap-1.5">
             {STARS.map((s) => (
@@ -116,7 +131,7 @@ export default function AdditionalParams({ onChange }) {
             ))}
           </div>
         </div>
-        <div className="flex flex-col gap-1.5 min-w-0">
+        <div className="flex flex-col gap-1.5 min-w-0 flex-1">
           <label className="text-[13px] font-medium text-[#5a5a5a]">{t("search.mealPlan")}</label>
           <div className="flex flex-wrap gap-1.5">
             {MEALS.map((m) => (
@@ -126,8 +141,8 @@ export default function AdditionalParams({ onChange }) {
         </div>
       </div>
 
-      {/* Row 2: Early check-in + Late check-out + Free cancellation — one row */}
-      <div className="flex flex-col sm:flex-row gap-3 sm:items-end">
+      {/* Early check-in + Late check-out — one row */}
+      <div className="flex flex-col sm:flex-row gap-3">
         <Dropdown
           label={t("search.earlyCheckin")}
           placeholder={t("search.selectTime")}
@@ -144,19 +159,6 @@ export default function AdditionalParams({ onChange }) {
           options={lateOptions}
           icon={Clock}
         />
-        <button
-          type="button"
-          onClick={() => setFreeCancel((v) => !v)}
-          className="flex items-center gap-2 h-12 px-4 rounded-lg bg-white border border-[#C5C5C5] hover:border-[#2D3035] transition-colors w-full sm:w-fit shrink-0"
-        >
-          <span
-            className="w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-colors"
-            style={{ backgroundColor: freeCancel ? GREEN : "transparent", borderColor: freeCancel ? GREEN : "#C5C5C5" }}
-          >
-            {freeCancel && <Check className="w-3.5 h-3.5 text-white" strokeWidth={3.5} />}
-          </span>
-          <span className="text-base font-medium text-[#2D3035] leading-5 translate-y-[1px]">{t("search.freeCancellation")}</span>
-        </button>
       </div>
 
       <p className="text-[13px] leading-relaxed text-[#5a5a5a] font-medium whitespace-pre-line">{t("search.requestOnlyNote")}</p>
