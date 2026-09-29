@@ -104,7 +104,7 @@ export default function Footer() {
 
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-white/45 text-xs">
           <p>© {new Date().getFullYear()} {t("brand.name")}. {t("footer.rights")}</p>
-          <p className="tracking-luxe uppercase">Powered by RateHawk live inventory</p>
+          <p className="tracking-luxe uppercase">{t("brand.slogan")}</p>
         </div>
       </div>
     </footer>

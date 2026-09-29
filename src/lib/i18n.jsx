@@ -156,7 +156,7 @@ const translations = {
     "hotel.beds": "Beds",
     "hotel.loadingDetails": "Loading hotel details...",
 
-    "hero.badge": "Powered by live RateHawk inventory",
+    "hero.badge": "Live guaranteed pricing",
     "hero.title": "Your journey begins in serenity",
     "hero.subtitle": "Search, compare and book flights, hotels, car rentals and transfers — all on one calm, considered platform.",
 
@@ -178,7 +178,7 @@ const translations = {
     "why.title": "Why book with Last-Minute Vacations",
     "why.subtitle": "A booking experience designed to feel like the vacation itself.",
     "why.1.title": "Live, guaranteed pricing",
-    "why.1.desc": "Every rate syncs in real time with RateHawk's inventory. The price you see is the price you pay.",
+    "why.1.desc": "Every rate syncs in real time with live inventory. The price you see is the price you pay.",
     "why.2.title": "All your travel, one place",
     "why.2.desc": "Flights, hotels, cars and transfers — compared and booked together without ever leaving the site.",
     "why.3.title": "No hidden fees",
@@ -381,7 +381,7 @@ const translations = {
     "hotel.beds": "מיטות",
     "hotel.loadingDetails": "טוען פרטי מלון...",
 
-    "hero.badge": "מופעל על ידי מלאי חי של RateHawk",
+    "hero.badge": "מחיר חי ומובטח",
     "hero.title": "המסע שלך מתחיל בשלווה",
     "hero.subtitle": "חפשו, השוו והזמינו טיסות, מלונות, השכרת רכב והסעות — הכל בפלטפורמה אחת שלווה ומתחשבת.",
 
@@ -403,7 +403,7 @@ const translations = {
     "why.title": "למה להזמין עם חופשות ברגע האחרון",
     "why.subtitle": "חוויית הזמנה שמרגישה כמו החופשה עצמה.",
     "why.1.title": "מחיר חי ומובטח",
-    "why.1.desc": "כל מחיר מסתנכרן בזמן אמת עם מלאי RateHawk. המחיר שרואים הוא המחיר שמשלמים.",
+    "why.1.desc": "כל מחיר מסתנכרן בזמן אמת עם מלאי חי. המחיר שרואים הוא המחיר שמשלמים.",
     "why.2.title": "כל הנסיעות במקום אחד",
     "why.2.desc": "טיסות, מלונות, רכב והסעות — השוואה והזמנה ביחד, בלי לעזוב את האתר.",
     "why.3.title": "ללא עמלות נסתרות",
