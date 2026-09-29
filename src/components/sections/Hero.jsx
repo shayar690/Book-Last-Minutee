@@ -31,10 +31,10 @@ export default function Hero() {
           transition={{ duration: 0.9, ease: "easeOut" }}
           className="max-w-2xl"
         >
-          <h1 className="text-white font-display text-5xl sm:text-6xl lg:text-7xl font-bold leading-[1.05]">
+          <h1 className="text-[#F5D166] font-display text-5xl sm:text-6xl lg:text-7xl font-bold leading-[1.05] drop-shadow-lg">
             {t("hero.title")}
           </h1>
-          <p className="mt-5 text-white text-lg max-w-xl font-normal drop-shadow-lg">{t("hero.subtitle")}</p>
+          <p className="mt-5 text-[#F5D166] text-lg max-w-xl font-bold drop-shadow-lg">{t("hero.subtitle")}</p>
         </motion.div>
       </div>
 
