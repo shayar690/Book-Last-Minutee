@@ -244,7 +244,7 @@ export default function SearchWidget() {
   return (
     <div className="w-full">
       {/* Tab bar */}
-      <div className="grid grid-cols-2 gap-2 px-1.5 pb-1.5 pt-4 bg-white rounded-t-2xl shadow-horizon w-full max-w-full sm:flex sm:flex-wrap sm:justify-center">
+      <div className="grid grid-cols-2 gap-2 px-3 sm:px-6 pb-2 pt-5 bg-white rounded-t-2xl shadow-horizon w-full max-w-full sm:flex sm:flex-nowrap sm:justify-center">
         {TABS.map((tab) => {
           const Icon = tab.icon;
           const isActive = active === tab.id;
@@ -270,7 +270,7 @@ export default function SearchWidget() {
                   setActive(tab.id);
                 }
               }}
-              className={`flex items-center justify-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-500 whitespace-nowrap w-full sm:w-auto sm:justify-start ${
+              className={`flex items-center justify-center gap-2 px-4 sm:px-3 py-3.5 rounded-xl text-base font-medium transition-all duration-500 whitespace-nowrap w-full sm:flex-1 sm:justify-center ${
                 tab.id === "vacationPackages" ? "col-span-2 sm:col-span-1" : ""
               } ${
                 showComingSoon
@@ -372,7 +372,7 @@ export default function SearchWidget() {
             <button
               type="button"
               onClick={() => setShowParams((v) => !v)}
-              className="flex items-center gap-1.5 mt-3 text-sm text-[#7D7D7D] hover:text-[#2D3035] transition-colors"
+              className="flex items-center gap-1.5 mt-3 text-base text-[#7D7D7D] hover:text-[#2D3035] transition-colors"
             >
               {t("search.additionalParams")}
               <ChevronDown className={`w-4 h-4 transition-transform ${showParams ? "rotate-180" : ""}`} strokeWidth={1.5} />
