@@ -107,7 +107,25 @@ export default function AdditionalParams({ onChange }) {
   return (
     <div className="flex flex-col gap-3 pt-3">
       {/* Free cancellation + Meal plan + Star rating — one row */}
-      <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-start">
+      <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 items-stretch sm:items-start">
+        {/* Meal plan */}
+        <div className="flex flex-col gap-1.5 min-w-0 flex-1">
+          <label className="text-[18px] font-medium text-[#5a5a5a]">{t("search.mealPlan")}</label>
+          <div className="flex flex-nowrap justify-start gap-1 sm:gap-2">
+            {MEALS.map((m) => (
+              <Chip key={m} label={t(`search.meal.${m}`)} active={meal.includes(m)} onClick={() => setMeal(meal.includes(m) ? meal.filter((x) => x !== m) : [...meal, m])} />
+            ))}
+          </div>
+        </div>
+        {/* Star rating */}
+        <div className="flex flex-col gap-1.5 min-w-0 flex-1">
+          <label className="text-[18px] font-medium text-[#5a5a5a]">{t("search.starRating")}</label>
+          <div className="flex flex-nowrap justify-start gap-1 sm:gap-2">
+            {STARS.map((s) => (
+              <Chip key={s} label={t(`search.stars.${s}`)} active={stars.includes(s)} onClick={() => setStars(stars.includes(s) ? stars.filter((x) => x !== s) : [...stars, s])} />
+            ))}
+          </div>
+        </div>
         {/* Free cancellation */}
         <div className="flex flex-col gap-1.5 min-w-0 sm:mt-8 flex-[0.7]">
           <button
@@ -123,24 +141,6 @@ export default function AdditionalParams({ onChange }) {
             </span>
             <span className="text-base font-medium text-[#2D3035] leading-5 translate-y-[1px]">{t("search.freeCancellation")}</span>
           </button>
-        </div>
-        {/* Meal plan */}
-        <div className="flex flex-col gap-1.5 min-w-0 flex-1">
-          <label className="text-[18px] font-medium text-[#5a5a5a]">{t("search.mealPlan")}</label>
-          <div className="flex flex-nowrap justify-start gap-0.5 sm:gap-1.5">
-            {MEALS.map((m) => (
-              <Chip key={m} label={t(`search.meal.${m}`)} active={meal.includes(m)} onClick={() => setMeal(meal.includes(m) ? meal.filter((x) => x !== m) : [...meal, m])} />
-            ))}
-          </div>
-        </div>
-        {/* Star rating */}
-        <div className="flex flex-col gap-1.5 min-w-0 flex-1">
-          <label className="text-[18px] font-medium text-[#5a5a5a]">{t("search.starRating")}</label>
-          <div className="flex flex-nowrap justify-start gap-0.5 sm:gap-1.5">
-            {STARS.map((s) => (
-              <Chip key={s} label={t(`search.stars.${s}`)} active={stars.includes(s)} onClick={() => setStars(stars.includes(s) ? stars.filter((x) => x !== s) : [...stars, s])} />
-            ))}
-          </div>
         </div>
       </div>
 

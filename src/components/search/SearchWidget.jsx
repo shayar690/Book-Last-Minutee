@@ -244,7 +244,7 @@ export default function SearchWidget() {
   return (
     <div className="w-full">
       {/* Tab bar */}
-      <div className="grid grid-cols-2 gap-2 px-1.5 pb-1.5 pt-4 bg-white/95 rounded-t-2xl shadow-horizon w-full max-w-full sm:flex sm:flex-wrap sm:justify-center">
+      <div className="grid grid-cols-2 gap-2 px-1.5 pb-1.5 pt-4 bg-white rounded-t-2xl shadow-horizon w-full max-w-full sm:flex sm:flex-wrap sm:justify-center">
         {TABS.map((tab) => {
           const Icon = tab.icon;
           const isActive = active === tab.id;

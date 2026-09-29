@@ -3,7 +3,7 @@ import { ArrowRight } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { Image } from "@/components/ui/image";
 
-const FOOTER_LOGO_URL = "https://media.base44.com/images/public/6ab46eccdb257d5931954287/30d67a185_IMG_1740.jpeg";
+const FOOTER_LOGO_URL = "https://media.base44.com/images/public/6ab46eccdb257d5931954287/f840aa1b3_.png";
 
 const CITIES = [
   { label: "New York", tz: "America/New_York" },

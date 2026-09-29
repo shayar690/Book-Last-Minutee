@@ -34,12 +34,12 @@ export default function Hero() {
           <h1 className="text-white font-display text-5xl sm:text-6xl lg:text-7xl font-bold leading-[1.05]">
             {t("hero.title")}
           </h1>
-          <p className="mt-5 text-white/85 text-lg max-w-xl font-light">{t("hero.subtitle")}</p>
+          <p className="mt-5 text-white text-lg max-w-xl font-normal drop-shadow-lg">{t("hero.subtitle")}</p>
         </motion.div>
       </div>
 
       {/* floating command center */}
-      <div className="relative z-10 max-w-[85rem] mx-auto w-full px-6 lg:px-10 pb-12 pt-8">
+      <div className="relative z-10 max-w-[100rem] mx-auto w-full px-4 lg:px-6 pb-12 pt-8">
         <SearchWidget />
       </div>
     </section>
