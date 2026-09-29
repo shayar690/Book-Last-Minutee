@@ -31,15 +31,15 @@ export default function Hero() {
           transition={{ duration: 0.9, ease: "easeOut" }}
           className="flex flex-col items-start gap-2 max-w-4xl"
         >
-          <h1 className="flex flex-col items-start text-[#F5D166] font-display text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.1]">
-            <span className="bg-white rounded-t-lg px-4 pt-2 pb-1">{t("hero.title1")}</span>
-            <span className="bg-white rounded-b-lg px-4 pt-1 pb-2">{t("hero.title2")}</span>
+          <h1 className="flex flex-col items-start text-[#2D3035] font-display text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.1]">
+            <span className="bg-[#F5D166] rounded-t-lg px-4 pt-2 pb-1">{t("hero.title1")}</span>
+            <span className="bg-[#F5D166] rounded-b-lg px-4 pt-1 pb-2">{t("hero.title2")}</span>
           </h1>
           <div className="flex flex-col items-start">
             <p className="bg-[#F5D166] rounded-t-lg px-4 pt-1.5 pb-1 text-[#2D3035] text-base sm:text-lg font-bold">{t("hero.line1")}</p>
             <p className="bg-[#F5D166] rounded-b-lg px-4 pt-1 pb-1.5 text-[#2D3035] text-base sm:text-lg font-bold">{t("hero.line2")}</p>
           </div>
-          <p className="bg-[#F5D166] rounded-lg px-4 py-1.5 text-[#2D3035] text-base sm:text-lg font-bold">{t("hero.line3")}</p>
+          <p className="bg-[#F5D166] rounded-lg px-4 py-2 text-[#2D3035] text-2xl sm:text-3xl font-extrabold">{t("hero.line3")}</p>
         </motion.div>
       </div>
 
