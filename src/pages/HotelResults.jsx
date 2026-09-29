@@ -192,12 +192,17 @@ export default function HotelResults() {
     const worker = async () => {
       while (queue.length > 0) {
         const h = queue.shift();
-        try {
-          const res = await base44.functions.invoke("hotelImages", {
-            hotels: [{ name: h.name, url: h.url || "", destination }],
-          });
-          mergeResults(res.data?.results || {});
-        } catch { /* card keeps its placeholder */ }
+        // Retry once when a hotel comes back empty (slow/blocked page).
+        for (let attempt = 0; attempt < 2; attempt++) {
+          try {
+            const res = await base44.functions.invoke("hotelImages", {
+              hotels: [{ name: h.name, url: h.url || "", destination }],
+            });
+            const results = res.data?.results || {};
+            mergeResults(results);
+            if ((results[h.url || h.name] || []).length > 0) break;
+          } catch { /* retry, then keep placeholder */ }
+        }
       }
     };
     Array.from({ length: Math.min(8, queue.length) }, worker);

@@ -112,13 +112,13 @@ function diversify(images: string[]): string[] {
     if (!buckets.has(c)) buckets.set(c, []);
     buckets.get(c)!.push(u);
   });
-  const order = ['exterior', 'pool', 'beach', 'lobby', 'view', 'spa', 'restaurant', 'gym', 'other', 'room'];
+  const order = ['pool', 'view', 'exterior', 'beach', 'spa', 'gym', 'lobby', 'restaurant', 'other', 'room'];
   const out: string[] = [];
   for (let round = 0; round < 12 && out.length < images.length; round++) {
     for (const c of order) {
       const b = buckets.get(c);
       if (!b || b.length <= round) continue;
-      if (c === 'room' && round >= 3) continue;
+      if (c === 'room' && round >= 2) continue;
       out.push(b[round]);
     }
   }
