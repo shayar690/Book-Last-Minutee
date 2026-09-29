@@ -25,7 +25,7 @@ function Chip({ label, active, onClick }) {
     <button
       type="button"
       onClick={onClick}
-      className={`flex-1 text-center px-1 sm:px-2.5 h-9 sm:h-10 rounded-lg text-[12px] sm:text-[15px] font-medium border transition-colors whitespace-nowrap ${
+      className={`flex-1 text-center px-1 sm:px-2.5 h-10 rounded-lg text-[13px] sm:text-[15px] font-medium border transition-colors whitespace-nowrap ${
         active ? "bg-[#2D3035] text-white border-[#2D3035]" : "bg-white text-[#2D3035] border-[#C5C5C5] hover:border-[#2D3035]"
       }`}
     >
@@ -107,21 +107,21 @@ export default function AdditionalParams({ onChange }) {
   return (
     <div className="flex flex-col gap-3 pt-3">
       {/* Free cancellation + Meal plan + Star rating — one row */}
-      <div className="flex flex-col sm:flex-row gap-3 items-start">
+      <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-start">
         {/* Free cancellation */}
         <div className="flex flex-col gap-1.5 min-w-0 sm:mt-8 flex-[0.7]">
           <button
             type="button"
             onClick={() => setFreeCancel((v) => !v)}
-            className="flex items-center gap-1.5 sm:gap-2 h-9 sm:h-10 px-1.5 sm:px-4 rounded-lg bg-white border border-[#C5C5C5] hover:border-[#2D3035] transition-colors w-auto sm:w-full"
+            className="flex items-center gap-2 h-12 px-4 rounded-lg bg-white border border-[#C5C5C5] hover:border-[#2D3035] transition-colors w-auto sm:w-full"
           >
             <span
-              className="w-4 h-4 sm:w-5 sm:h-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-colors"
+              className="w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-colors"
               style={{ backgroundColor: freeCancel ? GREEN : "transparent", borderColor: freeCancel ? GREEN : "#C5C5C5" }}
             >
               {freeCancel && <Check className="w-3.5 h-3.5 text-white" strokeWidth={3.5} />}
             </span>
-            <span className="text-[12px] sm:text-[15px] font-medium text-[#2D3035] leading-5 translate-y-[1px]">{t("search.freeCancellation")}</span>
+            <span className="text-base font-medium text-[#2D3035] leading-5 translate-y-[1px]">{t("search.freeCancellation")}</span>
           </button>
         </div>
         {/* Meal plan */}
