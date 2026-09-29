@@ -1,0 +1,32 @@
+{
+  "name": "HotelImageCache",
+  "type": "object",
+  "properties": {
+    "hotel_key": {
+      "type": "string",
+      "description": "Unique key \u2014 booking.com URL or normalized name+destination"
+    },
+    "hotel_name": {
+      "type": "string"
+    },
+    "destination": {
+      "type": "string"
+    },
+    "url": {
+      "type": "string",
+      "description": "Original booking.com URL (if available)"
+    },
+    "images": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Validated real image URLs scraped from the hotel's official website"
+    }
+  },
+  "required": [
+    "hotel_key",
+    "hotel_name",
+    "images"
+  ]
+}
