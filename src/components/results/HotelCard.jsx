@@ -47,9 +47,9 @@ export default function HotelCard({ hotel, searchContext }) {
                 <button onClick={(e) => { e.stopPropagation(); scroll(1); }} className="absolute right-1 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white/80 flex items-center justify-center shadow-sm">
                   <ChevronRight className="w-4 h-4" strokeWidth={1.5} />
                 </button>
-                <div className="absolute bottom-1 left-1/2 -translate-x-1/2 flex gap-1">
+                <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1 items-center">
                   {images.map((_, i) => (
-                    <span key={i} className={`w-1.5 h-1.5 rounded-full ${i === activeImg ? "bg-white" : "bg-white/50"}`} />
+                    <span key={i} className={`rounded-full transition-all duration-200 ${i === activeImg ? "w-4 h-1.5 bg-white shadow-sm" : "w-1.5 h-1.5 bg-white/60"}`} />
                   ))}
                 </div>
               </>

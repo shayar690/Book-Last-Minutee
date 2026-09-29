@@ -8,7 +8,7 @@
 // Step 5: Cache the results for future searches.
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.49';
 
-const FETCH_TIMEOUT = 3500;
+const FETCH_TIMEOUT = 2500;
 const VALIDATE_TIMEOUT = 2500;
 const MAX_CONCURRENT_VALIDATE = 40;
 const MIN_IMAGE_BYTES = 12000; // Skip icons/logos (< 12 KB)
@@ -40,7 +40,7 @@ const NON_PHOTO_RE = new RegExp(
   'social-|flag|blank|placeholder|tracking|loader|spinner|award|rating|' +
   'badge|certificate|seal|stamp|ribbon|_next\\/|\\/static\\/|hero\\.|' +
   // Social media
-  'whatsapp|facebook|twitter|instagram|linkedin|youtube|tiktok|' +
+  'whatsapp|facebook|twitter|instagram|linkedin|youtube|ytimg|tiktok|' +
   'social|share|follow|subscribe|messenger|telegram|wechat|' +
   // Ads / promos / credit cards / loyalty programs
   'promo|flyer|advertisement|ad-banner|ad_|coupon|deal|offer|discount|' +
@@ -54,7 +54,7 @@ const NON_PHOTO_RE = new RegExp(
   'map-direction|map-pin|location-pin|' +
   // Misc UI
   'amenity-icon|service-icon|facility-icon|close|menu-icon|search-icon|' +
-  'arrow-|chevron|plus|minus|check|star-icon',
+  'arrow-|chevron|plus|minus|check|star-icon|hqdefault|vi_webp|default-thumb',
   'i'
 );
 
@@ -75,14 +75,27 @@ const HOTEL_BRANDS = [
   'kempinski', 'langham', 'rosewood', 'aman', 'six-senses', 'banyan-tree',
   'anantara', 'oberoi', 'burj-al-arab', 'bvlgari', 'bulgari', 'caesar',
   'mgm', 'venetian', 'palazzo', 'w-hotel', 'grand-hyatt', 'park-hyatt',
+  // Added to prevent cross-hotel image contamination. Only distinct,
+  // recognizable hotel names — not collection domains (e.g. "address" is
+  // the domain for Palace Downtown's own website, so it would cause a
+  // false positive that wipes all correct images).
+  'atlantis', 'armani', 'taj', 'conrad', 'doubletree', 'waldorf',
+  'autograph', 'curio', 'tribute', 'leela', 'itc', 'carlton', 'crillon',
+  'meurice', 'bristol', 'sacher', 'dolder', 'citizenm', 'kimpton',
+  'indigo', 'regent', 'andaz', 'alila', 'hyatt-place', 'hyatt-house',
+  'hyatt-regency', 'mama-shelter', 'nhow', 'tribe', 'hilton-garden',
+  'embassy-suites', 'hampton', 'homewood',
 ];
 
 function filterByBrand(images: string[], hotelName: string): string[] {
   const normalized = hotelName.toLowerCase().replace(/[^a-z0-9]/g, '-');
   const filtered = images.filter(url => {
     const u = url.toLowerCase();
+    const alt = (altByUrl.get(url) || '').toLowerCase();
     for (const brand of HOTEL_BRANDS) {
+      // Reject if URL or alt text mentions a brand NOT in this hotel's name
       if (u.includes(brand) && !normalized.includes(brand)) return false;
+      if (alt.includes(brand) && !normalized.includes(brand)) return false;
     }
     return true;
   });
@@ -169,9 +182,9 @@ async function scrapeBooking(url: string): Promise<string[]> {
   while ((m = re.exec(html)) !== null) {
     found.push(`https://cf.bstatic.com/xdata/images/hotel/max1024x768/${m[1]}.jpg${m[2] || ''}`);
   }
-  const unique = dedupeImages(found).slice(0, 16);
-  const ok = await mapWithConcurrency(unique, validateImageUrl, MAX_CONCURRENT_VALIDATE);
-  return unique.filter((_, i) => ok[i]);
+  // Skip server-side validation — saves 2-3s. Client-side ImageWithFallback
+  // handles broken URLs; NON_PHOTO_RE filters most icons/ads.
+  return dedupeImages(found).slice(0, 10);
 }
 
 function extractImagesFromHtml(html: string, baseUrl: string): string[] {
@@ -327,16 +340,18 @@ async function scrapeImages(url: string): Promise<string[]> {
   const homeHtml = await fetchPage(url);
   if (!homeHtml) return [];
   let images = extractImagesFromHtml(homeHtml, url);
+  // Fetch gallery pages in PARALLEL (not sequentially) to save 2-3s
   if (images.length < 8) {
-    for (const link of findGalleryLinks(homeHtml, url)) {
+    const links = findGalleryLinks(homeHtml, url).slice(0, 2);
+    const pages = await Promise.all(links.map(link => fetchPage(link)));
+    for (let i = 0; i < pages.length; i++) {
+      if (pages[i]) images = [...new Set([...images, ...extractImagesFromHtml(pages[i], links[i])])];
       if (images.length >= 12) break;
-      const pageHtml = await fetchPage(link);
-      if (pageHtml) images = [...new Set([...images, ...extractImagesFromHtml(pageHtml, link)])];
     }
   }
-  const toValidate = images.slice(0, 12);
-  const validated = await mapWithConcurrency(toValidate, validateImageUrl, MAX_CONCURRENT_VALIDATE);
-  return images.filter((_, i) => validated[i]).slice(0, 10);
+  // Skip server-side validation — saves 2-3s. Client-side ImageWithFallback
+  // handles broken URLs; NON_PHOTO_RE + alt-text filters handle icons/ads.
+  return dedupeImages(images).slice(0, 10);
 }
 
 export default async function(req) {
@@ -386,10 +401,12 @@ export default async function(req) {
     ).join("\n");
 
     const llmResult = await base44.asServiceRole.integrations.Core.InvokeLLM({
-      prompt: `For each hotel below, find up to 3 website URLs that contain real photos of that specific hotel:
-    1. The hotel's OWN official website (e.g., www.hotelname.com)
-    2. The hotel's TripAdvisor page (https://www.tripadvisor.com/Hotel_Review-...) or another travel site with a photo gallery — NOT booking.com, expedia.com or hotels.com
+      prompt: `For each hotel below, find up to 3 website URLs that contain real photos of that EXACT, SPECIFIC hotel:
+    1. The hotel's OWN official website (e.g., www.hotelname.com) — must be for THIS hotel, not a different hotel with a similar name
+    2. The hotel's TripAdvisor page (https://www.tripadvisor.com/Hotel_Review-...) — must be the review page for THIS specific hotel, NOT a "best hotels in [city]" list
     3. A photo-gallery / rooms / pool page on the hotel's official website if it exists
+
+    CRITICAL: Each URL must be for the EXACT hotel named below. Do NOT return URLs for other hotels, hotel comparison lists, or "top hotels in [city]" articles. If you are not certain a URL is for the exact hotel, omit it.
 
     Prefer sites that show a VARIETY of photos (exterior, pool, beach, lobby, spa, restaurant, gym, rooms), not just room photos.
 
