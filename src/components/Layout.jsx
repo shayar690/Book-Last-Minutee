@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
-import { Globe2, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/AuthContext";
 import Footer from "@/components/Footer";
+import { Image } from "@/components/ui/image";
+
+const LOGO_URL = "https://media.base44.com/images/public/6ab46eccdb257d5931954287/f840aa1b3_.png";
 
 function LanguageSwitcher() {
   const { lang, setLang } = useI18n();
@@ -94,9 +97,8 @@ function Header() {
       <div className="max-w-7xl mx-auto px-6 lg:px-10 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <LanguageSwitcher />
-          <Link to="/" className="flex items-center gap-2.5">
-            <Globe2 className={`w-6 h-6 ${solid ? "text-gold" : "text-white"}`} strokeWidth={1.25} />
-            <span className={`font-display text-lg sm:text-2xl tracking-wide ${solid ? "text-ink" : "text-white"}`}>{t("brand.name")}</span>
+          <Link to="/" className="flex items-center">
+            <Image src={LOGO_URL} alt={t("brand.name")} className="h-11 sm:h-12 w-11 sm:w-12 rounded-xl shadow-sm" fittingType="fill" />
           </Link>
         </div>
 

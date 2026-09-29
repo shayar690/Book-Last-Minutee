@@ -5,14 +5,14 @@ import SearchWidget from "@/components/search/SearchWidget";
 
 // Beautiful travel imagery from around the world — crossfades every few seconds.
 const HERO_IMAGES = [
-  "https://media.base44.com/images/public/6ab46eccdb257d5931954287/44bc4738b_generated_76a1222f.jpg",
-  "https://images.unsplash.com/photo-1507525428034-b723cf961d3d?w=1600&q=80",
-  "https://images.unsplash.com/photo-1519046904884-53103b34b206?w=1600&q=80",
-  "https://images.unsplash.com/photo-1469854523086-cc02fe5d880?w=1600&q=80",
-  "https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1600&q=80",
-  "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1600&q=80",
-  "https://images.unsplash.com/photo-1539635278303-d4002c07eae3?w=1600&q=80",
-  "https://images.unsplash.com/photo-1545569341-9eb8b30979d9?w=1600&q=80",
+  "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1600&q=80", // Eiffel Tower, Paris
+  "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=1600&q=80", // Dubai skyline
+  "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=1600&q=80", // London, Tower Bridge
+  "https://images.unsplash.com/photo-1573843981267-be1999ff37cd?w=1600&q=80", // Maldives overwater villas
+  "https://images.unsplash.com/photo-1533105079780-92b9be482077?w=1600&q=80", // Santorini, Greece
+  "https://images.unsplash.com/photo-1519046904884-53103b34b206?w=1600&q=80", // Tropical beach
+  "https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=1600&q=80", // Resort pool
+  "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=1600&q=80", // Luxury hotel
 ];
 
 export default function Hero() {
