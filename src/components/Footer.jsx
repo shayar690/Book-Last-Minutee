@@ -3,7 +3,7 @@ import { ArrowRight } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { Image } from "@/components/ui/image";
 
-const FOOTER_LOGO_URL = "https://media.base44.com/images/public/6ab46eccdb257d5931954287/f840aa1b3_.png";
+const FOOTER_LOGO_URL = "https://media.base44.com/images/public/6ab46eccdb257d5931954287/44b60cd24_logonegative-01.png";
 
 const CITIES = [
   { label: "New York", tz: "America/New_York" },
@@ -47,7 +47,7 @@ export default function Footer() {
         <div className="grid lg:grid-cols-4 gap-10 lg:gap-12 pb-14 border-b border-white/10">
           {/* brand + newsletter */}
           <div>
-            <Image src={FOOTER_LOGO_URL} alt={t("brand.name")} className="h-28 w-28 sm:h-32 sm:w-32 rounded-2xl" fittingType="fit" />
+            <Image src={FOOTER_LOGO_URL} alt={t("brand.name")} className="h-20 w-48 sm:h-24 sm:w-56" fittingType="fit" />
             <p className="mt-4 text-white/60 text-sm leading-relaxed max-w-xs">{t("footer.tagline")}</p>
             <div className="mt-6">
               <p className="text-white font-medium text-sm">{t("footer.newsletter")}</p>
@@ -103,8 +103,7 @@ export default function Footer() {
         </div>
 
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-white/45 text-xs">
-          <p>© {new Date().getFullYear()} {t("brand.name")}. {t("footer.rights")}</p>
-          <p className="tracking-luxe uppercase">{t("brand.slogan")}</p>
+          <p>© {new Date().getFullYear()} {t("brand.name")} - {t("brand.slogan")}. {t("footer.rights")}</p>
         </div>
       </div>
     </footer>
