@@ -37,7 +37,7 @@ export default function Hero() {
       </div>
 
       {/* floating command center */}
-      <div className="relative z-10 max-w-7xl mx-auto w-full px-6 lg:px-10 pb-12 pt-8">
+      <div className="relative z-10 max-w-[85rem] mx-auto w-full px-6 lg:px-10 pb-12 pt-8">
         <SearchWidget />
       </div>
     </section>

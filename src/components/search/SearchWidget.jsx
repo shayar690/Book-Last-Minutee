@@ -165,10 +165,6 @@ export default function SearchWidget() {
     prevComingSoonRef.current = new Set(comingSoonClicked);
   }, [comingSoonClicked]);
 
-  // Keep the additional-params panel open on first render; only let tab/lang
-  // changes collapse it after the initial mount has completed.
-  const canCollapseParams = useRef(false);
-
   const [checkIn, setCheckIn] = useState(null);
   const [checkOut, setCheckOut] = useState(null);
   const [dateModal, setDateModal] = useState({ open: false, mode: "range", active: "in" });
@@ -189,20 +185,14 @@ export default function SearchWidget() {
   };
 
   // Clear all search inputs when the site language changes.
+  // Additional parameters stay open permanently across language switches.
   useEffect(() => {
     setCheckIn(null);
     setCheckOut(null);
-    if (canCollapseParams.current) setShowParams(false);
     setDateModal({ open: false, mode: "range", active: "in" });
     setFlightOrigin(lang === "he" ? { name: "תל אביב (TLV)", code: "TLV" } : { name: "", code: "" });
     setFlightDest({ name: "", code: "" });
   }, [lang]);
-
-  // Collapse additional params when switching tabs (after first render).
-  useEffect(() => { if (canCollapseParams.current) setShowParams(false); }, [active]);
-
-  // Enable param-collapse behavior once the initial mount has completed.
-  useEffect(() => { canCollapseParams.current = true; }, []);
 
   // Required-field validation for the hotels tab.
   const hotelsMissing = active === "hotels" && (!hotelDest || !checkIn || !checkOut);
