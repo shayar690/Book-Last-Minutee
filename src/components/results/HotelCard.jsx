@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Star, MapPin, ChevronLeft, ChevronRight } from "lucide-react";
+import { Star, MapPin, ChevronLeft, ChevronRight, Bed } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import ImageWithFallback from "@/components/results/ImageWithFallback";
 
@@ -29,32 +29,38 @@ export default function HotelCard({ hotel, searchContext }) {
       onClick={() => navigate(localePath("/hotel"), { state: { hotel, searchContext } })}
       className="flex flex-col sm:flex-row gap-4 p-4 bg-white rounded-xl border border-[#E5E5E5] shadow-sm hover:shadow-md transition-shadow cursor-pointer"
     >
-      {images.length > 0 && (
-        <div className="w-full sm:w-48 h-40 sm:h-32 rounded-lg overflow-hidden shrink-0 bg-[#F5F5F5] relative">
-          <div ref={scrollRef} onScroll={onScroll} className="flex overflow-x-auto snap-x snap-mandatory h-full scrollbar-hide">
-            {images.map((img, i) => (
-              <div key={i} className="w-full h-full shrink-0 snap-center">
-                <ImageWithFallback src={img} alt={`${hotel.name} ${i + 1}`} className="w-full h-full object-cover" />
-              </div>
-            ))}
+      <div className="w-full sm:w-48 h-40 sm:h-32 rounded-lg overflow-hidden shrink-0 bg-[#F5F5F5] relative">
+        {images.length > 0 ? (
+          <>
+            <div ref={scrollRef} onScroll={onScroll} className="flex overflow-x-auto snap-x snap-mandatory h-full scrollbar-hide">
+              {images.map((img, i) => (
+                <div key={i} className="w-full h-full shrink-0 snap-center">
+                  <ImageWithFallback src={img} alt={`${hotel.name} ${i + 1}`} className="w-full h-full object-cover" />
+                </div>
+              ))}
+            </div>
+            {images.length > 1 && (
+              <>
+                <button onClick={(e) => { e.stopPropagation(); scroll(-1); }} className="absolute left-1 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white/80 flex items-center justify-center shadow-sm">
+                  <ChevronLeft className="w-4 h-4" strokeWidth={1.5} />
+                </button>
+                <button onClick={(e) => { e.stopPropagation(); scroll(1); }} className="absolute right-1 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white/80 flex items-center justify-center shadow-sm">
+                  <ChevronRight className="w-4 h-4" strokeWidth={1.5} />
+                </button>
+                <div className="absolute bottom-1 left-1/2 -translate-x-1/2 flex gap-1">
+                  {images.map((_, i) => (
+                    <span key={i} className={`w-1.5 h-1.5 rounded-full ${i === activeImg ? "bg-white" : "bg-white/50"}`} />
+                  ))}
+                </div>
+              </>
+            )}
+          </>
+        ) : (
+          <div className="w-full h-full flex items-center justify-center">
+            <Bed className="w-8 h-8 text-[#C5C5C5]" strokeWidth={1.5} />
           </div>
-          {images.length > 1 && (
-            <>
-              <button onClick={(e) => { e.stopPropagation(); scroll(-1); }} className="absolute left-1 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white/80 flex items-center justify-center shadow-sm">
-                <ChevronLeft className="w-4 h-4" strokeWidth={1.5} />
-              </button>
-              <button onClick={(e) => { e.stopPropagation(); scroll(1); }} className="absolute right-1 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white/80 flex items-center justify-center shadow-sm">
-                <ChevronRight className="w-4 h-4" strokeWidth={1.5} />
-              </button>
-              <div className="absolute bottom-1 left-1/2 -translate-x-1/2 flex gap-1">
-                {images.map((_, i) => (
-                  <span key={i} className={`w-1.5 h-1.5 rounded-full ${i === activeImg ? "bg-white" : "bg-white/50"}`} />
-                ))}
-              </div>
-            </>
-          )}
-        </div>
-      )}
+        )}
+      </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">

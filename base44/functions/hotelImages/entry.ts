@@ -8,8 +8,8 @@
 // Step 5: Cache the results for future searches.
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.49';
 
-const FETCH_TIMEOUT = 4500;
-const VALIDATE_TIMEOUT = 3000;
+const FETCH_TIMEOUT = 3500;
+const VALIDATE_TIMEOUT = 2500;
 const MAX_CONCURRENT_VALIDATE = 40;
 const MIN_IMAGE_BYTES = 12000; // Skip icons/logos (< 12 KB)
 
@@ -386,15 +386,17 @@ export default async function(req) {
     ).join("\n");
 
     const llmResult = await base44.asServiceRole.integrations.Core.InvokeLLM({
-      prompt: `For each hotel below, find 2 website URLs that contain real photos of the hotel:
-1. The hotel's OWN official website (e.g., www.hotelname.com)
-2. The hotel's TripAdvisor page (https://www.tripadvisor.com/Hotel_Review-...) or another page with a varied photo gallery (pool, beach, lobby, spa, rooms) — NOT booking.com, expedia.com or hotels.com
-3. A photo-gallery page of the hotel's official website if it exists
+      prompt: `For each hotel below, find up to 3 website URLs that contain real photos of that specific hotel:
+    1. The hotel's OWN official website (e.g., www.hotelname.com)
+    2. The hotel's TripAdvisor page (https://www.tripadvisor.com/Hotel_Review-...) or another travel site with a photo gallery — NOT booking.com, expedia.com or hotels.com
+    3. A photo-gallery / rooms / pool page on the hotel's official website if it exists
 
-Hotels:
-${hotelList}
+    Prefer sites that show a VARIETY of photos (exterior, pool, beach, lobby, spa, restaurant, gym, rooms), not just room photos.
 
-Return a JSON object with a "hotels" array. Each element has "name" (exactly as given above) and "urls" (array of up to 2 website URLs, best first). If you cannot find any suitable URL, return an empty array.`,
+    Hotels:
+    ${hotelList}
+
+    Return a JSON object with a "hotels" array. Each element has "name" (exactly as given above) and "urls" (array of up to 3 website URLs, best first). If you cannot find any suitable URL, return an empty array.`,
       add_context_from_internet: true,
       model: "gemini_3_flash",
       response_json_schema: {
@@ -439,13 +441,13 @@ Return a JSON object with a "hotels" array. Each element has "name" (exactly as 
     // first URL blocks scraping (e.g., Marriott/Hilton return 403).
     const scraped = await Promise.all(uncached.map(async (hotel) => {
       const candidates = urlMap[normalize(hotel.name)] || [];
-      // Booking.com + official site + TripAdvisor/other pages, all in parallel;
-      // merge everything, then dedupe and mix photo categories.
-      const scrapeResults = await Promise.all([
+      // Booking.com page + official site + TripAdvisor/other pages, all in
+      // parallel; merge everything, then dedupe + mix photo categories.
+      const [bookingImgs, ...scrapeResults] = await Promise.all([
         scrapeBooking(hotel.url || ''),
         ...candidates.slice(0, 3).map(url => scrapeImages(url)),
       ]);
-      const merged = scrapeResults.flat();
+      const merged = [...bookingImgs, ...scrapeResults.flat()];
       return { hotel, key: hotelKey(hotel), images: filterByBrand(merged, hotel.name).slice(0, 10) };
     }));
 
