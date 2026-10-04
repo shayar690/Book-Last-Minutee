@@ -7,7 +7,6 @@ import { Label } from "@/components/ui/label";
 import { UserPlus, Mail, Lock, Loader2 } from "lucide-react";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import AuthLayout from "@/components/AuthLayout";
-import GoogleIcon from "@/components/GoogleIcon";
 import { LanguageFlagToggle } from "@/components/LanguageFlags";
 import { toast } from "@/components/ui/use-toast";
 import { safeReturnTo } from "@/lib/authReturnTo";
@@ -29,7 +28,7 @@ export default function Register() {
   // Pre-fill email from URL param (set by the invitation email link).
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const paramEmail = (params.get("email") || "").trim();
+    const paramEmail = (params.get("email") || params.get("to") || "").trim();
     // Ignore unresolved template variables like {{email}}.
     if (paramEmail && !paramEmail.includes("{{") && paramEmail.includes("@")) {
       setEmail(paramEmail);
@@ -104,10 +103,6 @@ export default function Register() {
     } catch (err) {
       setError(err.message || (he ? "שליחת הקוד מחדש נכשלה" : "Failed to resend code"));
     }
-  };
-
-  const handleGoogle = () => {
-    base44.auth.loginWithProvider("google", safeReturnTo());
   };
 
   if (showOtp) {
@@ -192,23 +187,6 @@ export default function Register() {
       }
     >
       <LanguageFlagToggle />
-      <Button
-        variant="outline"
-        className="w-full h-12 text-sm font-medium mb-6"
-        onClick={handleGoogle}
-      >
-        <GoogleIcon className="w-5 h-5 mr-2" />
-        {he ? "המשך עם Google" : "Continue with Google"}
-      </Button>
-
-      <div className="relative mb-6">
-        <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-border" />
-        </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-card px-3 text-muted-foreground">{he ? "או" : "or"}</span>
-        </div>
-      </div>
 
       {error && (
         <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
@@ -229,8 +207,8 @@ export default function Register() {
               placeholder="you@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              readOnly={emailLocked}
-              className={`pl-10 h-12 ${emailLocked ? "bg-muted text-muted-foreground cursor-not-allowed" : ""}`}
+              disabled={emailLocked}
+              className={`pl-10 h-12 ${emailLocked ? "bg-muted text-muted-foreground cursor-not-allowed opacity-80" : ""}`}
               required
             />
           </div>
