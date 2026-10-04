@@ -13,7 +13,7 @@ import { useI18n } from "@/lib/i18n";
 // After a successful login the user is sent straight to the admin panel.
 export default function AdminLogin() {
   const { lang, localePath } = useI18n();
-  const dest = "/admin";
+  const dest = "/admin/verify";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -25,6 +25,8 @@ export default function AdminLogin() {
   // If already authenticated, skip the form and go to the panel.
   useEffect(() => {
     let active = true;
+    // A fresh login must always re-run 2FA — clear any prior session flag.
+    sessionStorage.removeItem("admin_2fa_ok");
     base44.auth.isAuthenticated().then((ok) => {
       if (ok && active) window.location.href = dest;
       else if (active) setChecking(false);

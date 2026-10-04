@@ -54,6 +54,13 @@ export default function AdminBookings() {
     else setLoading(false);
   }, [isAdmin]);
 
+  // 2FA gate — admins must complete email verification each session.
+  useEffect(() => {
+    if (isAdmin && !sessionStorage.getItem("admin_2fa_ok")) {
+      window.location.replace("/admin/verify");
+    }
+  }, [isAdmin]);
+
   const fmtDate = (d) => (d ? new Date(d).toLocaleDateString(lang === "he" ? "he-IL" : "en-US", { day: "numeric", month: "short", year: "numeric" }) : "—");
 
   const filtered = useMemo(() => {

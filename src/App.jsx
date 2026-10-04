@@ -16,6 +16,7 @@ import ResetPassword from '@/pages/ResetPassword';
 import MyBookings from '@/pages/MyBookings';
 import AdminBookings from '@/pages/AdminBookings';
 import AdminLogin from '@/pages/AdminLogin';
+import AdminVerify from '@/pages/AdminVerify';
 import MarriageProposalsDubai from '@/pages/MarriageProposalsDubai';
 import HotelResults from '@/pages/HotelResults';
 import HotelDetail from '@/pages/HotelDetail';
@@ -59,6 +60,11 @@ const AuthenticatedApp = () => {
 
       {/* Staff / admin login — dedicated entry to the admin panel */}
       <Route path="/admin/login" element={<AdminLogin />} />
+
+      {/* Admin 2FA verification gate (requires an authenticated session) */}
+      <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/admin/login" replace />} />}>
+        <Route path="/admin/verify" element={<AdminVerify />} />
+      </Route>
 
       {/* Bare root redirects to the active-locale home */}
       <Route path="/" element={<LocaleRedirect />} />

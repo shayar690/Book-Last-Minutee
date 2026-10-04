@@ -1,0 +1,49 @@
+{
+  "name": "Admin2FA",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "The admin user's id"
+    },
+    "email": {
+      "type": "string",
+      "description": "Email address where login verification codes are sent"
+    },
+    "code": {
+      "type": "string",
+      "description": "Current 6-digit one-time code"
+    },
+    "code_expires": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the current code expires"
+    }
+  },
+  "required": [
+    "user_id",
+    "email"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
