@@ -471,7 +471,7 @@ const translations = {
 };
 
 const I18nContext = createContext({
-  lang: "en",
+  lang: "he",
   setLang: () => {},
   dir: "ltr",
   t: (key) => (translations.en[key] || key),
@@ -493,7 +493,7 @@ function detectLangFromTimezone() {
     const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "";
     if (tz.includes("Jerusalem") || tz.includes("Tel_Aviv")) return "he";
   } catch {}
-  return "en";
+  return "he";
 }
 
 export function I18nProvider({ children }) {
