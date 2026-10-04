@@ -1,18 +1,19 @@
 import React from "react";
 import { useI18n } from "@/lib/i18n";
 
+// Official proportions (160 x 220): white 15, blue 25, white 80, blue 25, white 15; Star of David centered.
 const IsraelFlag = ({ className = "w-10 h-8" }) => (
-  <svg viewBox="0 0 120 80" preserveAspectRatio="none" className={className} aria-hidden="true">
-    <rect width="120" height="80" fill="#ffffff" />
-    <rect width="120" height="10" fill="#0038b8" />
-    <rect width="120" height="10" y="70" fill="#0038b8" />
-    <path d="M60 20 L77 50 L43 50 Z" fill="none" stroke="#0038b8" strokeWidth="2.5" />
-    <path d="M60 60 L43 30 L77 30 Z" fill="none" stroke="#0038b8" strokeWidth="2.5" />
+  <svg viewBox="0 0 220 160" preserveAspectRatio="xMidYMid slice" className={className} aria-hidden="true">
+    <rect width="220" height="160" fill="#ffffff" />
+    <rect width="220" height="25" y="15" fill="#0038b8" />
+    <rect width="220" height="25" y="120" fill="#0038b8" />
+    <path d="M110 50 L135.98 95 L84.02 95 Z" fill="none" stroke="#0038b8" strokeWidth="5.5" strokeLinejoin="miter" />
+    <path d="M110 110 L84.02 65 L135.98 65 Z" fill="none" stroke="#0038b8" strokeWidth="5.5" strokeLinejoin="miter" />
   </svg>
 );
 
 const USAFlag = ({ className = "w-10 h-8" }) => (
-  <svg viewBox="0 0 120 80" preserveAspectRatio="none" className={className} aria-hidden="true">
+  <svg viewBox="0 0 120 80" preserveAspectRatio="xMidYMid slice" className={className} aria-hidden="true">
     <rect width="120" height="80" fill="#ffffff" />
     <rect width="120" height="8" fill="#b22234" />
     <rect width="120" height="8" y="16" fill="#b22234" />
@@ -23,15 +24,19 @@ const USAFlag = ({ className = "w-10 h-8" }) => (
   </svg>
 );
 
+const base = "block rounded-lg overflow-hidden border-2 p-0 w-14 h-10 transition-all";
+const active = "border-primary ring-2 ring-primary/30 scale-105";
+const inactive = "border-border hover:border-primary/50";
+
 export function LanguageFlagToggle() {
   const { lang, setLang } = useI18n();
-  // USA fixed on the left, Israel fixed on the right — regardless of active language.
+  // dir="ltr" keeps USA fixed on the left and Israel fixed on the right in both languages.
   return (
-    <div className="flex items-center justify-center gap-3 mb-6">
+    <div dir="ltr" className="flex items-center justify-center gap-3 mb-6">
       <button
         type="button"
         onClick={() => setLang("en")}
-        className={`rounded-lg overflow-hidden border-2 p-0 w-14 h-10 transition-all ${lang === "en" ? "border-primary shadow-sm scale-105" : "border-border opacity-60 hover:opacity-100"}`}
+        className={`${base} ${lang === "en" ? active : inactive}`}
         title="English"
         aria-label="English"
       >
@@ -40,7 +45,7 @@ export function LanguageFlagToggle() {
       <button
         type="button"
         onClick={() => setLang("he")}
-        className={`rounded-lg overflow-hidden border-2 p-0 w-14 h-10 transition-all ${lang === "he" ? "border-primary shadow-sm scale-105" : "border-border opacity-60 hover:opacity-100"}`}
+        className={`${base} ${lang === "he" ? active : inactive}`}
         title="עברית"
         aria-label="עברית"
       >
