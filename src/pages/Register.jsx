@@ -47,11 +47,25 @@ export default function Register() {
     return () => clearTimeout(id);
   }, [resendTimer]);
 
+  const localizeError = (msg) => {
+    if (!msg) return he ? "ההרשמה נכשלה" : "Registration failed";
+    const m = msg.toLowerCase();
+    if (m.includes("already exists")) return he ? "משתמש עם כתובת אימייל זו כבר קיים" : "A user with this email already exists";
+    if (m.includes("password") && m.includes("weak")) return he ? "הסיסמה חלשה מדי" : "Password is too weak";
+    return he ? "ההרשמה נכשלה" : "Registration failed";
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     if (password !== confirmPassword) {
       setError(he ? "הסיסמאות אינן תואמות" : "Passwords do not match");
+      return;
+    }
+    if (!/[A-Z]/.test(password) || !/[^A-Za-z0-9]/.test(password)) {
+      setError(he
+        ? "הסיסמה חייבת לכלול לפחות אות אחת גדולה וסימן מיוחד"
+        : "Password must include at least one uppercase letter and one special character");
       return;
     }
     setLoading(true);
@@ -68,7 +82,7 @@ export default function Register() {
       await base44.auth.register({ email, password });
       setShowOtp(true);
     } catch (err) {
-      setError(err.message || (he ? "ההרשמה נכשלה" : "Registration failed"));
+      setError(localizeError(err.message));
     } finally {
       setLoading(false);
     }
@@ -84,7 +98,10 @@ export default function Register() {
       }
       window.location.href = safeReturnTo();
     } catch (err) {
-      setError(err.message || (he ? "קוד אימות שגוי" : "Invalid verification code"));
+      const m = (err.message || "").toLowerCase();
+      setError(m.includes("invalid") || m.includes("code")
+        ? (he ? "קוד אימות שגוי" : "Invalid verification code")
+        : (he ? "האימות נכשל" : "Verification failed"));
     } finally {
       setLoading(false);
     }
