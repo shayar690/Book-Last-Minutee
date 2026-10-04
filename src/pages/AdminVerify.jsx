@@ -20,6 +20,7 @@ export default function AdminVerify() {
   const [masked, setMasked] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [resendTimer, setResendTimer] = useState(60);
 
   useEffect(() => {
     let active = true;
@@ -37,6 +38,7 @@ export default function AdminVerify() {
         } else {
           setMasked(res.data?.maskedEmail || "");
           setPhase("enterCode");
+          setResendTimer(60);
         }
       } catch (e) {
         if (!active) return;
@@ -46,6 +48,13 @@ export default function AdminVerify() {
     })();
     return () => { active = false; };
   }, []);
+
+  // 60-second countdown for the resend button.
+  useEffect(() => {
+    if (resendTimer <= 0) return;
+    const id = setTimeout(() => setResendTimer((t) => t - 1), 1000);
+    return () => clearTimeout(id);
+  }, [resendTimer]);
 
   const registerAndSend = async (e) => {
     e.preventDefault();
@@ -57,6 +66,7 @@ export default function AdminVerify() {
         setMasked(res.data.maskedEmail || "");
         setCode("");
         setPhase("enterCode");
+        setResendTimer(60);
       } else {
         setError(res.data?.error || (he ? "שגיאה" : "Error"));
       }
@@ -77,6 +87,7 @@ export default function AdminVerify() {
       } else if (res.data?.sent) {
         setMasked(res.data.maskedEmail || masked);
         setCode("");
+        setResendTimer(60);
       }
     } catch (err) {
       setError(err.message || (he ? "שגיאה" : "Error"));
@@ -152,7 +163,15 @@ export default function AdminVerify() {
               maxLength={6}
               value={code}
               onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
+              onPaste={(e) => {
+                const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
+                if (pasted) {
+                  e.preventDefault();
+                  setCode(pasted);
+                }
+              }}
               className="h-12 text-center text-2xl tracking-[0.4em]"
+              dir="ltr"
               autoFocus
               required
             />
@@ -160,8 +179,10 @@ export default function AdminVerify() {
           <Button type="submit" className="w-full h-12 font-medium" disabled={busy || code.length !== 6}>
             {busy ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : (he ? "אימות וכניסה" : "Verify & continue")}
           </Button>
-          <button type="button" onClick={resend} className="w-full text-xs text-muted-foreground hover:text-primary transition-colors" disabled={busy}>
-            {he ? "שלח קוד מחדש" : "Resend code"}
+          <button type="button" onClick={resend} className="w-full text-xs text-muted-foreground hover:text-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:text-muted-foreground" disabled={busy || resendTimer > 0}>
+            {resendTimer > 0
+              ? (he ? `שלח קוד מחדש (${resendTimer}s)` : `Resend code (${resendTimer}s)`)
+              : (he ? "שלח קוד מחדש" : "Resend code")}
           </button>
         </form>
       )}
