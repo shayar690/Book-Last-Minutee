@@ -15,6 +15,7 @@ import ForgotPassword from '@/pages/ForgotPassword';
 import ResetPassword from '@/pages/ResetPassword';
 import MyBookings from '@/pages/MyBookings';
 import AdminBookings from '@/pages/AdminBookings';
+import AdminLogin from '@/pages/AdminLogin';
 import MarriageProposalsDubai from '@/pages/MarriageProposalsDubai';
 import HotelResults from '@/pages/HotelResults';
 import HotelDetail from '@/pages/HotelDetail';
@@ -56,6 +57,9 @@ const AuthenticatedApp = () => {
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
 
+      {/* Staff / admin login — dedicated entry to the admin panel */}
+      <Route path="/admin/login" element={<AdminLogin />} />
+
       {/* Bare root redirects to the active-locale home */}
       <Route path="/" element={<LocaleRedirect />} />
 
@@ -69,6 +73,8 @@ const AuthenticatedApp = () => {
           <Route path="flights" element={<FlightResults />} />
           <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
             <Route path="bookings" element={<MyBookings />} />
+          </Route>
+          <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/admin/login" replace />} />}>
             <Route path="admin/bookings" element={<AdminBookings />} />
           </Route>
         </Route>
