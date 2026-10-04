@@ -74,9 +74,15 @@ const AuthenticatedApp = () => {
           <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
             <Route path="bookings" element={<MyBookings />} />
           </Route>
-          <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/admin/login" replace />} />}>
-            <Route path="admin/bookings" element={<AdminBookings />} />
-          </Route>
+          {/* Legacy locale-prefixed admin URL redirects to the canonical /admin */}
+          <Route path="admin/bookings" element={<Navigate to="/admin" replace />} />
+        </Route>
+      </Route>
+
+      {/* Admin panel — canonical path /admin (no locale prefix) */}
+      <Route element={<Layout />}>
+        <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/admin/login" replace />} />}>
+          <Route path="admin" element={<AdminBookings />} />
         </Route>
       </Route>
 

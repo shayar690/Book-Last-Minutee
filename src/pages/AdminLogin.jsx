@@ -13,7 +13,7 @@ import { useI18n } from "@/lib/i18n";
 // After a successful login the user is sent straight to the admin panel.
 export default function AdminLogin() {
   const { lang, localePath } = useI18n();
-  const dest = localePath("/admin/bookings");
+  const dest = "/admin";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");

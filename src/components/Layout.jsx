@@ -14,10 +14,10 @@ function swapLocale(pathname, search, newLocale) {
   const parts = pathname.split("/").filter(Boolean);
   if (parts.length && (parts[0] === "he" || parts[0] === "en")) {
     parts[0] = newLocale;
-  } else {
-    parts.unshift(newLocale);
+    return "/" + parts.join("/") + search;
   }
-  return "/" + parts.join("/") + search;
+  // No locale prefix (e.g. /admin) — keep the path; the lang change re-renders.
+  return pathname + search;
 }
 
 function LanguageSwitcher() {
@@ -55,7 +55,7 @@ function AuthLinks() {
   if (isAuthenticated) {
     return (
       <div className="hidden sm:flex items-center gap-6">
-        {user?.role === "admin" && <Link to={localePath("/admin/bookings")} className={linkClass}>{t("nav.admin")}</Link>}
+        {user?.role === "admin" && <Link to="/admin" className={linkClass}>{t("nav.admin")}</Link>}
         <Link to={localePath("/bookings")} className={linkClass}>{t("nav.myBookings")}</Link>
         <button onClick={() => logout()} className={linkClass}>{t("nav.logout")}</button>
       </div>
