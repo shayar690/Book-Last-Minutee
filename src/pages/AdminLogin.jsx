@@ -158,7 +158,14 @@ export default function AdminLogin() {
         </Button>
       </form>
 
-      <p className="mt-6 text-center text-xs text-muted-foreground">
+      <p className="mt-6 text-center text-sm text-muted-foreground">
+        {he ? "כניסה ראשונה? " : "First sign-in? "}
+        <a href={`/register?returnTo=${encodeURIComponent("/admin/verify")}`} className="text-primary font-medium hover:underline">
+          {he ? "יצירת סיסמה" : "Create your password"}
+        </a>
+      </p>
+
+      <p className="mt-3 text-center text-xs text-muted-foreground">
         {he
           ? "הגישה לפאנל הניהול מוגבלת לעובדים מורשים בלבד."
           : "Access to the admin panel is restricted to authorized staff only."}
