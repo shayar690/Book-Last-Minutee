@@ -50,11 +50,12 @@ function LanguageSwitcher() {
 
 function AuthLinks() {
   const { t, localePath } = useI18n();
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, logout, user } = useAuth();
   const linkClass = "text-lg font-semibold text-ink/75 hover:text-gold transition-colors";
   if (isAuthenticated) {
     return (
       <div className="hidden sm:flex items-center gap-6">
+        {user?.role === "admin" && <Link to={localePath("/admin/bookings")} className={linkClass}>{t("nav.admin")}</Link>}
         <Link to={localePath("/bookings")} className={linkClass}>{t("nav.myBookings")}</Link>
         <button onClick={() => logout()} className={linkClass}>{t("nav.logout")}</button>
       </div>

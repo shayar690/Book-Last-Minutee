@@ -14,6 +14,7 @@ import Register from '@/pages/Register';
 import ForgotPassword from '@/pages/ForgotPassword';
 import ResetPassword from '@/pages/ResetPassword';
 import MyBookings from '@/pages/MyBookings';
+import AdminBookings from '@/pages/AdminBookings';
 import MarriageProposalsDubai from '@/pages/MarriageProposalsDubai';
 import HotelResults from '@/pages/HotelResults';
 import HotelDetail from '@/pages/HotelDetail';
@@ -68,6 +69,7 @@ const AuthenticatedApp = () => {
           <Route path="flights" element={<FlightResults />} />
           <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
             <Route path="bookings" element={<MyBookings />} />
+            <Route path="admin/bookings" element={<AdminBookings />} />
           </Route>
         </Route>
       </Route>
