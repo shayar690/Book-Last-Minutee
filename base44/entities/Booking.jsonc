@@ -13,9 +13,14 @@
       ]
     },
     "title": {
-      "type": "string"
+      "type": "string",
+      "description": "Hotel, flight, or service name"
     },
     "destination": {
+      "type": "string",
+      "description": "Country or main destination"
+    },
+    "city": {
       "type": "string"
     },
     "check_in": {
@@ -28,14 +33,30 @@
     },
     "guests": {
       "type": "number",
+      "default": 1,
+      "description": "Total guests"
+    },
+    "adults": {
+      "type": "number",
       "default": 1
+    },
+    "children": {
+      "type": "number",
+      "default": 0
     },
     "rooms": {
       "type": "number",
       "default": 1
     },
+    "nights": {
+      "type": "number"
+    },
     "total_price": {
       "type": "number"
+    },
+    "daily_rate": {
+      "type": "number",
+      "description": "Average daily rate"
     },
     "currency": {
       "type": "string",
@@ -46,15 +67,58 @@
       "enum": [
         "pending",
         "confirmed",
+        "completed",
         "cancelled"
       ],
       "default": "pending"
     },
     "reference": {
+      "type": "string",
+      "description": "Booking reference / PNR"
+    },
+    "guest_name": {
+      "type": "string"
+    },
+    "guest_email": {
+      "type": "string"
+    },
+    "room_type": {
+      "type": "string"
+    },
+    "meal": {
+      "type": "string"
+    },
+    "free_cancellation": {
+      "type": "boolean"
+    },
+    "cancellation_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "payment_due": {
+      "type": "string",
+      "format": "date"
+    },
+    "paid": {
+      "type": "boolean",
+      "default": false
+    },
+    "paid_on": {
+      "type": "string",
+      "format": "date"
+    },
+    "payment_type": {
+      "type": "string"
+    },
+    "supplier_id": {
+      "type": "string"
+    },
+    "invoice_id": {
       "type": "string"
     },
     "details": {
-      "type": "string"
+      "type": "string",
+      "description": "Free-text notes / original rate name"
     }
   },
   "required": [
@@ -64,16 +128,43 @@
   ],
   "rls": {
     "read": {
-      "created_by_id": "{{user.id}}"
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
     },
     "create": {
       "created_by_id": "{{user.id}}"
     },
     "update": {
-      "created_by_id": "{{user.id}}"
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
     },
     "delete": {
-      "created_by_id": "{{user.id}}"
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
     }
   }
 }
