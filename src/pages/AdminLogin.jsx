@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ShieldCheck, Mail, Lock, Loader2 } from "lucide-react";
 import AuthLayout from "@/components/AuthLayout";
-import GoogleIcon from "@/components/GoogleIcon";
+import { LanguageFlagToggle } from "@/components/LanguageFlags";
 import { useI18n } from "@/lib/i18n";
 
 // Dedicated staff login — company employees & administrators only.
@@ -51,14 +51,13 @@ export default function AdminLogin() {
       await base44.auth.loginViaEmailPassword(email, password);
       window.location.href = dest;
     } catch (err) {
-      setError(err.message || (he ? "אימייל או סיסמה שגויים" : "Invalid email or password"));
+      const m = (err.message || "").toLowerCase();
+      setError(m.includes("invalid") || m.includes("incorrect") || m.includes("credentials") || m.includes("not found") || m.includes("no user")
+        ? (he ? "אימייל או סיסמה שגויים" : "Invalid email or password")
+        : (he ? "ההתחברות נכשלה" : "Login failed"));
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleGoogle = () => {
-    base44.auth.loginWithProvider("google", dest);
   };
 
   if (checking) {
@@ -83,23 +82,7 @@ export default function AdminLogin() {
         </span>
       }
     >
-      <Button
-        variant="outline"
-        className="w-full h-12 text-sm font-medium mb-6"
-        onClick={handleGoogle}
-      >
-        <GoogleIcon className="w-5 h-5 mr-2" />
-        {he ? "המשך עם Google" : "Continue with Google"}
-      </Button>
-
-      <div className="relative mb-6">
-        <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-border" />
-        </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-card px-3 text-muted-foreground">{he ? "או" : "or"}</span>
-        </div>
-      </div>
+      <LanguageFlagToggle />
 
       {error && (
         <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
@@ -157,13 +140,6 @@ export default function AdminLogin() {
           )}
         </Button>
       </form>
-
-      <p className="mt-6 text-center text-sm text-muted-foreground">
-        {he ? "כניסה ראשונה? " : "First sign-in? "}
-        <a href={`/register?returnTo=${encodeURIComponent("/admin/verify")}`} className="text-primary font-medium hover:underline">
-          {he ? "יצירת סיסמה" : "Create your password"}
-        </a>
-      </p>
 
       <p className="mt-3 text-center text-xs text-muted-foreground">
         {he
