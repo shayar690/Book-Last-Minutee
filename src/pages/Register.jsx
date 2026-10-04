@@ -8,6 +8,7 @@ import { UserPlus, Mail, Lock, Loader2 } from "lucide-react";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import AuthLayout from "@/components/AuthLayout";
 import GoogleIcon from "@/components/GoogleIcon";
+import { LanguageFlagToggle } from "@/components/LanguageFlags";
 import { toast } from "@/components/ui/use-toast";
 import { safeReturnTo } from "@/lib/authReturnTo";
 import { useI18n } from "@/lib/i18n";
@@ -16,6 +17,7 @@ export default function Register() {
   const { lang } = useI18n();
   const he = lang === "he";
   const [email, setEmail] = useState("");
+  const [emailLocked, setEmailLocked] = useState(false);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
@@ -23,6 +25,17 @@ export default function Register() {
   const [showOtp, setShowOtp] = useState(false);
   const [otpCode, setOtpCode] = useState("");
   const [resendTimer, setResendTimer] = useState(60);
+
+  // Pre-fill email from URL param (set by the invitation email link).
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const paramEmail = (params.get("email") || "").trim();
+    // Ignore unresolved template variables like {{email}}.
+    if (paramEmail && !paramEmail.includes("{{") && paramEmail.includes("@")) {
+      setEmail(paramEmail);
+      setEmailLocked(true);
+    }
+  }, []);
 
   // Start the 60s resend countdown whenever the OTP screen appears.
   useEffect(() => {
@@ -44,6 +57,15 @@ export default function Register() {
     }
     setLoading(true);
     try {
+      // Verify this email was invited before allowing registration.
+      const checkRes = await base44.functions.invoke("checkInvitedEmail", { email: email.trim().toLowerCase() });
+      if (checkRes.data?.invited === false) {
+        setError(he
+          ? "כתובת האימייל הזו אינה מורשית להרשמה. נא לפנות למנהל המערכת."
+          : "This email is not authorized to register. Please contact the administrator.");
+        setLoading(false);
+        return;
+      }
       await base44.auth.register({ email, password });
       setShowOtp(true);
     } catch (err) {
@@ -95,6 +117,7 @@ export default function Register() {
         title={he ? "אימות דואר אלקטרוני" : "Verify your email"}
         subtitle={he ? `שלחנו קוד ל-${email}` : `We sent a code to ${email}`}
       >
+        <LanguageFlagToggle />
         {error && (
           <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
             {error}
@@ -132,18 +155,21 @@ export default function Register() {
             he ? "אימות" : "Verify"
           )}
         </Button>
-        <p className="text-center text-sm text-muted-foreground mt-4">
-          {he ? "לא קיבלת את הקוד? " : "Didn't receive the code? "}
+        <div className="text-center mt-4 space-y-1">
+          <p className="text-sm text-muted-foreground">
+            {he ? "לא קיבלת את הקוד?" : "Didn't receive the code?"}
+          </p>
           <button
+            type="button"
             onClick={handleResend}
             disabled={resendTimer > 0}
-            className="text-primary font-medium hover:underline disabled:opacity-50 disabled:no-underline disabled:cursor-not-allowed"
+            className="text-sm text-primary font-medium hover:underline disabled:opacity-50 disabled:no-underline disabled:cursor-not-allowed"
           >
             {resendTimer > 0
-              ? `${resendTimer}s`
-              : (he ? "שלח שוב" : "Resend")}
+              ? (he ? `שליחה מחדש (${resendTimer}s)` : `Resend (${resendTimer}s)`)
+              : (he ? "שליחה מחדש" : "Resend")}
           </button>
-        </p>
+        </div>
       </AuthLayout>
     );
   }
@@ -165,6 +191,7 @@ export default function Register() {
         </>
       }
     >
+      <LanguageFlagToggle />
       <Button
         variant="outline"
         className="w-full h-12 text-sm font-medium mb-6"
@@ -198,11 +225,12 @@ export default function Register() {
               id="email"
               type="email"
               autoComplete="email"
-              autoFocus
+              autoFocus={!emailLocked}
               placeholder="you@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="pl-10 h-12"
+              readOnly={emailLocked}
+              className={`pl-10 h-12 ${emailLocked ? "bg-muted text-muted-foreground cursor-not-allowed" : ""}`}
               required
             />
           </div>
