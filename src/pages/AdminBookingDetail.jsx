@@ -5,7 +5,7 @@ import {
   Loader2, RotateCcw, MapPin, Clock,
   Plus, Star, MoreHorizontal, Download, Share2, CalendarPlus, Search,
   Briefcase, HelpCircle, Grid, CreditCard, Link2, Coffee, CigaretteOff, Users, X as XIcon,
-  Phone, Sparkles, Wallet,
+  Phone, Sparkles, Wallet, Home,
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useAuth } from "@/lib/AuthContext";
@@ -462,11 +462,11 @@ export default function AdminBookingDetail() {
             {/* Points */}
             <Card className="p-4 flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-[#E8F0FE] flex items-center justify-center shrink-0">
-                <Sparkles className="w-5 h-5 text-[#2563EB]" strokeWidth={1.5} />
+                <Home className="w-5 h-5 text-[#2563EB]" strokeWidth={1.5} />
               </div>
               <div className="min-w-0">
-                <div className="font-semibold text-[14px] text-ink">{he ? `תקבל ${points} נקודות` : `You will get ${points} points`}</div>
-                <div className="text-[12px] text-muted-foreground">{he ? "נקודות נוספות על הזמנה זו" : "Bonus points for this booking"}</div>
+                <div className="font-semibold text-[14px] text-[#2563EB]">{he ? `תקבל ${points} נקודות` : `You will get ${points} points`}</div>
+                <div className="text-[12px] text-muted-foreground">{he ? "הנקודות יזוכו לאחר השהייה על פי תנאי התכנית" : "points will be credited after your stay according to the program terms"}</div>
               </div>
             </Card>
 
@@ -504,11 +504,11 @@ export default function AdminBookingDetail() {
             <div>
               <div className="font-bold text-[17px] text-ink px-1 mb-2">{he ? "שיתוף ושמירה" : "Share and save"}</div>
               <div className="grid grid-cols-2 gap-3 mb-3">
-                <button onClick={() => toast({ title: he ? "לא זמין במכשיר זה" : "Not available on this device" })} className="h-11 rounded-xl bg-ink text-white text-[13px] font-medium flex items-center justify-center gap-2">
+                <button onClick={() => toast({ title: he ? "לא זמין במכשיר זה" : "Not available on this device" })} className="h-11 rounded-xl bg-[#262626] text-white text-[13px] font-medium flex items-center justify-center gap-2">
                   <Sparkles className="w-4 h-4" strokeWidth={1.5} />
                   {he ? "הוסף ל-Siri" : "Add to Siri"}
                 </button>
-                <button onClick={() => toast({ title: he ? "לא זמין במכשיר זה" : "Not available on this device" })} className="h-11 rounded-xl bg-ink text-white text-[13px] font-medium flex items-center justify-center gap-2">
+                <button onClick={() => toast({ title: he ? "לא זמין במכשיר זה" : "Not available on this device" })} className="h-11 rounded-xl bg-[#262626] text-white text-[13px] font-medium flex items-center justify-center gap-2">
                   <Wallet className="w-4 h-4" strokeWidth={1.5} />
                   {he ? "הוסף ל-Wallet" : "Add to Wallet"}
                 </button>
