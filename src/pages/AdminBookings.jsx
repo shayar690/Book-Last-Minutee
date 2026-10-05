@@ -5,6 +5,7 @@ import { base44 } from "@/api/base44Client";
 import { useAuth } from "@/lib/AuthContext";
 import { useI18n } from "@/lib/i18n";
 import BookingDetailModal from "@/components/admin/BookingDetailModal";
+import BookingCard from "@/components/admin/BookingCard";
 
 const SERVICE_ICON = { hotels: Bed, flights: Plane, transfers: Bus, cars: Car, trains: Train };
 
@@ -149,7 +150,15 @@ export default function AdminBookings() {
           <div className="text-center py-20 text-muted-foreground text-sm">{lang === "he" ? "אין הזמנות להצגה." : "No bookings found."}</div>
         ) : (
           <>
-            <div className="bg-white rounded-2xl border border-mist overflow-hidden">
+            {/* Mobile card list */}
+            <div className="md:hidden space-y-3">
+              {filtered.map((b) => (
+                <BookingCard key={b.id} booking={b} lang={lang} onClick={() => setSelected(b)} />
+              ))}
+            </div>
+
+            {/* Desktop table */}
+            <div className="hidden md:block bg-white rounded-2xl border border-mist overflow-hidden">
               <table className="w-full text-sm">
                 <thead className="bg-[#F7F8FA] text-muted-foreground">
                   <tr className="text-start">
