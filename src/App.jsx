@@ -15,6 +15,7 @@ import ForgotPassword from '@/pages/ForgotPassword';
 import ResetPassword from '@/pages/ResetPassword';
 import MyBookings from '@/pages/MyBookings';
 import AdminBookings from '@/pages/AdminBookings';
+import AdminBookingDetail from '@/pages/AdminBookingDetail';
 import AdminLogin from '@/pages/AdminLogin';
 import AdminVerify from '@/pages/AdminVerify';
 import MarriageProposalsDubai from '@/pages/MarriageProposalsDubai';
@@ -89,6 +90,7 @@ const AuthenticatedApp = () => {
       <Route element={<Layout />}>
         <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/admin/login" replace />} />}>
           <Route path="admin" element={<AdminBookings />} />
+          <Route path="admin/booking/:id" element={<AdminBookingDetail />} />
         </Route>
       </Route>
 

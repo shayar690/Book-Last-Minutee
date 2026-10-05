@@ -1,10 +1,9 @@
 import React, { useEffect, useState, useMemo, useCallback } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Shield, Search, Bed, Plane, Bus, Car, Train, Loader2, ChevronRight } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useAuth } from "@/lib/AuthContext";
 import { useI18n } from "@/lib/i18n";
-import BookingDetailModal from "@/components/admin/BookingDetailModal";
 import BookingCard from "@/components/admin/BookingCard";
 
 const SERVICE_ICON = { hotels: Bed, flights: Plane, transfers: Bus, cars: Car, trains: Train };
@@ -19,13 +18,13 @@ const STATUS_STYLE = {
 export default function AdminBookings() {
   const { t, lang, localePath } = useI18n();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [bookings, setBookings] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [serviceFilter, setServiceFilter] = useState("all");
-  const [selected, setSelected] = useState(null);
   const [cursor, setCursor] = useState(null);
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -153,7 +152,7 @@ export default function AdminBookings() {
             {/* Mobile card list */}
             <div className="md:hidden space-y-3">
               {filtered.map((b) => (
-                <BookingCard key={b.id} booking={b} lang={lang} onClick={() => setSelected(b)} />
+                <BookingCard key={b.id} booking={b} lang={lang} onClick={() => navigate(`/admin/booking/${b.id}`)} />
               ))}
             </div>
 
@@ -176,7 +175,7 @@ export default function AdminBookings() {
                     const Icon = SERVICE_ICON[b.service] || Bed;
                     const st = STATUS_STYLE[b.status] || STATUS_STYLE.pending;
                     return (
-                      <tr key={b.id} onClick={() => setSelected(b)} className="border-t border-mist hover:bg-[#FAFBFC] cursor-pointer transition">
+                      <tr key={b.id} onClick={() => navigate(`/admin/booking/${b.id}`)} className="border-t border-mist hover:bg-[#FAFBFC] cursor-pointer transition">
                         <td className="px-4 py-3">
                           <div className="w-9 h-9 rounded-lg bg-ether border border-mist flex items-center justify-center">
                             <Icon className="w-4 h-4 text-gold" strokeWidth={1.5} />
@@ -217,16 +216,6 @@ export default function AdminBookings() {
           </>
         ))}
       </div>
-
-      {selected && (
-        <BookingDetailModal
-          booking={selected}
-          lang={lang}
-          onClose={() => setSelected(null)}
-          onUpdated={onUpdated}
-          onDeleted={onDeleted}
-        />
-      )}
     </div>
   );
 }
