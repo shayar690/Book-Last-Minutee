@@ -5,6 +5,7 @@ import {
   Loader2, RotateCcw, MapPin, Clock,
   Plus, Star, MoreHorizontal, Download, Share2, CalendarPlus, Search,
   Briefcase, HelpCircle, Grid, CreditCard, Link2, Coffee, CigaretteOff, Users, X as XIcon,
+  Phone, Sparkles, Wallet,
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useAuth } from "@/lib/AuthContext";
@@ -105,6 +106,7 @@ export default function AdminBookingDetail() {
     if (booking.currency === "ILS") return null;
     return `≈₪${Math.round(Number(v) * 3.6).toLocaleString()}`;
   };
+  const points = Math.max(1, Math.floor(Number(booking.total_price || 0) / 100));
   const names = (booking.guest_name || "").split(/\s*,\s*|\s*;\s*/).filter(Boolean);
   const ref = booking.reference || booking.id;
   const created = fmtLong(booking.created_date, lang);
@@ -301,7 +303,7 @@ export default function AdminBookingDetail() {
                   <div className="text-xs text-muted-foreground mb-1">{he ? "מספר הזמנה" : "Booking number"}</div>
                   <div className="text-[13px] text-ink mb-2">№ {ref} {he ? "מ-" : "from "}{created}</div>
                   <Stars />
-                  <div className="font-bold text-[18px] text-ink leading-tight">{booking.title || "—"}</div>
+                  <div className="font-bold text-[20px] text-[#2563EB] leading-tight">{booking.title || "—"}</div>
                   {(booking.destination || booking.city) && (
                     <div className="flex items-center gap-1 text-[13px] text-muted-foreground mt-1">
                       <MapPin className="w-3.5 h-3.5 shrink-0" strokeWidth={1.5} />
@@ -316,12 +318,12 @@ export default function AdminBookingDetail() {
 
               {/* Date boxes */}
               <div className="grid grid-cols-2 gap-3 mt-4">
-                <div className="rounded-xl border border-[#ECEEF1] p-3">
+                <div className="rounded-xl bg-[#F2F3F5] p-3">
                   <div className="text-[11px] text-muted-foreground mb-0.5">{he ? "צ'ק-אין" : "Check-in"}</div>
                   <div className="text-[14px] font-semibold text-ink">{fmt(booking.check_in, lang)}</div>
                   <div className="text-[11px] text-muted-foreground mt-0.5">{he ? "אחרי 14:00" : "after 14:00"}</div>
                 </div>
-                <div className="rounded-xl border border-[#ECEEF1] p-3">
+                <div className="rounded-xl bg-[#F2F3F5] p-3">
                   <div className="text-[11px] text-muted-foreground mb-0.5">{he ? "צ'ק-אאוט" : "Check-out"}</div>
                   <div className="text-[14px] font-semibold text-ink">{fmt(booking.check_out, lang)}</div>
                   <div className="text-[11px] text-muted-foreground mt-0.5">{he ? "עד 12:00" : "until 12:00"}</div>
@@ -334,14 +336,20 @@ export default function AdminBookingDetail() {
               )}
             </Card>
 
+            {/* Call the property */}
+            <Card className="p-2">
+              <button onClick={() => toast({ title: he ? "מספר הטלפון אינו זמין" : "Phone number not available" })} className="w-full flex items-center gap-3 px-3 py-3.5 rounded-xl hover:bg-[#F2F3F5] transition text-[14px] text-ink">
+                <Phone className="w-5 h-5 text-muted-foreground" strokeWidth={1.5} />
+                <span className="flex-1 text-start">{he ? "התקשר למלון" : "Call the property"}</span>
+                <ArrowLeft className="w-4 h-4 rtl:rotate-180 text-muted-foreground" strokeWidth={1.5} />
+              </button>
+            </Card>
+
             {/* Room details */}
             <Card className="p-5">
               <div className="font-bold text-[16px] text-ink leading-tight">
                 {booking.room_type || (he ? "פרטי חדר" : "Room details")}
               </div>
-              {booking.details && (
-                <div className="text-[13px] text-muted-foreground mt-1 mb-3 leading-relaxed">{booking.details}</div>
-              )}
               <div className="space-y-3 mt-3">
                 <div className="flex items-center gap-3 text-[14px] text-ink">
                   <Bed className="w-4 h-4 text-muted-foreground" strokeWidth={1.5} />
@@ -371,6 +379,32 @@ export default function AdminBookingDetail() {
                     {he ? "ביטול חינם עד " : "Free cancellation until "}{booking.cancellation_date ? fmt(booking.cancellation_date, lang) : ""}
                   </div>
                 )}
+              </div>
+
+              {/* Amenity panel */}
+              <div className="mt-4 rounded-xl bg-[#F0F4FF] p-3">
+                <div className="flex flex-wrap gap-x-4 gap-y-2 text-[12px] text-ink">
+                  {[
+                    "32 m²",
+                    he ? "חדר אמבטיה פרטי" : "Private bathroom",
+                    he ? "כספת" : "Safe",
+                    he ? "Wi-Fi חינם" : "Free Wi-Fi",
+                    he ? "קפה" : "Coffee",
+                    he ? "מיזוג אוויר" : "Air conditioning",
+                  ].map((a) => (
+                    <span key={a} className="flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#2563EB]" />
+                      {a}
+                    </span>
+                  ))}
+                </div>
+                <div className="mt-2 text-[13px] font-semibold text-[#2563EB]">{he ? "פרטים נוספים על החדר" : "More details about the room"}</div>
+              </div>
+
+              {/* Special requests */}
+              <div className="mt-4 pt-4 border-t border-[#F0F1F3]">
+                <div className="font-semibold text-[14px] text-ink mb-1">{he ? "בקשות מיוחדות שלך" : "Your special requests"}</div>
+                <p className="text-[13px] text-muted-foreground leading-relaxed">{booking.details || (he ? "אין בקשות מיוחדות" : "No special requests")}</p>
               </div>
             </Card>
 
@@ -425,6 +459,17 @@ export default function AdminBookingDetail() {
               </div>
             </Card>
 
+            {/* Points */}
+            <Card className="p-4 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-[#E8F0FE] flex items-center justify-center shrink-0">
+                <Sparkles className="w-5 h-5 text-[#2563EB]" strokeWidth={1.5} />
+              </div>
+              <div className="min-w-0">
+                <div className="font-semibold text-[14px] text-ink">{he ? `תקבל ${points} נקודות` : `You will get ${points} points`}</div>
+                <div className="text-[12px] text-muted-foreground">{he ? "נקודות נוספות על הזמנה זו" : "Bonus points for this booking"}</div>
+              </div>
+            </Card>
+
             {/* Payment actions */}
             <Card className="p-2">
               <button onClick={() => sendEmail("receipt")} disabled={!!emailBusy} className="w-full flex items-center gap-3 px-3 py-3.5 rounded-xl hover:bg-[#F2F3F5] transition text-[14px] text-ink disabled:opacity-50">
@@ -458,10 +503,20 @@ export default function AdminBookingDetail() {
             {/* Share and save */}
             <div>
               <div className="font-bold text-[17px] text-ink px-1 mb-2">{he ? "שיתוף ושמירה" : "Share and save"}</div>
+              <div className="grid grid-cols-2 gap-3 mb-3">
+                <button onClick={() => toast({ title: he ? "לא זמין במכשיר זה" : "Not available on this device" })} className="h-11 rounded-xl bg-ink text-white text-[13px] font-medium flex items-center justify-center gap-2">
+                  <Sparkles className="w-4 h-4" strokeWidth={1.5} />
+                  {he ? "הוסף ל-Siri" : "Add to Siri"}
+                </button>
+                <button onClick={() => toast({ title: he ? "לא זמין במכשיר זה" : "Not available on this device" })} className="h-11 rounded-xl bg-ink text-white text-[13px] font-medium flex items-center justify-center gap-2">
+                  <Wallet className="w-4 h-4" strokeWidth={1.5} />
+                  {he ? "הוסף ל-Wallet" : "Add to Wallet"}
+                </button>
+              </div>
               <Card className="p-2">
                 <button onClick={shareBooking} className="w-full flex items-center gap-3 px-3 py-3.5 rounded-xl hover:bg-[#F2F3F5] transition text-[14px] text-ink">
                   <Share2 className="w-5 h-5 text-muted-foreground" strokeWidth={1.5} />
-                  <span className="flex-1 text-start">{he ? "שתף הזמנה זו" : "Share this booking"}</span>
+                  <span className="flex-1 text-start">{he ? "שתף מלון זה" : "Share this hotel"}</span>
                   <ArrowLeft className="w-4 h-4 rtl:rotate-180 text-muted-foreground" strokeWidth={1.5} />
                 </button>
                 <div className="h-px bg-[#F0F1F3] mx-3" />
@@ -615,7 +670,7 @@ function DocItem({ label, onClick, busy }) {
 function NavItem({ icon: Icon, label, active, onClick }) {
   return (
     <button onClick={onClick} className="flex-1 flex flex-col items-center gap-0.5 py-1.5">
-      <div className={`w-9 h-9 rounded-full flex items-center justify-center ${active ? "bg-[#F5D166]/25 text-ink" : "text-muted-foreground"}`}>
+      <div className={`w-9 h-9 rounded-full flex items-center justify-center ${active ? "bg-[#EAEAEC] text-ink" : "text-muted-foreground"}`}>
         <Icon className="w-5 h-5" strokeWidth={1.5} />
       </div>
       <span className={`text-[11px] ${active ? "text-ink font-medium" : "text-muted-foreground"}`}>{label}</span>
