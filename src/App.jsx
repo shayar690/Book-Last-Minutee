@@ -24,6 +24,7 @@ import HotelDetail from '@/pages/HotelDetail';
 import FlightResults from '@/pages/FlightResults';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import LocaleLayout, { LocaleRedirect } from '@/components/LocaleLayout';
+import OAuthConsent from '@/pages/OAuthConsent';
 import { Navigate } from 'react-router-dom';
 // Add page imports here
 
@@ -58,6 +59,8 @@ const AuthenticatedApp = () => {
       <Route path="/register" element={<Register />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
+      {/* MCP OAuth consent — must stay outside any auth guard */}
+      <Route path="/oauth/consent" element={<OAuthConsent />} />
 
       {/* Staff / admin login — dedicated entry to the admin panel */}
       <Route path="/admin/login" element={<AdminLogin />} />
